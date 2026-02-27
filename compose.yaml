@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: 'mysql:8.0'
+    container_name: julius-mysql
+    environment:
+      MYSQL_DATABASE: julius
+      MYSQL_USER: julius_user
+      MYSQL_PASSWORD: julius_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    ports:
+      - '3306:3306'
+    volumes:
+      - julius_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'julius_user', '-pjulius_pass']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  julius_data:

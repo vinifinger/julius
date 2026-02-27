@@ -1,0 +1,38 @@
+package com.finance.app.domain.entity;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
+
+    private UUID id;
+    private String name;
+    private String email;
+    private String passwordHash;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public static User create(String name, String email, String passwordHash) {
+        LocalDateTime now = LocalDateTime.now();
+        return User.builder()
+                .id(UUID.randomUUID())
+                .name(name)
+                .email(email)
+                .passwordHash(passwordHash)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+    }
+
+}
