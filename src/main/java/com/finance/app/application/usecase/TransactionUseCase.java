@@ -35,7 +35,7 @@ public class TransactionUseCase {
     private final TransactionService transactionService;
 
     @Transactional
-    public TransactionResponse create(CreateTransactionRequest request) {
+    public TransactionResponse create(CreateTransactionRequest request, UUID userId) {
         Account account = accountRepository.findById(request.accountId())
                 .orElseThrow(() -> new AccountNotFoundException(request.accountId()));
 
@@ -52,7 +52,7 @@ public class TransactionUseCase {
                 request.accountId(),
                 request.categoryId(),
                 request.competenceId(),
-                request.userId(),
+                userId,
                 request.description(),
                 request.amount(),
                 request.dateTime(),
@@ -74,8 +74,7 @@ public class TransactionUseCase {
     }
 
     public List<TransactionResponse> listByUser(UUID userId) {
-        return transactionRepository.findByUserId(userId)
-                .stream()
+        return transactionRepository.findByUserId(userId).stream()
                 .map(TransactionResponse::fromDomain)
                 .toList();
     }

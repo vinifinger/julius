@@ -104,7 +104,7 @@ class TransactionUseCaseTest {
             // Given
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId, userId,
+                    accountId, categoryId, competenceId,
                     "Grocery shopping", BigDecimal.valueOf(50.00),
                     LocalDateTime.now(), "EXPENSE", "PAID");
 
@@ -117,7 +117,7 @@ class TransactionUseCaseTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // When
-            TransactionResponse response = transactionUseCase.create(request);
+            TransactionResponse response = transactionUseCase.create(request, userId);
 
             // Then
             assertNotNull(response);
@@ -133,7 +133,7 @@ class TransactionUseCaseTest {
             // Given
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId, userId,
+                    accountId, categoryId, competenceId,
                     "Future expense", BigDecimal.valueOf(100.00),
                     LocalDateTime.now(), "EXPENSE", "PENDING");
 
@@ -146,7 +146,7 @@ class TransactionUseCaseTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // When
-            TransactionResponse response = transactionUseCase.create(request);
+            TransactionResponse response = transactionUseCase.create(request, userId);
 
             // Then
             assertNotNull(response);
@@ -160,14 +160,14 @@ class TransactionUseCaseTest {
         void givenInvalidAccount_whenCreate_thenThrowsAccountNotFound() {
             // Given
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId, userId,
+                    accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
                     LocalDateTime.now(), "EXPENSE", "PAID");
 
             when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
 
             // When / Then
-            assertThrows(AccountNotFoundException.class, () -> transactionUseCase.create(request));
+            assertThrows(AccountNotFoundException.class, () -> transactionUseCase.create(request, userId));
             verify(transactionRepository, never()).save(any());
         }
 
@@ -177,7 +177,7 @@ class TransactionUseCaseTest {
             // Given
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId, userId,
+                    accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
                     LocalDateTime.now(), "INVALID", "PAID");
 
@@ -188,7 +188,7 @@ class TransactionUseCaseTest {
                     com.finance.app.domain.entity.Competence.builder().id(competenceId).build()));
 
             // When / Then
-            assertThrows(InvalidTransactionException.class, () -> transactionUseCase.create(request));
+            assertThrows(InvalidTransactionException.class, () -> transactionUseCase.create(request, userId));
         }
     }
 

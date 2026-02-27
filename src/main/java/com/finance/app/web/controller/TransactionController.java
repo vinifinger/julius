@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,8 +29,9 @@ public class TransactionController {
     private final TransactionUseCase transactionUseCase;
 
     @PostMapping
-    public ResponseEntity<TransactionResponse> create(@Valid @RequestBody CreateTransactionRequest request) {
-        TransactionResponse response = transactionUseCase.create(request);
+    public ResponseEntity<TransactionResponse> create(@Valid @RequestBody CreateTransactionRequest request,
+            @RequestHeader("X-User-Id") UUID userId) {
+        TransactionResponse response = transactionUseCase.create(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -41,7 +42,7 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> listByUser(@RequestParam UUID userId) {
+    public ResponseEntity<List<TransactionResponse>> listByUser(@RequestHeader("X-User-Id") UUID userId) {
         List<TransactionResponse> responses = transactionUseCase.listByUser(userId);
         return ResponseEntity.ok(responses);
     }

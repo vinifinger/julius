@@ -27,10 +27,15 @@ public class Account {
     private LocalDateTime updatedAt;
 
     public void updateBalance(BigDecimal amount, TransactionType type) {
-        if (TransactionType.EXPENSE.equals(type)) {
-            this.balance = this.balance.subtract(amount).setScale(2, RoundingMode.HALF_EVEN);
-        } else {
-            this.balance = this.balance.add(amount).setScale(2, RoundingMode.HALF_EVEN);
+        switch (type) {
+            case EXPENSE:
+                this.balance = this.balance.subtract(amount).setScale(2, RoundingMode.HALF_EVEN);
+                break;
+            case REVENUE:
+                this.balance = this.balance.add(amount).setScale(2, RoundingMode.HALF_EVEN);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid transaction type: " + type);
         }
     }
 

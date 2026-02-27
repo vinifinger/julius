@@ -10,6 +10,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,6 +42,11 @@ public class AccountRepositoryImpl implements AccountRepository {
         AccountEntity entity = mapper.toEntity(account, user);
         AccountEntity savedEntity = jpaRepository.save(entity);
         return mapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public BigDecimal sumBalanceByUserId(UUID userId) {
+        return jpaRepository.sumBalanceByUserId(userId);
     }
 
 }
