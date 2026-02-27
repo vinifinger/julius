@@ -36,7 +36,7 @@ public class TransactionUseCase {
 
     @Transactional
     public TransactionResponse create(CreateTransactionRequest request, UUID userId) {
-        Account account = accountRepository.findById(request.accountId())
+        Account account = accountRepository.findByIdAndUserId(request.accountId(), userId)
                 .orElseThrow(() -> new AccountNotFoundException(request.accountId()));
 
         categoryRepository.findById(request.categoryId())
@@ -84,7 +84,7 @@ public class TransactionUseCase {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new TransactionNotFoundException(id));
 
-        Account account = accountRepository.findById(transaction.getAccountId())
+        Account account = accountRepository.findByIdAndUserId(transaction.getAccountId(), transaction.getUserId())
                 .orElseThrow(() -> new AccountNotFoundException(transaction.getAccountId()));
 
         TransactionStatus newStatus = parseTransactionStatus(request.status());
@@ -114,7 +114,7 @@ public class TransactionUseCase {
                 .orElseThrow(() -> new TransactionNotFoundException(id));
 
         if (transaction.isPaid()) {
-            Account account = accountRepository.findById(transaction.getAccountId())
+            Account account = accountRepository.findByIdAndUserId(transaction.getAccountId(), transaction.getUserId())
                     .orElseThrow(() -> new AccountNotFoundException(transaction.getAccountId()));
             transactionService.reverseTransaction(transaction, account);
             accountRepository.save(account);

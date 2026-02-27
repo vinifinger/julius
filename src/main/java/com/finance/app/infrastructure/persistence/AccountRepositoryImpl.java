@@ -24,8 +24,8 @@ public class AccountRepositoryImpl implements AccountRepository {
     private final EntityManager entityManager;
 
     @Override
-    public Optional<Account> findById(UUID id) {
-        return jpaRepository.findById(id).map(mapper::toDomain);
+    public Optional<Account> findByIdAndUserId(UUID id, UUID userId) {
+        return jpaRepository.findByIdAndUserId(id, userId).map(mapper::toDomain);
     }
 
     @Override

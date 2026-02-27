@@ -20,7 +20,6 @@ public class CategoryUseCase {
     public CategoryResponse create(CreateCategoryRequest request, UUID userId) {
         LocalDateTime now = LocalDateTime.now();
         Category category = Category.builder()
-                .id(UUID.randomUUID())
                 .userId(userId)
                 .name(request.name())
                 .colorHex(request.colorHex())

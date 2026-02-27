@@ -13,6 +13,8 @@ public interface CompetenceJpaRepository extends JpaRepository<CompetenceEntity,
 
     List<CompetenceEntity> findByUserId(UUID userId);
 
+    List<CompetenceEntity> findByUserIdOrderByYearDescMonthDesc(UUID userId);
+
     Optional<CompetenceEntity> findByUserIdAndMonthAndYear(UUID userId, Integer month, Integer year);
 
 }

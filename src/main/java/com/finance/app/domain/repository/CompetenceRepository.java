@@ -12,6 +12,8 @@ public interface CompetenceRepository {
 
     List<Competence> findByUserId(UUID userId);
 
+    List<Competence> findByUserIdOrderByYearDescMonthDesc(UUID userId);
+
     Optional<Competence> findByUserIdAndMonthAndYear(UUID userId, Integer month, Integer year);
 
     Competence save(Competence competence);

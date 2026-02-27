@@ -26,7 +26,6 @@ public class User {
     public static User create(String name, String email, String passwordHash) {
         LocalDateTime now = LocalDateTime.now();
         return User.builder()
-                .id(UUID.randomUUID())
                 .name(name)
                 .email(email)
                 .passwordHash(passwordHash)

@@ -40,8 +40,9 @@ public class AccountController {
     }
 
     @GetMapping("/{id}/balance")
-    public ResponseEntity<AccountResponse> getBalance(@PathVariable UUID id) {
-        AccountResponse response = accountUseCase.getBalance(id);
+    public ResponseEntity<AccountResponse> getBalance(@PathVariable UUID id,
+            @RequestHeader("X-User-Id") UUID userId) {
+        AccountResponse response = accountUseCase.getBalance(id, userId);
         return ResponseEntity.ok(response);
     }
 

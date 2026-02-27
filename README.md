@@ -7,26 +7,28 @@ API de controle financeiro pessoal construída com **Clean Architecture** e **DD
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?logo=mysql&logoColor=white)
 ![Flyway](https://img.shields.io/badge/Flyway-migrations-red?logo=flyway)
 
+> 📄 Para documentação detalhada de arquitetura, padrões e convenções, veja [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ---
 
 ## 📐 Arquitetura
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  Web Layer                       │
-│   Controllers · DTOs (request/response)          │
-├─────────────────────────────────────────────────┤
-│              Application Layer                   │
-│             UseCases (@Transactional)             │
-├─────────────────────────────────────────────────┤
-│                Domain Layer                      │
-│    Entities · Services · Repositories (ports)    │
-│         (sem dependências do Spring)             │
-├─────────────────────────────────────────────────┤
-│             Infrastructure Layer                 │
-│   JPA Entities · Mappers · Repository Impls      │
-│          Configs · Flyway Migrations             │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                       Web Layer                             │
+│   Controllers · DTOs (request/ · response/) · Exception     │
+├─────────────────────────────────────────────────────────────┤
+│                    Application Layer                        │
+│              UseCases (@Service, @Transactional)            │
+├─────────────────────────────────────────────────────────────┤
+│                      Domain Layer                           │
+│   Entities · Records · Services · Repository Interfaces     │
+│             Exceptions (sem dependências Spring)            │
+├─────────────────────────────────────────────────────────────┤
+│                   Infrastructure Layer                      │
+│  JPA Entities · Mappers · Repository Impls · JPA Repos      │
+│            Configs · Flyway Migrations                      │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -79,6 +81,8 @@ http://localhost:8080/swagger-ui/index.html
 
 ## 📡 Endpoints
 
+> Todos os endpoints que operam em contexto de usuário recebem o header `X-User-Id: <UUID>`.
+
 ### Usuários
 
 | Método | Endpoint | Descrição |
@@ -87,15 +91,47 @@ http://localhost:8080/swagger-ui/index.html
 | `GET` | `/api/v1/users/{id}` | Busca usuário por ID |
 | `GET` | `/api/v1/users` | Lista todos os usuários |
 
+### Contas
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/v1/accounts` | Cria uma conta (Header: `X-User-Id`) |
+| `GET` | `/api/v1/accounts` | Lista contas do usuário (Header: `X-User-Id`) |
+| `GET` | `/api/v1/accounts/{id}/balance` | Saldo de uma conta (Header: `X-User-Id`) |
+| `GET` | `/api/v1/accounts/total-balance` | Saldo total consolidado (Header: `X-User-Id`) |
+
+### Categorias
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/v1/categories` | Cria uma categoria (Header: `X-User-Id`) |
+| `GET` | `/api/v1/categories` | Lista categorias do usuário (Header: `X-User-Id`) |
+
+### Competências
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/v1/competences` | Cria competência — retorna existente se duplicado (Header: `X-User-Id`) |
+| `GET` | `/api/v1/competences` | Lista ordenada por ano/mês desc (Header: `X-User-Id`) |
+| `GET` | `/api/v1/competences/current` | Competência atual — auto-cria se necessário (Header: `X-User-Id`) |
+
 ### Transações
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `POST` | `/api/v1/transactions` | Cria uma transação (atualiza saldo se PAID) |
+| `POST` | `/api/v1/transactions` | Cria transação — atualiza saldo se PAID (Header: `X-User-Id`) |
 | `GET` | `/api/v1/transactions/{id}` | Detalha uma transação |
-| `GET` | `/api/v1/transactions?userId=` | Lista transações por usuário |
+| `GET` | `/api/v1/transactions` | Lista transações do usuário (Header: `X-User-Id`) |
 | `PATCH` | `/api/v1/transactions/{id}/status` | Altera status (PENDING ↔ PAID) |
-| `DELETE` | `/api/v1/transactions/{id}` | Remove transação (estorna saldo se PAID) |
+| `DELETE` | `/api/v1/transactions/{id}` | Remove transação — estorna saldo se PAID |
+
+### Dashboard
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/api/v1/dashboard/summary?competenceId=` | Resumo: receita, despesa, saldo, status (POSITIVE/NEGATIVE/NEUTRAL) |
+| `GET` | `/api/v1/dashboard/expenses-by-category?competenceId=` | Despesas agrupadas por categoria com percentual |
+| `GET` | `/api/v1/dashboard/evolution` | Evolução dos últimos 6 meses (Header: `X-User-Id`) |
 
 ---
 
@@ -113,22 +149,40 @@ curl -X POST http://localhost:8080/api/v1/users \
   }'
 ```
 
+### Criar uma conta
+
+```bash
+curl -X POST http://localhost:8080/api/v1/accounts \
+  -H "Content-Type: application/json" \
+  -H "X-User-Id: <UUID_DO_USUARIO>" \
+  -d '{
+    "name": "Nubank",
+    "currency": "BRL"
+  }'
+```
+
 ### Criar uma transação
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/transactions \
   -H "Content-Type: application/json" \
+  -H "X-User-Id: <UUID_DO_USUARIO>" \
   -d '{
     "accountId": "<UUID_DA_CONTA>",
     "categoryId": "<UUID_DA_CATEGORIA>",
     "competenceId": "<UUID_DA_COMPETENCIA>",
-    "userId": "<UUID_DO_USUARIO>",
     "description": "Supermercado",
     "amount": 150.50,
     "dateTime": "2026-02-27T10:30:00",
     "type": "EXPENSE",
     "status": "PAID"
   }'
+```
+
+### Consultar resumo do dashboard
+
+```bash
+curl http://localhost:8080/api/v1/dashboard/summary?competenceId=<UUID_DA_COMPETENCIA>
 ```
 
 ### Alterar status de uma transação
@@ -144,8 +198,11 @@ curl -X PATCH http://localhost:8080/api/v1/transactions/<UUID>/status \
 ## 🧪 Testes
 
 ```bash
-# Rodar todos os testes unitários
+# Rodar todos os testes
 ./gradlew test
+
+# Rodar apenas testes unitários dos UseCases
+./gradlew test --tests "com.finance.app.application.usecase.*"
 ```
 
 ---

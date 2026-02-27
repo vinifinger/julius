@@ -29,8 +29,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
 
     @Override
     public List<Category> findByUserId(UUID userId) {
-        return jpaRepository.findByUserId(userId)
-                .stream()
+        return jpaRepository.findByUserId(userId).stream()
                 .map(mapper::toDomain)
                 .toList();
     }

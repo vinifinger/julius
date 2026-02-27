@@ -133,10 +133,10 @@ class AccountUseCaseTest {
             // Given
             UUID accountId = UUID.randomUUID();
             Account account = createAccount(accountId, "Nubank", BigDecimal.valueOf(250.00));
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
 
             // When
-            AccountResponse response = accountUseCase.getBalance(accountId);
+            AccountResponse response = accountUseCase.getBalance(accountId, userId);
 
             // Then
             assertEquals(accountId, response.id());
@@ -148,10 +148,10 @@ class AccountUseCaseTest {
         void givenNonExistingId_whenGetBalance_thenThrows() {
             // Given
             UUID accountId = UUID.randomUUID();
-            when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.empty());
 
             // When / Then
-            assertThrows(AccountNotFoundException.class, () -> accountUseCase.getBalance(accountId));
+            assertThrows(AccountNotFoundException.class, () -> accountUseCase.getBalance(accountId, userId));
         }
     }
 

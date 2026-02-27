@@ -108,7 +108,7 @@ class TransactionUseCaseTest {
                     "Grocery shopping", BigDecimal.valueOf(50.00),
                     LocalDateTime.now(), "EXPENSE", "PAID");
 
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
                     com.finance.app.domain.entity.Category.builder().id(categoryId).build()));
             when(competenceRepository.findById(competenceId)).thenReturn(Optional.of(
@@ -137,7 +137,7 @@ class TransactionUseCaseTest {
                     "Future expense", BigDecimal.valueOf(100.00),
                     LocalDateTime.now(), "EXPENSE", "PENDING");
 
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
                     com.finance.app.domain.entity.Category.builder().id(categoryId).build()));
             when(competenceRepository.findById(competenceId)).thenReturn(Optional.of(
@@ -164,7 +164,7 @@ class TransactionUseCaseTest {
                     "Test", BigDecimal.valueOf(50.00),
                     LocalDateTime.now(), "EXPENSE", "PAID");
 
-            when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.empty());
 
             // When / Then
             assertThrows(AccountNotFoundException.class, () -> transactionUseCase.create(request, userId));
@@ -181,7 +181,7 @@ class TransactionUseCaseTest {
                     "Test", BigDecimal.valueOf(50.00),
                     LocalDateTime.now(), "INVALID", "PAID");
 
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
                     com.finance.app.domain.entity.Category.builder().id(categoryId).build()));
             when(competenceRepository.findById(competenceId)).thenReturn(Optional.of(
@@ -271,7 +271,7 @@ class TransactionUseCaseTest {
             Account account = createAccount(BigDecimal.valueOf(1000.00));
 
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(transactionRepository.save(any(Transaction.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -295,7 +295,7 @@ class TransactionUseCaseTest {
             Account account = createAccount(BigDecimal.valueOf(950.00));
 
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(transactionRepository.save(any(Transaction.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -324,7 +324,7 @@ class TransactionUseCaseTest {
             Account account = createAccount(BigDecimal.valueOf(950.00));
 
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
 
             // When
             transactionUseCase.delete(transactionId);

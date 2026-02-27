@@ -47,7 +47,11 @@ class UserUseCaseTest {
             // Given
             CreateUserRequest request = new CreateUserRequest("John Doe", "john@example.com", "password123");
             when(userRepository.existsByEmail(request.email())).thenReturn(false);
-            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+                User user = invocation.getArgument(0);
+                user.setId(UUID.randomUUID());
+                return user;
+            });
 
             // When
             UserResponse response = userUseCase.create(request);

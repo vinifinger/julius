@@ -47,7 +47,6 @@ public class Transaction {
             TransactionStatus status) {
         LocalDateTime now = LocalDateTime.now();
         return Transaction.builder()
-                .id(UUID.randomUUID())
                 .accountId(accountId)
                 .categoryId(categoryId)
                 .competenceId(competenceId)

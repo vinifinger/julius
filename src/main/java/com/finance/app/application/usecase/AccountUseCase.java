@@ -27,7 +27,6 @@ public class AccountUseCase {
 
         LocalDateTime now = LocalDateTime.now();
         Account account = Account.builder()
-                .id(UUID.randomUUID())
                 .userId(userId)
                 .name(request.name())
                 .balance(request.balance().setScale(2, RoundingMode.HALF_EVEN))
@@ -41,14 +40,13 @@ public class AccountUseCase {
     }
 
     public List<AccountResponse> listByUser(UUID userId) {
-        return accountRepository.findByUserId(userId)
-                .stream()
+        return accountRepository.findByUserId(userId).stream()
                 .map(AccountResponse::fromDomain)
                 .toList();
     }
 
-    public AccountResponse getBalance(UUID id) {
-        Account account = accountRepository.findById(id)
+    public AccountResponse getBalance(UUID id, UUID userId) {
+        Account account = accountRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new AccountNotFoundException(id));
         return AccountResponse.fromDomain(account);
     }

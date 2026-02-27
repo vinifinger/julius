@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface AccountRepository {
 
-    Optional<Account> findById(UUID id);
+    Optional<Account> findByIdAndUserId(UUID id, UUID userId);
 
     List<Account> findByUserId(UUID userId);
 

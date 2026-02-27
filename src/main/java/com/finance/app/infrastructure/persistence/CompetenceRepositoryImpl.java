@@ -29,8 +29,14 @@ public class CompetenceRepositoryImpl implements CompetenceRepository {
 
     @Override
     public List<Competence> findByUserId(UUID userId) {
-        return jpaRepository.findByUserId(userId)
-                .stream()
+        return jpaRepository.findByUserId(userId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Competence> findByUserIdOrderByYearDescMonthDesc(UUID userId) {
+        return jpaRepository.findByUserIdOrderByYearDescMonthDesc(userId).stream()
                 .map(mapper::toDomain)
                 .toList();
     }
