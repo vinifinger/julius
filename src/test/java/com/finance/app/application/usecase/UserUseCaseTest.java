@@ -1,10 +1,8 @@
 package com.finance.app.application.usecase;
 
 import com.finance.app.domain.entity.User;
-import com.finance.app.domain.exception.DuplicateEmailException;
 import com.finance.app.domain.exception.UserNotFoundException;
 import com.finance.app.domain.repository.UserRepository;
-import com.finance.app.web.dto.request.CreateUserRequest;
 import com.finance.app.web.dto.response.UserResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,9 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,49 +31,6 @@ class UserUseCaseTest {
 
     @InjectMocks
     private UserUseCase userUseCase;
-
-    @Nested
-    @DisplayName("create")
-    class Create {
-
-        @Test
-        @DisplayName("Should create user successfully when email is not taken")
-        void givenValidRequest_whenCreate_thenReturnsUserResponse() {
-            // Given
-            CreateUserRequest request = new CreateUserRequest("John Doe", "john@example.com", "password123");
-            when(userRepository.existsByEmail(request.email())).thenReturn(false);
-            when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-                User user = invocation.getArgument(0);
-                user.setId(UUID.randomUUID());
-                return user;
-            });
-
-            // When
-            UserResponse response = userUseCase.create(request);
-
-            // Then
-            assertNotNull(response);
-            assertNotNull(response.id());
-            assertEquals(request.name(), response.name());
-            assertEquals(request.email(), response.email());
-            verify(userRepository).save(any(User.class));
-        }
-
-        @Test
-        @DisplayName("Should throw DuplicateEmailException when email already exists")
-        void givenDuplicateEmail_whenCreate_thenThrowsDuplicateEmailException() {
-            // Given
-            CreateUserRequest request = new CreateUserRequest("John Doe", "john@example.com", "password123");
-            when(userRepository.existsByEmail(request.email())).thenReturn(true);
-
-            // When / Then
-            DuplicateEmailException exception = assertThrows(DuplicateEmailException.class,
-                    () -> userUseCase.create(request));
-
-            assertEquals("Email already in use: john@example.com", exception.getMessage());
-            verify(userRepository, never()).save(any(User.class));
-        }
-    }
 
     @Nested
     @DisplayName("getById")

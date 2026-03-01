@@ -34,4 +34,14 @@ public class User {
                 .build();
     }
 
+    public static User createFromSocial(String name, String email) {
+        LocalDateTime now = LocalDateTime.now();
+        return User.builder()
+                .name(name)
+                .email(email)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+    }
+
 }

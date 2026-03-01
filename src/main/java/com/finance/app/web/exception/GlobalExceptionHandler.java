@@ -4,6 +4,9 @@ import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.exception.CategoryNotFoundException;
 import com.finance.app.domain.exception.CompetenceNotFoundException;
 import com.finance.app.domain.exception.DuplicateEmailException;
+import com.finance.app.domain.exception.InvalidCredentialsException;
+import com.finance.app.domain.exception.InvalidFirebaseTokenException;
+import com.finance.app.domain.exception.InvalidTokenException;
 import com.finance.app.domain.exception.InvalidTransactionException;
 import com.finance.app.domain.exception.TransactionNotFoundException;
 import com.finance.app.domain.exception.UserNotFoundException;
@@ -53,6 +56,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateEmail(DuplicateEmailException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidToken(InvalidTokenException ex) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidFirebaseTokenException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidFirebaseToken(InvalidFirebaseTokenException ex) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

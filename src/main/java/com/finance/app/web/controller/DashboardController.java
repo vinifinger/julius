@@ -1,13 +1,13 @@
 package com.finance.app.web.controller;
 
 import com.finance.app.application.usecase.DashboardUseCase;
+import com.finance.app.domain.port.UserContext;
 import com.finance.app.web.dto.response.DashboardSummaryResponse;
 import com.finance.app.web.dto.response.ExpenseByCategoryResponse;
 import com.finance.app.web.dto.response.MonthlyEvolutionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +21,7 @@ import java.util.UUID;
 public class DashboardController {
 
     private final DashboardUseCase dashboardUseCase;
+    private final UserContext userContext;
 
     @GetMapping("/summary")
     public ResponseEntity<DashboardSummaryResponse> getSummary(@RequestParam UUID competenceId) {
@@ -36,8 +37,8 @@ public class DashboardController {
     }
 
     @GetMapping("/evolution")
-    public ResponseEntity<List<MonthlyEvolutionResponse>> getEvolution(
-            @RequestHeader("X-User-Id") UUID userId) {
+    public ResponseEntity<List<MonthlyEvolutionResponse>> getEvolution() {
+        UUID userId = userContext.getAuthenticatedUserId();
         List<MonthlyEvolutionResponse> responses = dashboardUseCase.getEvolution(userId);
         return ResponseEntity.ok(responses);
     }

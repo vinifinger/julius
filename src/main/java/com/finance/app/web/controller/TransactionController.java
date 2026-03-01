@@ -1,6 +1,7 @@
 package com.finance.app.web.controller;
 
 import com.finance.app.application.usecase.TransactionUseCase;
+import com.finance.app.domain.port.UserContext;
 import com.finance.app.web.dto.request.CreateTransactionRequest;
 import com.finance.app.web.dto.request.UpdateTransactionStatusRequest;
 import com.finance.app.web.dto.response.TransactionResponse;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,10 +27,11 @@ import java.util.UUID;
 public class TransactionController {
 
     private final TransactionUseCase transactionUseCase;
+    private final UserContext userContext;
 
     @PostMapping
-    public ResponseEntity<TransactionResponse> create(@Valid @RequestBody CreateTransactionRequest request,
-            @RequestHeader("X-User-Id") UUID userId) {
+    public ResponseEntity<TransactionResponse> create(@Valid @RequestBody CreateTransactionRequest request) {
+        UUID userId = userContext.getAuthenticatedUserId();
         TransactionResponse response = transactionUseCase.create(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -42,7 +43,8 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> listByUser(@RequestHeader("X-User-Id") UUID userId) {
+    public ResponseEntity<List<TransactionResponse>> listByUser() {
+        UUID userId = userContext.getAuthenticatedUserId();
         List<TransactionResponse> responses = transactionUseCase.listByUser(userId);
         return ResponseEntity.ok(responses);
     }
