@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: julius
+
+  profiles:
+    active: local # Default to local profile
+
+  # ── Datasource (MySQL) ──────────────────────────────────────
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/julius?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USER:julius_user}
+    password: ${DB_PASSWORD:julius_pass}
+    driver-class-name: com.mysql.cj.jdbc.MySqlDriver
+
+  # ── JPA / Hibernate ─────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # ── Flyway ───────────────────────────────────────────────────
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# ── Security (JWT) ──────────────────────────────────────────
+app:
+  security:
+    enabled: true
+    jwt-secret: ${JWT_SECRET:julius-jwt-secret-key-change-in-production}
+    jwt-expiration-ms: 86400000
+
+  # ── Firebase ────────────────────────────────────────────────
+  firebase:
+    credentials-path: ${GOOGLE_APPLICATION_CREDENTIALS:}

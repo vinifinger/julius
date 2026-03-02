@@ -26,7 +26,7 @@ public class FirebaseConfig {
             GoogleCredentials credentials;
 
             if (Objects.nonNull(credentialsPath) && !credentialsPath.isBlank()) {
-                InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("serviceAccountKey.json");
+                InputStream serviceAccount = new FileInputStream(credentialsPath);
                 credentials = GoogleCredentials.fromStream(serviceAccount);
             } else {
                 credentials = GoogleCredentials.getApplicationDefault();

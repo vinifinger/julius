@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: julius-test
+
+  # ── H2 In-Memory ────────────────────────────────────────────
+  datasource:
+    url: jdbc:h2:mem:julius_test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=USER,MONTH,YEAR,VALUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  # ── JPA / Hibernate ─────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  # ── Schema init via SQL ─────────────────────────────────────
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema-test.sql
+
+  # ── Flyway (disabled for tests) ─────────────────────────────
+  flyway:
+    enabled: false

@@ -1,0 +1,38 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  # ── Datasource (MySQL) ──────────────────────────────────────
+  datasource:
+    url: jdbc:mysql://localhost:3306/julius?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: julius_user
+    password: julius_pass
+    driver-class-name: com.mysql.cj.jdbc.MySqlDriver
+
+  # ── JPA / Hibernate ─────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: update # Allow hibernate to update the schema in local environment
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # ── Flyway ───────────────────────────────────────────────────
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# ── Security (JWT) ──────────────────────────────────────────
+app:
+  security:
+    enabled: false # Security disabled locally by default
+    jwt-secret: julius-jwt-secret-key-change-in-production
+    jwt-expiration-ms: 86400000
+
+  # ── Firebase ────────────────────────────────────────────────
+  firebase:
+    credentials-path: ./serviceAccountKey.json
