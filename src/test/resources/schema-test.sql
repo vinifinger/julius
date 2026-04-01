@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     id            UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
     name          VARCHAR(100) NOT NULL,
     email         VARCHAR(150) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255),
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -22,11 +22,11 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS competences (
     id         UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
     user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    month      INT NOT NULL,
-    year       INT NOT NULL,
+    `month`    INT NOT NULL,
+    `year`     INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (user_id, month, year)
+    UNIQUE (user_id, `month`, `year`)
 );
 
 CREATE TABLE IF NOT EXISTS categories (
@@ -44,11 +44,14 @@ CREATE TABLE IF NOT EXISTS transactions (
     category_id   UUID NOT NULL REFERENCES categories(id),
     competence_id UUID NOT NULL REFERENCES competences(id),
     user_id       UUID NOT NULL REFERENCES users(id),
-    parent_id     UUID REFERENCES transactions(id),
+    parent_id     UUID,
     description   VARCHAR(255) NOT NULL,
+    `type`        VARCHAR(20) NOT NULL DEFAULT 'EXPENSE',
     amount        DECIMAL(12, 2) NOT NULL,
     date_time     TIMESTAMP NOT NULL,
-    status        VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    `status`      VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE transactions ADD FOREIGN KEY (parent_id) REFERENCES transactions(id);

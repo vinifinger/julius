@@ -4,7 +4,7 @@ spring:
 
   # ── H2 In-Memory ────────────────────────────────────────────
   datasource:
-    url: jdbc:h2:mem:julius_test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=USER,MONTH,YEAR,VALUE
+    url: jdbc:h2:mem:julius_test;DB_CLOSE_DELAY=-1;MODE=MySQL;NON_KEYWORDS=USER,MONTH,YEAR,VALUE,TYPE
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
@@ -14,6 +14,7 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
+
 
   # ── Schema init via SQL ─────────────────────────────────────
   sql:

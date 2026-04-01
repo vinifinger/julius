@@ -225,6 +225,29 @@ class DashboardUseCaseTest {
                         assertThrows(CompetenceNotFoundException.class,
                                         () -> dashboardUseCase.getExpensesByCategory(competenceId));
                 }
+
+                @Test
+                @DisplayName("Should return 100% percentage when only one category exists")
+                void givenSingleCategory_whenGetByCategory_thenReturns100Percent() {
+                        // Given
+                        UUID competenceId = UUID.randomUUID();
+                        Competence competence = createCompetence(competenceId, 3, 2026);
+                        when(competenceRepository.findById(competenceId)).thenReturn(Optional.of(competence));
+
+                        List<CategoryExpenseSummary> rows = List.of(
+                                        new CategoryExpenseSummary("Alimentação", "#FF5733",
+                                                        BigDecimal.valueOf(2500.00)));
+                        when(transactionRepository.sumExpensesByCategory(competenceId)).thenReturn(rows);
+
+                        // When
+                        List<ExpenseByCategoryResponse> responses = dashboardUseCase
+                                        .getExpensesByCategory(competenceId);
+
+                        // Then
+                        assertEquals(1, responses.size());
+                        assertEquals(BigDecimal.valueOf(100.00).setScale(2), responses.get(0).percentage());
+                        assertEquals(BigDecimal.valueOf(2500.00).setScale(2), responses.get(0).totalAmount());
+                }
         }
 
         @Nested
@@ -292,6 +315,68 @@ class DashboardUseCaseTest {
 
                         // Then
                         assertTrue(responses.isEmpty());
+                }
+
+                @Test
+                @DisplayName("Should truncate to last 6 competences when more than 6 exist")
+                void givenMoreThan6Competences_whenGetEvolution_thenReturnsOnly6() {
+                        // Given
+                        UUID comp1Id = UUID.randomUUID();
+                        UUID comp2Id = UUID.randomUUID();
+                        UUID comp3Id = UUID.randomUUID();
+                        UUID comp4Id = UUID.randomUUID();
+                        UUID comp5Id = UUID.randomUUID();
+                        UUID comp6Id = UUID.randomUUID();
+                        UUID comp7Id = UUID.randomUUID();
+                        UUID comp8Id = UUID.randomUUID();
+
+                        List<Competence> competences = List.of(
+                                        createCompetence(comp1Id, 8, 2026),
+                                        createCompetence(comp2Id, 7, 2026),
+                                        createCompetence(comp3Id, 6, 2026),
+                                        createCompetence(comp4Id, 5, 2026),
+                                        createCompetence(comp5Id, 4, 2026),
+                                        createCompetence(comp6Id, 3, 2026),
+                                        createCompetence(comp7Id, 2, 2026),
+                                        createCompetence(comp8Id, 1, 2026));
+
+                        when(competenceRepository.findByUserIdOrderByYearDescMonthDesc(userId))
+                                        .thenReturn(competences);
+
+                        List<UUID> expectedIds = List.of(comp1Id, comp2Id, comp3Id, comp4Id, comp5Id, comp6Id);
+                        when(transactionRepository.sumAmountByCompetenceIds(expectedIds))
+                                        .thenReturn(Collections.emptyList());
+
+                        // When
+                        List<MonthlyEvolutionResponse> responses = dashboardUseCase.getEvolution(userId);
+
+                        // Then
+                        assertEquals(6, responses.size());
+                        assertEquals("08/2026", responses.get(0).competenceName());
+                        assertEquals("03/2026", responses.get(5).competenceName());
+                }
+
+                @Test
+                @DisplayName("Should default revenue and expenses to zero when competence has no transactions")
+                void givenCompetenceWithNoTransactions_whenGetEvolution_thenDefaultsToZero() {
+                        // Given
+                        UUID comp1Id = UUID.randomUUID();
+                        Competence comp1 = createCompetence(comp1Id, 4, 2026);
+
+                        when(competenceRepository.findByUserIdOrderByYearDescMonthDesc(userId))
+                                        .thenReturn(List.of(comp1));
+                        when(transactionRepository.sumAmountByCompetenceIds(List.of(comp1Id)))
+                                        .thenReturn(Collections.emptyList());
+
+                        // When
+                        List<MonthlyEvolutionResponse> responses = dashboardUseCase.getEvolution(userId);
+
+                        // Then
+                        assertEquals(1, responses.size());
+                        assertEquals(BigDecimal.ZERO.setScale(2), responses.get(0).totalRevenue());
+                        assertEquals(BigDecimal.ZERO.setScale(2), responses.get(0).totalExpenses());
+                        assertEquals(BigDecimal.ZERO.setScale(2), responses.get(0).balance());
+                        assertEquals("04/2026", responses.get(0).competenceName());
                 }
         }
 

@@ -66,7 +66,7 @@ public class TransactionEntity {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @Column(name = "`type`", nullable = false)
     private TransactionType type;
 
     @Column(name = "amount", precision = 12, scale = 2, nullable = false)
@@ -76,7 +76,7 @@ public class TransactionEntity {
     private LocalDateTime dateTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "`status`", nullable = false)
     private TransactionStatus status;
 
     @CreatedDate

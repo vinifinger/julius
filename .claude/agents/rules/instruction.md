@@ -60,3 +60,14 @@ Tipagem Explícita: Não utilizar var para declaração de variáveis quando exi
 DTOs Separados: Sempre separar classes de DTO em subpacotes request/ e response/ dentro de web/dto/. Exemplo: web/dto/request/CreateUserRequest.java e web/dto/response/UserResponse.java.
 
 Null Checking: Nunca verificar valor null utilizando != null ou == null. Sempre utilizar java.util.Objects para validar nulidade com Objects.isNull() ou Objects.nonNull(). Exemplo: Objects.isNull(parent) em vez de parent == null.
+
+7. Test Infrastructure Rules
+H2 Reserved Keywords: As colunas `month`, `year`, `type` e `status` são palavras reservadas no H2 2.x. No `schema-test.sql`, sempre usar backticks para escapar (ex: `` `month` ``). Nos mapeamentos JPA `@Column`, usar backticks no nome (ex: `@Column(name = "\`month\`")`).
+
+H2 MySQL Mode: A URL JDBC do H2 para testes deve incluir `MODE=MySQL` para compatibilidade com a sintaxe MySQL usada em produção.
+
+Test Builders Completos: Ao adicionar novas colunas NOT NULL em uma entidade JPA, TODOS os builders de teste existentes devem ser atualizados com o novo campo. Sempre verificar os imports ao adicionar novos tipos enum.
+
+Gradle Test Commands: Usar `./gradlew clean test --console=plain` para forçar re-execução (evitar cache `UP-TO-DATE`). Comandos de teste são read-only e seguros para auto-execução.
+
+Test Logging: O `build.gradle` inclui `testLogging { events 'passed', 'failed', 'skipped' }` para visualizar cada teste individual no console.

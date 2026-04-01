@@ -137,6 +137,56 @@ class TransactionServiceTest {
             // Then
             assertEquals(BigDecimal.valueOf(100.00).setScale(2, RoundingMode.HALF_EVEN), account.getBalance());
         }
+
+        @Test
+        @DisplayName("Given PENDING transaction, then reversal should not change balance")
+        void givenPendingTransaction_whenReverse_thenBalanceUnchanged() {
+            // Given
+            Account account = createAccountWithBalance(BigDecimal.valueOf(500.00));
+            Transaction transaction = createTransaction(
+                    BigDecimal.valueOf(200.00), TransactionType.EXPENSE, TransactionStatus.PENDING);
+
+            // When
+            transactionService.reverseTransaction(transaction, account);
+
+            // Then
+            assertEquals(BigDecimal.valueOf(500.00).setScale(2, RoundingMode.HALF_EVEN), account.getBalance());
+        }
+
+        @Test
+        @DisplayName("Given EXPENSE reversal with fractional amount 99.99, balance 400.01 should become 500.00")
+        void givenPaidExpenseWithFractionalAmount_whenReverse_thenPreciseBalance() {
+            // Given
+            Account account = createAccountWithBalance(BigDecimal.valueOf(400.01));
+            Transaction transaction = createTransaction(
+                    BigDecimal.valueOf(99.99), TransactionType.EXPENSE, TransactionStatus.PAID);
+
+            // When
+            transactionService.reverseTransaction(transaction, account);
+
+            // Then
+            assertEquals(BigDecimal.valueOf(500.00).setScale(2, RoundingMode.HALF_EVEN), account.getBalance());
+        }
+    }
+
+    @Nested
+    @DisplayName("processTransaction - precision")
+    class ProcessTransactionPrecision {
+
+        @Test
+        @DisplayName("Given balance 1234.56 and REVENUE of 0.01 PAID, then balance should be 1234.57")
+        void givenRevenuePaidWithMinimalAmount_whenProcess_thenPreciseBalance() {
+            // Given
+            Account account = createAccountWithBalance(BigDecimal.valueOf(1234.56));
+            Transaction transaction = createTransaction(
+                    BigDecimal.valueOf(0.01), TransactionType.REVENUE, TransactionStatus.PAID);
+
+            // When
+            transactionService.processTransaction(transaction, account);
+
+            // Then
+            assertEquals(BigDecimal.valueOf(1234.57).setScale(2, RoundingMode.HALF_EVEN), account.getBalance());
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package com.finance.app.infrastructure.persistence;
 
 import com.finance.app.domain.entity.TransactionStatus;
+import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.infrastructure.config.JpaAuditingConfig;
 import com.finance.app.infrastructure.persistence.entity.AccountEntity;
 import com.finance.app.infrastructure.persistence.entity.CategoryEntity;
@@ -87,6 +88,7 @@ class TransactionEntityRepositoryTest {
                 .description("Grocery shopping")
                 .amount(BigDecimal.valueOf(150.50))
                 .dateTime(LocalDateTime.of(2026, 2, 15, 10, 30))
+                .type(TransactionType.EXPENSE)
                 .status(TransactionStatus.PENDING)
                 .build());
 
@@ -151,6 +153,7 @@ class TransactionEntityRepositoryTest {
                 .description("Monthly rent")
                 .amount(BigDecimal.valueOf(2000.00))
                 .dateTime(LocalDateTime.of(2026, 3, 1, 0, 0))
+                .type(TransactionType.EXPENSE)
                 .status(TransactionStatus.PAID)
                 .build());
 
@@ -164,6 +167,7 @@ class TransactionEntityRepositoryTest {
                 .description("Rent installment 1")
                 .amount(BigDecimal.valueOf(1000.00))
                 .dateTime(LocalDateTime.of(2026, 3, 1, 0, 0))
+                .type(TransactionType.EXPENSE)
                 .status(TransactionStatus.PENDING)
                 .build());
 

@@ -44,10 +44,10 @@ public class CompetenceEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column(name = "month", nullable = false)
+    @Column(name = "`month`", nullable = false)
     private Integer month;
 
-    @Column(name = "year", nullable = false)
+    @Column(name = "`year`", nullable = false)
     private Integer year;
 
     @CreatedDate
