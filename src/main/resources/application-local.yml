@@ -5,10 +5,10 @@ spring:
 
   # ── Datasource (MySQL) ──────────────────────────────────────
   datasource:
-    url: jdbc:mysql://localhost:3306/julius?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: julius_user
-    password: julius_pass
-    driver-class-name: com.mysql.cj.jdbc.MySqlDriver
+    url: ${DB_URL:jdbc:mysql://localhost:3306/julius?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USER:julius_user}
+    password: ${DB_PASSWORD:julius_pass}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   # ── JPA / Hibernate ─────────────────────────────────────────
   jpa:

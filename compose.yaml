@@ -1,4 +1,25 @@
 services:
+  app:
+    build: .
+    container_name: julius-app
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - DB_URL=jdbc:mysql://julius-mysql:3306/julius?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - DB_USER=julius_user
+      - DB_PASSWORD=julius_pass
+      - JWT_SECRET=fallback-local-jwt-secret-key-for-docker
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:8080/actuator/health | grep UP || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   mysql:
     image: 'mysql:8.0'
     container_name: julius-mysql
