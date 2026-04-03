@@ -5,6 +5,11 @@ spring:
   profiles:
     active: local # Default to local profile
 
+springdoc:
+  swagger-ui:
+    syntaxHighlight:
+      theme: obsidian
+
   # ── Datasource (MySQL) ──────────────────────────────────────
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/julius?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
