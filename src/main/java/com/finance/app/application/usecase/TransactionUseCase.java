@@ -18,12 +18,14 @@ import com.finance.app.web.dto.request.CreateTransactionRequest;
 import com.finance.app.web.dto.request.UpdateTransactionStatusRequest;
 import com.finance.app.web.dto.response.TransactionResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransactionUseCase {
@@ -63,6 +65,9 @@ public class TransactionUseCase {
 
         transactionService.processTransaction(savedTransaction, account);
         accountRepository.save(account);
+
+        log.atInfo().log("Created transaction ID {} of type {} for user ID {} with amount {}", 
+                savedTransaction.getId(), savedTransaction.getType(), userId, savedTransaction.getAmount());
 
         return TransactionResponse.fromDomain(savedTransaction);
     }
@@ -105,6 +110,9 @@ public class TransactionUseCase {
         Transaction updatedTransaction = transactionRepository.save(transaction);
         accountRepository.save(account);
 
+        log.atInfo().log("Updated transaction ID {} status from {} to {} for user ID {}", 
+                id, oldStatus, transaction.getStatus(), transaction.getUserId());
+
         return TransactionResponse.fromDomain(updatedTransaction);
     }
 
@@ -120,6 +128,7 @@ public class TransactionUseCase {
             accountRepository.save(account);
         }
 
+        log.atInfo().log("Deleting transaction ID {} for user ID {}", id, transaction.getUserId());
         transactionRepository.delete(id);
     }
 

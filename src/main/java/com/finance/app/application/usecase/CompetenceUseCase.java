@@ -5,6 +5,7 @@ import com.finance.app.domain.repository.CompetenceRepository;
 import com.finance.app.web.dto.request.CreateCompetenceRequest;
 import com.finance.app.web.dto.response.CompetenceResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CompetenceUseCase {
@@ -36,6 +38,8 @@ public class CompetenceUseCase {
                 .build();
 
         Competence savedCompetence = competenceRepository.save(competence);
+        log.atInfo().log("Created new competence ID {} for month/year: {}/{} for user ID {}", 
+                savedCompetence.getId(), request.month(), request.year(), userId);
         return CompetenceResponse.fromDomain(savedCompetence);
     }
 
@@ -66,6 +70,8 @@ public class CompetenceUseCase {
                 .build();
 
         Competence savedCompetence = competenceRepository.save(competence);
+        log.atInfo().log("Auto-created current competence ID {} for month/year: {}/{} for user ID {}", 
+                savedCompetence.getId(), currentMonth, currentYear, userId);
         return CompetenceResponse.fromDomain(savedCompetence);
     }
 

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
+import org.slf4j.MDC;
 
 @Component
 @RequiredArgsConstructor
@@ -41,6 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
                         email, Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                
+                MDC.put("userId", userId.toString());
             } catch (TokenExpiredException exception) {
                 SecurityContextHolder.clearContext();
                 request.setAttribute("jwt_error_message",

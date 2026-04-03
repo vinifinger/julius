@@ -28,6 +28,14 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+# ── Logging ───────────────────────────────────────────────────
+logging:
+  pattern:
+    console: "[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%thread] [%logger{36}] [req: %X{requestId:-NONE}] [usr: %X{userId:-NONE}] - %msg%n"
+  level:
+    root: INFO
+    com.finance.app: INFO
+
 # ── Security (JWT) ──────────────────────────────────────────
 app:
   security:

@@ -11,6 +11,7 @@ import com.finance.app.web.dto.response.DashboardSummaryResponse;
 import com.finance.app.web.dto.response.ExpenseByCategoryResponse;
 import com.finance.app.web.dto.response.MonthlyEvolutionResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DashboardUseCase {
@@ -44,6 +46,9 @@ public class DashboardUseCase {
                                 .setScale(2, RoundingMode.HALF_EVEN);
 
                 String status = determineStatus(monthlyBalance);
+
+                log.atInfo().log("Dashboard summary generated for competence ID {}: revenue={}, expenses={}, balance={}", 
+                        competenceId, totalRevenue, totalExpenses, monthlyBalance);
 
                 return DashboardSummaryResponse.builder()
                                 .totalRevenue(totalRevenue)
