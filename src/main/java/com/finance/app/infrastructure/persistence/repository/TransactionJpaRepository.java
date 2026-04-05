@@ -40,4 +40,9 @@ public interface TransactionJpaRepository extends JpaRepository<TransactionEntit
             "GROUP BY t.competence.id, t.type")
     List<CompetenceAmountSummary> sumAmountByCompetenceIds(@Param("competenceIds") List<UUID> competenceIds);
 
+    List<TransactionEntity> findByParentId(UUID parentId);
+
+    @Query("SELECT COUNT(t) > 0 FROM TransactionEntity t WHERE t.account.id = :accountId AND t.status = 'PENDING'")
+    boolean existsPendingByAccountId(@Param("accountId") UUID accountId);
+
 }

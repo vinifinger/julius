@@ -26,6 +26,8 @@ public class TransactionMapper {
                 .dateTime(entity.getDateTime())
                 .type(entity.getType())
                 .status(entity.getStatus())
+                .installmentCount(entity.getInstallmentCount())
+                .installmentNumber(entity.getInstallmentNumber())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -49,6 +51,8 @@ public class TransactionMapper {
                 .amount(transaction.getAmount())
                 .dateTime(transaction.getDateTime())
                 .status(transaction.getStatus())
+                .installmentCount(transaction.getInstallmentCount())
+                .installmentNumber(transaction.getInstallmentNumber())
                 .createdAt(transaction.getCreatedAt())
                 .updatedAt(transaction.getUpdatedAt())
                 .build();

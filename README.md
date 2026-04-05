@@ -99,6 +99,7 @@ http://localhost:8080/swagger-ui/index.html
 | `GET` | `/api/v1/accounts` | Lista contas do usuário (Header: `X-User-Id`) |
 | `GET` | `/api/v1/accounts/{id}/balance` | Saldo de uma conta (Header: `X-User-Id`) |
 | `GET` | `/api/v1/accounts/total-balance` | Saldo total consolidado (Header: `X-User-Id`) |
+| `DELETE` | `/api/v1/accounts/{id}` | Remove conta (protegida se houver parcelamentos pendentes) (Header: `X-User-Id`) |
 
 ### Categorias
 
@@ -124,6 +125,15 @@ http://localhost:8080/swagger-ui/index.html
 | `GET` | `/api/v1/transactions` | Lista transações do usuário (Header: `X-User-Id`) |
 | `PATCH` | `/api/v1/transactions/{id}/status` | Altera status (PENDING ↔ PAID) |
 | `DELETE` | `/api/v1/transactions/{id}` | Remove transação — estorna saldo se PAID |
+
+### Parcelamentos (Installments)
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/v1/installments` | Cria série de transações parceladas (Header: `X-User-Id`) |
+| `GET` | `/api/v1/installments/{parentId}` | Consulta o progresso da série e os valores pagos/pendentes |
+| `PUT` | `/api/v1/installments/{parentId}` | Atualiza o valor total da série recalculando os pendentes |
+| `PATCH` | `/api/v1/installments/{parentId}/type` | Inverte a natureza de toda a série (REVENUE ↔ EXPENSE) com reflexos no saldo |
 
 ### Dashboard
 

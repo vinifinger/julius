@@ -17,4 +17,6 @@ public interface AccountRepository {
 
     BigDecimal sumBalanceByUserId(UUID userId);
 
+    void delete(UUID id);
+
 }

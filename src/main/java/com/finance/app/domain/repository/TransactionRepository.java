@@ -30,4 +30,10 @@ public interface TransactionRepository {
 
     List<CompetenceAmountSummary> sumAmountByCompetenceIds(List<UUID> competenceIds);
 
+    List<Transaction> findByParentId(UUID parentId);
+
+    boolean existsPendingByAccountId(UUID accountId);
+
+    List<Transaction> saveAll(List<Transaction> transactions);
+
 }

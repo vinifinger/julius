@@ -91,4 +91,23 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         return jpaRepository.sumAmountByCompetenceIds(competenceIds);
     }
 
+    @Override
+    public List<Transaction> findByParentId(UUID parentId) {
+        return jpaRepository.findByParentId(parentId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public boolean existsPendingByAccountId(UUID accountId) {
+        return jpaRepository.existsPendingByAccountId(accountId);
+    }
+
+    @Override
+    public List<Transaction> saveAll(List<Transaction> transactions) {
+        return transactions.stream()
+                .map(this::save)
+                .toList();
+    }
+
 }

@@ -3,6 +3,7 @@ package com.finance.app.application.usecase;
 import com.finance.app.domain.entity.Account;
 import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.repository.AccountRepository;
+import com.finance.app.domain.repository.TransactionRepository;
 import com.finance.app.web.dto.request.CreateAccountRequest;
 import com.finance.app.web.dto.response.AccountResponse;
 import com.finance.app.web.dto.response.BalanceResponse;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +36,9 @@ class AccountUseCaseTest {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @InjectMocks
     private AccountUseCase accountUseCase;
@@ -184,6 +189,38 @@ class AccountUseCaseTest {
 
             // Then
             assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN), response.totalBalance());
+        }
+    }
+
+    @Nested
+    @DisplayName("delete")
+    class Delete {
+
+        @Test
+        @DisplayName("Should delete account when no pending installments exist")
+        void givenNoPendingInstallments_whenDelete_thenDeletesAccount() {
+            UUID accountId = UUID.randomUUID();
+            Account account = Account.builder().id(accountId).userId(userId).build();
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+            when(transactionRepository.existsPendingByAccountId(accountId)).thenReturn(false);
+
+            accountUseCase.delete(accountId, userId);
+
+            verify(accountRepository).delete(accountId);
+        }
+
+        @Test
+        @DisplayName("Should throw exception when pending installments exist")
+        void givenPendingInstallments_whenDelete_thenThrowsAccountHasPendingInstallmentsException() {
+            UUID accountId = UUID.randomUUID();
+            Account account = Account.builder().id(accountId).userId(userId).build();
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+            when(transactionRepository.existsPendingByAccountId(accountId)).thenReturn(true);
+
+            assertThrows(com.finance.app.domain.exception.AccountHasPendingInstallmentsException.class, 
+                () -> accountUseCase.delete(accountId, userId));
+
+            verify(accountRepository, never()).delete(any());
         }
     }
 

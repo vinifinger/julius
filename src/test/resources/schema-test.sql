@@ -50,6 +50,8 @@ CREATE TABLE IF NOT EXISTS transactions (
     amount        DECIMAL(12, 2) NOT NULL,
     date_time     TIMESTAMP NOT NULL,
     "status"      VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    installment_count INT,
+    installment_number INT,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -3,6 +3,7 @@ package com.finance.app.application.usecase;
 import com.finance.app.domain.entity.Account;
 import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.repository.AccountRepository;
+import com.finance.app.domain.repository.TransactionRepository;
 import com.finance.app.web.dto.request.CreateAccountRequest;
 import com.finance.app.web.dto.response.AccountResponse;
 import com.finance.app.web.dto.response.BalanceResponse;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class AccountUseCase {
 
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
     public AccountResponse create(CreateAccountRequest request, UUID userId) {
         String currency = Objects.nonNull(request.currency()) ? request.currency() : "BRL";
@@ -54,6 +56,17 @@ public class AccountUseCase {
     public BalanceResponse getTotalBalance(UUID userId) {
         BigDecimal totalBalance = accountRepository.sumBalanceByUserId(userId);
         return new BalanceResponse(totalBalance.setScale(2, RoundingMode.HALF_EVEN));
+    }
+
+    public void delete(UUID accountId, UUID userId) {
+        accountRepository.findByIdAndUserId(accountId, userId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
+
+        if (transactionRepository.existsPendingByAccountId(accountId)) {
+            throw new com.finance.app.domain.exception.AccountHasPendingInstallmentsException(accountId);
+        }
+
+        accountRepository.delete(accountId);
     }
 
 }

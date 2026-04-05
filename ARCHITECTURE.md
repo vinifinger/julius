@@ -130,6 +130,7 @@ Contas financeiras com saldo, moeda e vínculo ao usuário.
 | `/api/v1/accounts` | `GET` | `X-User-Id` | Lista contas do usuário |
 | `/api/v1/accounts/{id}/balance` | `GET` | `X-User-Id` | Saldo de uma conta |
 | `/api/v1/accounts/total-balance` | `GET` | `X-User-Id` | Saldo total consolidado |
+| `/api/v1/accounts/{id}` | `DELETE` | `X-User-Id` | Remove conta (protegido contra exclusões com transações pendentes) |
 
 ### 4.3 Category (Categoria)
 
@@ -169,7 +170,18 @@ Transações financeiras (REVENUE/EXPENSE) com controle de status (PAID/PENDING)
 - `DELETE` de transação `PAID` → estorna saldo
 - Apenas transações com status `PAID` afetam o saldo
 
-### 4.6 Dashboard (Painel)
+### 4.6 Installment (Parcelamento)
+
+Motor híbrido projetado para gerar projeções temporais de N parcelas com encapsulamento atômico e rastreabilidade total (link parent/child).
+
+| Endpoint | Método | Param | Descrição |
+|---|---|---|---|
+| `/api/v1/installments` | `POST` | `X-User-Id` | Cria as parcelas realizando rolamento de mês e cálculo autônomo de resíduos |
+| `/api/v1/installments/{id}` | `GET` | — | Consulta o progresso do grupo (montante pendente, quantitativos pagos) |
+| `/api/v1/installments/{id}` | `PUT` | — | Atualiza as configurações de uma série, recalculando os remanescestes sem corromper o passado pago. |
+| `/api/v1/installments/{id}/type` | `PATCH` | `?type=` | Altera as diretrizes de natureza repassando correções a Account via serviço de compensação. |
+
+### 4.7 Dashboard (Painel)
 
 Projeções agregadas para visualização financeira.
 

@@ -49,4 +49,9 @@ public class AccountRepositoryImpl implements AccountRepository {
         return jpaRepository.sumBalanceByUserId(userId);
     }
 
+    @Override
+    public void delete(UUID id) {
+        jpaRepository.deleteById(id);
+    }
+
 }

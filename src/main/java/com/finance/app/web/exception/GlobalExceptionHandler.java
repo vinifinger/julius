@@ -111,6 +111,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(body);
     }
 
+    @ExceptionHandler(com.finance.app.domain.exception.InstallmentValidationException.class)
+    public ResponseEntity<Map<String, Object>> handleInstallmentValidation(com.finance.app.domain.exception.InstallmentValidationException ex) {
+        log.atWarn().log("Installment validation failed: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(com.finance.app.domain.exception.AccountHasPendingInstallmentsException.class)
+    public ResponseEntity<Map<String, Object>> handleAccountHasPendingInstallments(com.finance.app.domain.exception.AccountHasPendingInstallmentsException ex) {
+        log.atWarn().log("Conflict: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         log.atError().setCause(ex).log("An unexpected error occurred");

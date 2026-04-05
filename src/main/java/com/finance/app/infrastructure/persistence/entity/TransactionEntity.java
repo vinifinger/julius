@@ -79,6 +79,12 @@ public class TransactionEntity {
     @Column(name = "`status`", nullable = false)
     private TransactionStatus status;
 
+    @Column(name = "installment_count")
+    private Integer installmentCount;
+
+    @Column(name = "installment_number")
+    private Integer installmentNumber;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
