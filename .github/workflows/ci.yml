@@ -6,14 +6,18 @@ on:
   pull_request:
     branches: [ "master" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  compile:
+    name: Compile
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
       contents: read
-      checks: write
 
     steps:
     - name: Checkout code
@@ -25,7 +29,7 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Setup Gradle Cache
+    - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: wrapper
@@ -33,14 +37,95 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./gradlew
 
-    - name: Build and Test with Gradle
-      run: ./gradlew build
+    - name: Compile
+      run: ./gradlew classes testClasses
+
+  test:
+    name: Test & Coverage
+    needs: compile
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: wrapper
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Run Tests with Coverage
+      run: ./gradlew test jacocoTestReport
 
     - name: Publish Test Report
       uses: mikepenz/action-junit-report@v4
       if: success() || failure()
       with:
         report_paths: '**/build/test-results/test/TEST-*.xml'
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: jacoco-report
+        path: build/reports/jacoco/test/html/
+        retention-days: 14
+
+    - name: Add JaCoCo Coverage to PR
+      uses: madrapps/jacoco-report@v1.7.2
+      if: github.event_name == 'pull_request'
+      with:
+        paths: build/reports/jacoco/test/jacocoTestReport.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 40
+        min-coverage-changed-files: 60
+        title: "📊 Code Coverage Report"
+        update-comment: true
+
+  docker:
+    name: Docker Build
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: wrapper
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Build Application JAR
+      run: ./gradlew bootJar -x test
 
     - name: Verify Dockerfile Build
       run: docker build -t julius-app:test .
