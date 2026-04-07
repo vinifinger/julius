@@ -9,6 +9,7 @@ import com.finance.app.domain.exception.InvalidFirebaseTokenException;
 import com.finance.app.domain.exception.InvalidTokenException;
 import com.finance.app.domain.exception.InvalidTransactionException;
 import com.finance.app.domain.exception.TransactionNotFoundException;
+import com.finance.app.domain.exception.UnauthenticatedException;
 import com.finance.app.domain.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -100,6 +101,12 @@ public class GlobalExceptionHandler {
         body.put("fields", fieldErrors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(UnauthenticatedException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthenticated(UnauthenticatedException ex) {
+        log.atWarn().log("Unauthenticated access: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message) {

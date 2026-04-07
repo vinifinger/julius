@@ -36,7 +36,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
             try {
                 DecodedJWT decodedJWT = jwtTokenProvider.validateToken(token);
-                UUID userId = jwtTokenProvider.getUserId(decodedJWT);
+                
+                String userIdStr = decodedJWT.getClaim("userId").asString();
+                if (Objects.isNull(userIdStr)) {
+                    throw new JWTVerificationException("Missing userId claim in token");
+                }
+                
+                UUID userId = UUID.fromString(userIdStr);
                 String email = jwtTokenProvider.getEmail(decodedJWT);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
@@ -48,10 +54,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
                 request.setAttribute("jwt_error_message",
                         "Token has expired. Please login again to obtain a new token");
-            } catch (JWTVerificationException exception) {
+            } catch (IllegalArgumentException | JWTVerificationException exception) {
                 SecurityContextHolder.clearContext();
                 request.setAttribute("jwt_error_message",
-                        "Invalid token. Please check the token provided in the Authorization header");
+                        "Invalid token format or missing claims. Please check the token provided");
+            } catch (Exception exception) {
+                SecurityContextHolder.clearContext();
+                request.setAttribute("jwt_error_message",
+                        "An error occurred while processing the authentication token");
             }
         }
 
