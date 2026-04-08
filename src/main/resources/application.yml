@@ -7,6 +7,8 @@ spring:
 
 springdoc:
   swagger-ui:
+    tagsSorter: alpha
+    operationsSorter: alpha
     syntaxHighlight:
       theme: obsidian
 

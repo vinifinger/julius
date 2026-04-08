@@ -7,7 +7,6 @@ import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.exception.CategoryNotFoundException;
 import com.finance.app.domain.exception.CompetenceNotFoundException;
-import com.finance.app.domain.exception.InvalidTransactionException;
 import com.finance.app.domain.exception.TransactionNotFoundException;
 import com.finance.app.domain.repository.AccountRepository;
 import com.finance.app.domain.repository.CategoryRepository;
@@ -47,8 +46,8 @@ public class TransactionUseCase {
         competenceRepository.findById(request.competenceId())
                 .orElseThrow(() -> new CompetenceNotFoundException(request.competenceId()));
 
-        TransactionType type = parseTransactionType(request.type());
-        TransactionStatus status = parseTransactionStatus(request.status());
+        TransactionType type = request.type();
+        TransactionStatus status = request.status();
 
         Transaction transaction = Transaction.create(
                 request.accountId(),
@@ -92,7 +91,7 @@ public class TransactionUseCase {
         Account account = accountRepository.findByIdAndUserId(transaction.getAccountId(), transaction.getUserId())
                 .orElseThrow(() -> new AccountNotFoundException(transaction.getAccountId()));
 
-        TransactionStatus newStatus = parseTransactionStatus(request.status());
+        TransactionStatus newStatus = request.status();
         TransactionStatus oldStatus = transaction.getStatus();
 
         if (oldStatus.equals(newStatus)) {
@@ -132,21 +131,5 @@ public class TransactionUseCase {
         transactionRepository.delete(id);
     }
 
-    private TransactionType parseTransactionType(String type) {
-        try {
-            return TransactionType.valueOf(type.toUpperCase());
-        } catch (IllegalArgumentException exception) {
-            throw new InvalidTransactionException("Invalid transaction type: " + type + ". Must be REVENUE or EXPENSE");
-        }
-    }
-
-    private TransactionStatus parseTransactionStatus(String status) {
-        try {
-            return TransactionStatus.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException exception) {
-            throw new InvalidTransactionException(
-                    "Invalid transaction status: " + status + ". Must be PENDING or PAID");
-        }
-    }
 
 }

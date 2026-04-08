@@ -3,6 +3,7 @@ package com.finance.app.web.controller;
 import com.finance.app.application.usecase.InstallmentUseCase;
 import com.finance.app.domain.entity.InstallmentSeries;
 import com.finance.app.domain.port.UserContext;
+import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.web.dto.request.CreateInstallmentRequest;
 import com.finance.app.web.dto.request.UpdateInstallmentRequest;
 import com.finance.app.web.dto.response.InstallmentSeriesResponse;
@@ -52,7 +53,7 @@ public class InstallmentController {
 
     @PatchMapping("/{parentId}/type")
     public ResponseEntity<InstallmentSeriesResponse> changeType(@PathVariable UUID parentId,
-            @RequestParam String type) {
+            @RequestParam TransactionType type) {
         InstallmentSeries series = installmentUseCase.changeInstallmentType(parentId, type);
         return ResponseEntity.ok(InstallmentSeriesResponse.fromDomain(series));
     }

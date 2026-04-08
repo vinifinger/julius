@@ -7,7 +7,6 @@ import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.exception.CategoryNotFoundException;
 import com.finance.app.domain.exception.CompetenceNotFoundException;
-import com.finance.app.domain.exception.InvalidTransactionException;
 import com.finance.app.domain.exception.TransactionNotFoundException;
 import com.finance.app.domain.repository.AccountRepository;
 import com.finance.app.domain.repository.CategoryRepository;
@@ -108,7 +107,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Grocery shopping", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), "EXPENSE", "PAID");
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -137,7 +136,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Future expense", BigDecimal.valueOf(100.00),
-                    LocalDateTime.now(), "EXPENSE", "PENDING");
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PENDING);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -164,33 +163,13 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), "EXPENSE", "PAID");
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.empty());
 
             // When / Then
             assertThrows(AccountNotFoundException.class, () -> transactionUseCase.create(request, userId));
             verify(transactionRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("Should throw InvalidTransactionException for invalid type")
-        void givenInvalidType_whenCreate_thenThrowsInvalidTransaction() {
-            // Given
-            Account account = createAccount(BigDecimal.valueOf(1000.00));
-            CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId,
-                    "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), "INVALID", "PAID");
-
-            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
-            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
-                    com.finance.app.domain.entity.Category.builder().id(categoryId).build()));
-            when(competenceRepository.findById(competenceId)).thenReturn(Optional.of(
-                    com.finance.app.domain.entity.Competence.builder().id(competenceId).build()));
-
-            // When / Then
-            assertThrows(InvalidTransactionException.class, () -> transactionUseCase.create(request, userId));
         }
 
         @Test
@@ -201,7 +180,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), "EXPENSE", "PAID");
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
@@ -219,7 +198,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), "EXPENSE", "PAID");
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -232,26 +211,6 @@ class TransactionUseCaseTest {
         }
 
         @Test
-        @DisplayName("Should throw InvalidTransactionException for invalid status string")
-        void givenInvalidStatus_whenCreate_thenThrowsInvalidTransaction() {
-            // Given
-            Account account = createAccount(BigDecimal.valueOf(1000.00));
-            CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId,
-                    "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), "EXPENSE", "FOOBAR");
-
-            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
-            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
-                    com.finance.app.domain.entity.Category.builder().id(categoryId).build()));
-            when(competenceRepository.findById(competenceId)).thenReturn(Optional.of(
-                    com.finance.app.domain.entity.Competence.builder().id(competenceId).build()));
-
-            // When / Then
-            assertThrows(InvalidTransactionException.class, () -> transactionUseCase.create(request, userId));
-        }
-
-        @Test
         @DisplayName("Should create REVENUE transaction with PAID status and process balance")
         void givenRevenuePaid_whenCreate_thenProcessesBalance() {
             // Given
@@ -259,7 +218,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Salary", BigDecimal.valueOf(3000.00),
-                    LocalDateTime.now(), "REVENUE", "PAID");
+                    LocalDateTime.now(), TransactionType.REVENUE, TransactionStatus.PAID);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -364,7 +323,7 @@ class TransactionUseCaseTest {
             when(transactionRepository.save(any(Transaction.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest("PAID");
+            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.PAID);
 
             // When
             TransactionResponse response = transactionUseCase.updateStatus(transactionId, request);
@@ -388,7 +347,7 @@ class TransactionUseCaseTest {
             when(transactionRepository.save(any(Transaction.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest("PENDING");
+            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.PENDING);
 
             // When
             TransactionResponse response = transactionUseCase.updateStatus(transactionId, request);
@@ -404,7 +363,7 @@ class TransactionUseCaseTest {
         void givenNonExistingId_whenUpdateStatus_thenThrowsTransactionNotFound() {
             // Given
             UUID transactionId = UUID.randomUUID();
-            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest("PAID");
+            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.PAID);
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.empty());
 
             // When / Then
@@ -422,7 +381,7 @@ class TransactionUseCaseTest {
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
 
-            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest("PAID");
+            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.PAID);
 
             // When
             TransactionResponse response = transactionUseCase.updateStatus(transactionId, request);
@@ -432,23 +391,6 @@ class TransactionUseCaseTest {
             verify(transactionService, never()).processTransaction(any(), any());
             verify(transactionService, never()).reverseTransaction(any(), any());
             verify(transactionRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("Should throw InvalidTransactionException for invalid status string")
-        void givenInvalidStatus_whenUpdateStatus_thenThrowsInvalidTransaction() {
-            // Given
-            UUID transactionId = UUID.randomUUID();
-            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.PAID);
-            Account account = createAccount(BigDecimal.valueOf(1000.00));
-            when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
-            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
-
-            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest("INVALID_STATUS");
-
-            // When / Then
-            assertThrows(InvalidTransactionException.class,
-                    () -> transactionUseCase.updateStatus(transactionId, request));
         }
     }
 

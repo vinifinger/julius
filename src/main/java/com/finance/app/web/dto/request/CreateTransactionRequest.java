@@ -1,5 +1,7 @@
 package com.finance.app.web.dto.request;
 
+import com.finance.app.domain.entity.TransactionStatus;
+import com.finance.app.domain.entity.TransactionType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,9 +24,9 @@ public record CreateTransactionRequest(
 
         @NotNull(message = "Date/time is required") LocalDateTime dateTime,
 
-        @NotNull(message = "Type is required") String type,
+        @NotNull(message = "Type is required") TransactionType type,
 
-        @NotNull(message = "Status is required") String status
+        @NotNull(message = "Status is required") TransactionStatus status
 
 ) {
 }

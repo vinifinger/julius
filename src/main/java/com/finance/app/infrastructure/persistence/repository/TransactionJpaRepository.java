@@ -27,14 +27,14 @@ public interface TransactionJpaRepository extends JpaRepository<TransactionEntit
     BigDecimal sumAmountByCompetenceIdAndType(@Param("competenceId") UUID competenceId,
             @Param("type") TransactionType type);
 
-    @Query("SELECT t.category.name, t.category.colorHex, COALESCE(SUM(t.amount), 0) " +
+    @Query("SELECT new com.finance.app.domain.entity.CategoryExpenseSummary(t.category.name, t.category.colorHex, COALESCE(SUM(t.amount), 0)) " +
             "FROM TransactionEntity t " +
             "WHERE t.competence.id = :competenceId AND t.type = 'EXPENSE' AND t.status = 'PAID' " +
             "GROUP BY t.category.name, t.category.colorHex " +
             "ORDER BY SUM(t.amount) DESC")
     List<CategoryExpenseSummary> sumExpensesByCategory(@Param("competenceId") UUID competenceId);
 
-    @Query("SELECT t.competence.id, t.type, COALESCE(SUM(t.amount), 0) " +
+    @Query("SELECT new com.finance.app.domain.entity.CompetenceAmountSummary(t.competence.id, t.type, COALESCE(SUM(t.amount), 0)) " +
             "FROM TransactionEntity t " +
             "WHERE t.competence.id IN :competenceIds AND t.status = 'PAID' " +
             "GROUP BY t.competence.id, t.type")
