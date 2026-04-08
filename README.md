@@ -55,7 +55,7 @@ cd julius
 ### 2. Suba o banco de dados
 
 ```bash
-docker compose up -d
+docker compose up --build -d
 ```
 
 Isso inicia um container MySQL 8.0 com:
