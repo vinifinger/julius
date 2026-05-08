@@ -8,6 +8,7 @@ description: Common design patterns with Java examples (Factory, Builder, Strate
 Quick reference for common design patterns in Java.
 
 ## When to Use
+
 - User asks to implement a specific pattern
 - Designing extensible/flexible components
 - Refactoring rigid code
@@ -28,6 +29,7 @@ Quick reference for common design patterns in Java.
 ## Creational Patterns
 
 ### Builder
+
 **Problem:** Telescoping constructors, many optional parameters
 
 ```java
@@ -75,6 +77,7 @@ User user = User.builder("John", "john@example.com")
 ```
 
 ### Factory
+
 **Problem:** Create objects without knowing exact class upfront
 
 ```java
@@ -119,6 +122,7 @@ public class NotificationFactory {
 ## Behavioral Patterns
 
 ### Strategy
+
 **Problem:** Multiple algorithms for same operation, choose at runtime
 
 ```java
@@ -163,6 +167,7 @@ cart.setPaymentStrategy(creditCard);
 ```
 
 ### Observer
+
 **Problem:** Notify multiple objects when state changes
 
 ```java
@@ -202,6 +207,7 @@ public class EmailListener {
 ## Structural Patterns
 
 ### Decorator
+
 **Problem:** Add behavior dynamically without modifying class
 
 ```java
@@ -240,6 +246,7 @@ coffee = new SugarDecorator(coffee);
 ```
 
 ### Adapter
+
 **Problem:** Make incompatible interfaces work together
 
 ```java

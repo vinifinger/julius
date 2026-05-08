@@ -5,9 +5,11 @@ description: Java logging best practices with SLF4J, structured logging (JSON), 
 
 # Logging Patterns Skill
 
-Effective logging for Java applications with focus on structured, AI-parsable formats.
+Effective logging for Java applications with focus on structured, AI-parsable
+formats.
 
 ## When to Use
+
 - User says "add logging" / "improve logs" / "debug this"
 - Analyzing application flow from logs
 - Setting up structured logging (JSON)
@@ -18,11 +20,12 @@ Effective logging for Java applications with focus on structured, AI-parsable fo
 
 ## AI-Friendly Logging
 
-> **Key insight:** JSON logs are better for AI analysis - faster parsing, fewer tokens, direct field access.
+> **Key insight:** JSON logs are better for AI analysis - faster parsing, fewer
+> tokens, direct field access.
 
 ### Why JSON for AI/Claude Code?
 
-```
+```text
 # Text format - AI must "interpret" the string
 2026-01-29 10:15:30 INFO OrderService - Order 12345 created for user-789, total: 99.99
 
@@ -146,6 +149,7 @@ logging:
 ```
 
 **Usage:**
+
 ```bash
 # Default: JSON (for AI, CI/CD, production)
 ./mvnw spring-boot:run
@@ -161,6 +165,7 @@ logging:
 ### Logstash Logback Encoder
 
 **pom.xml:**
+
 ```xml
 <dependency>
     <groupId>net.logstash.logback</groupId>
@@ -170,6 +175,7 @@ logging:
 ```
 
 **logback-spring.xml:**
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
@@ -248,3 +254,6 @@ log.debug("Processing order " + orderId + " for user " + userId);
 
 // ✅ For expensive operations
 if (log.isDebugEnabled()) {
+    // ...
+}
+```

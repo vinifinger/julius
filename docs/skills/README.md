@@ -1,6 +1,7 @@
 # Skills
 
-Skills are reusable prompts that teach AI assistants specific patterns for Java development.
+Skills are reusable prompts that teach AI assistants specific patterns for Java
+development.
 
 ## Structure Convention
 
@@ -8,26 +9,30 @@ Each skill folder contains:
 
 | File | Purpose | Audience |
 |------|---------|----------|
-| `SKILL.md` | Instructions for the AI assistant | AI (loaded with `view`) 
+| `SKILL.md` | Instructions for the AI assistant | AI (loaded with `view`) |
 
 ## Available Skills
 
 ### Code Quality
+
 | Skill | Description |
 |-------|-------------|
-| [code-quality](code-quality/) | Comprehensive Java code review — clean code, API contracts, null safety, exceptions, performance |
+| [code-quality](code-quality/) | Comprehensive Java code review — clean code, API contracts, etc. |
 
 ### Architecture & Design
+
 | Skill | Description |
 |-------|-------------|
-| [design-patterns](design-patterns/) | Factory, Builder, Strategy, Observer, Decorator, Adapter with Java examples |
+| [design-patterns](design-patterns/) | Factory, Builder, Strategy, Observer, Decorator, Adapter. |
 
 ### Framework & Data
+
 | Skill | Description |
 |-------|-------------|
-| [spring-boot](spring-boot/) | Spring Boot 3.x — REST APIs, JPA, Security, Testing. Includes detailed reference guides. |
-| [jpa-patterns](jpa-patterns/) | JPA/Hibernate — N+1 detection, lazy loading, fetch strategies, transactions |
-| [logging-patterns](logging-patterns/) | Structured logging (JSON), SLF4J, MDC, AI-friendly log formats |
+| [spring-boot](spring-boot/) | Spring Boot 3.x — REST APIs, JPA, Security, Testing. |
+| [jpa-patterns](jpa-patterns/) | JPA/Hibernate — N+1 detection, lazy loading, fetch strategies. |
+| [logging-patterns](logging-patterns/) | Structured logging (JSON), SLF4J, MDC, AI-friendly logs. |
+| [markdown-standards](markdown-standards/) | Standards for .md files — linting, wrapping, and spacing. |
 
 ## Adding a New Skill
 
@@ -41,14 +46,15 @@ Validate your skill idea against existing skills:
 
 ### Implementation Steps
 
-1. Create folder: `.claude/skills/<skill-name>/`
+1. Create folder: `docs/skills/<skill-name>/`
 2. Create `SKILL.md` with instructions for the AI assistant
 3. Update this table
 4. Update `CLAUDE.md` if relevant
 
 ## Usage
 
-Skills are loaded based on context. When a task matches a skill's trigger keywords, the AI reads the SKILL.md file for guidance.
+Skills are loaded based on context. When a task matches a skill's trigger
+keywords, the AI reads the `SKILL.md` file for guidance.
 
 | Trigger | Skill Loaded |
 |---------|--------------|
@@ -57,3 +63,4 @@ Skills are loaded based on context. When a task matches a skill's trigger keywor
 | "N+1 problem" / "lazy loading" | `jpa-patterns` |
 | "add logging" / "debug this" | `logging-patterns` |
 | "Spring Boot REST API" | `spring-boot` |
+| "create doc" / "edit markdown" | `markdown-standards` |

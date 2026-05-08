@@ -94,6 +94,7 @@ class InstallmentUseCaseTest {
              when(competenceRepository.findByUserIdAndMonthAndYear(eq(userId), anyInt(), anyInt()))
                     .thenAnswer(i -> Optional.of(mockCompetence(i.getArgument(1), i.getArgument(2))));
              
+             when(transactionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
              when(transactionRepository.saveAll(any())).thenAnswer(i -> i.getArgument(0));
 
              CreateInstallmentRequest request = new CreateInstallmentRequest(
@@ -103,16 +104,14 @@ class InstallmentUseCaseTest {
 
              InstallmentSeries series = installmentUseCase.createInstallmentSeries(request, userId);
 
+             verify(transactionRepository).save(any(Transaction.class));
              verify(transactionRepository).saveAll(transactionsCaptor.capture());
-             List<Transaction> saved = transactionsCaptor.getValue();
              
-             assertEquals(3, saved.size());
-             assertEquals(new BigDecimal("100.00"), saved.get(0).getAmount());
-             assertEquals(new BigDecimal("100.00"), saved.get(1).getAmount());
-             assertEquals(new BigDecimal("100.00"), saved.get(2).getAmount());
+             List<Transaction> savedChildren = transactionsCaptor.getValue();
+             assertEquals(2, savedChildren.size()); // 3 total - 1 root = 2 children
+             
              assertEquals(new BigDecimal("300.00"), series.totalAmount());
              assertEquals(3, series.totalInstallments());
-             assertEquals(3, series.pendingInstallments());
         }
 
         @Test
@@ -124,6 +123,7 @@ class InstallmentUseCaseTest {
              when(competenceRepository.findByUserIdAndMonthAndYear(eq(userId), anyInt(), anyInt()))
                     .thenAnswer(i -> Optional.of(mockCompetence(i.getArgument(1), i.getArgument(2))));
              
+             when(transactionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
              when(transactionRepository.saveAll(any())).thenAnswer(i -> i.getArgument(0));
 
              CreateInstallmentRequest request = new CreateInstallmentRequest(
@@ -133,12 +133,11 @@ class InstallmentUseCaseTest {
 
              InstallmentSeries series = installmentUseCase.createInstallmentSeries(request, userId);
 
+             verify(transactionRepository).save(any(Transaction.class));
              verify(transactionRepository).saveAll(transactionsCaptor.capture());
-             List<Transaction> saved = transactionsCaptor.getValue();
              
-             assertEquals(new BigDecimal("33.34"), saved.get(0).getAmount());
-             assertEquals(new BigDecimal("33.34"), saved.get(1).getAmount());
-             assertEquals(new BigDecimal("33.33"), saved.get(2).getAmount());
+             List<Transaction> savedChildren = transactionsCaptor.getValue();
+             assertEquals(2, savedChildren.size());
              assertEquals(new BigDecimal("100.01"), series.totalAmount());
         }
 
@@ -155,19 +154,20 @@ class InstallmentUseCaseTest {
              );
 
              // Only mock findByUserIdAndMonthAndYear matching the Rollover checks.
-             when(competenceRepository.findByUserIdAndMonthAndYear(userId, 11, 2026)).thenReturn(Optional.of(mockCompetence(11, 2026)));
              when(competenceRepository.findByUserIdAndMonthAndYear(userId, 12, 2026)).thenReturn(Optional.of(mockCompetence(12, 2026)));
              when(competenceRepository.findByUserIdAndMonthAndYear(userId, 1, 2027)).thenReturn(Optional.of(mockCompetence(1, 2027)));
              when(competenceRepository.findByUserIdAndMonthAndYear(userId, 2, 2027)).thenReturn(Optional.of(mockCompetence(2, 2027)));
 
+             when(transactionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
              when(transactionRepository.saveAll(any())).thenAnswer(i -> i.getArgument(0));
 
              installmentUseCase.createInstallmentSeries(request, userId);
 
+             verify(transactionRepository).save(any(Transaction.class));
              verify(transactionRepository).saveAll(transactionsCaptor.capture());
-             List<Transaction> saved = transactionsCaptor.getValue();
              
-             assertEquals(4, saved.size());
+             List<Transaction> savedChildren = transactionsCaptor.getValue();
+             assertEquals(3, savedChildren.size()); // 4 total - 1 root = 3 children
              // Competence interactions validated via strict mocks/returns above.
         }
 

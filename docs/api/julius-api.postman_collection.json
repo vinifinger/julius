@@ -1,0 +1,1450 @@
+{
+  "info": {
+    "name": "Julius API",
+    "description": "API collection for the Julius financial management application. Includes automated token capture and comprehensive schema validation tests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accountId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "competenceId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "transactionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "installmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid UserResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.name).to.be.a('string').and.to.have.lengthOf.above(0);",
+                  "    pm.expect(jsonData.email).to.be.a('string').and.to.match(/^.+@.+\\..+$/);",
+                  "    pm.expect(isNaN(Date.parse(jsonData.createdAt))).to.be.false;",
+                  "    pm.expect(isNaN(Date.parse(jsonData.updatedAt))).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Vinícius Finger\",\n  \"email\": \"vinicius.test@email.com\",\n  \"password\": \"mySecureP@ss123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid AuthResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.be.a('string').and.to.have.lengthOf.above(0);",
+                  "    pm.expect(isNaN(Date.parse(jsonData.expiresAt))).to.be.false;",
+                  "    pm.expect(jsonData.userId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.email).to.be.a('string').and.to.match(/^.+@.+\\..+$/);",
+                  "    ",
+                  "    pm.collectionVariables.set(\"token\", jsonData.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"vinicius.test@email.com\",\n  \"password\": \"mySecureP@ss123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Google Auth",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"your_firebase_id_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/google",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "google"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Create Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid AccountResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.name).to.be.a('string').and.to.have.lengthOf.above(0);",
+                  "    pm.expect(jsonData.balance).to.be.a('number');",
+                  "    if(jsonData.currency !== null) { pm.expect(jsonData.currency).to.be.a('string'); }",
+                  "    pm.expect(isNaN(Date.parse(jsonData.createdAt))).to.be.false;",
+                  "    pm.expect(isNaN(Date.parse(jsonData.updatedAt))).to.be.false;",
+                  "    ",
+                  "    pm.collectionVariables.set(\"accountId\", jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nubank Test\",\n  \"balance\": 1000.00,\n  \"currency\": \"BRL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Accounts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid AccountResponse[]\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if (jsonData.length > 0) {",
+                  "        var acc = jsonData[0];",
+                  "        pm.expect(acc.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "        pm.expect(acc.name).to.be.a('string');",
+                  "        pm.expect(acc.balance).to.be.a('number');",
+                  "        pm.expect(isNaN(Date.parse(acc.createdAt))).to.be.false;",
+                  "        pm.expect(isNaN(Date.parse(acc.updatedAt))).to.be.false;",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Account Balance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid AccountResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.name).to.be.a('string');",
+                  "    pm.expect(jsonData.balance).to.be.a('number');",
+                  "    pm.expect(isNaN(Date.parse(jsonData.createdAt))).to.be.false;",
+                  "    pm.expect(isNaN(Date.parse(jsonData.updatedAt))).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/accounts/{{accountId}}/balance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accounts",
+                "{{accountId}}",
+                "balance"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Total Balance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid BalanceResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.totalBalance).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/accounts/total-balance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "accounts",
+                "total-balance"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid CategoryResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.name).to.be.a('string').and.to.have.lengthOf.above(0);",
+                  "    if (jsonData.colorHex !== null) {",
+                  "        pm.expect(jsonData.colorHex).to.match(/^#[0-9A-Fa-f]{6}$/);",
+                  "    }",
+                  "    pm.expect(isNaN(Date.parse(jsonData.createdAt))).to.be.false;",
+                  "    pm.expect(isNaN(Date.parse(jsonData.updatedAt))).to.be.false;",
+                  "    ",
+                  "    pm.collectionVariables.set(\"categoryId\", jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alimentação Teste\",\n  \"colorHex\": \"#E74C3C\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid CategoryResponse[]\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if (jsonData.length > 0) {",
+                  "        var cat = jsonData[0];",
+                  "        pm.expect(cat.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "        pm.expect(cat.name).to.be.a('string');",
+                  "        if (cat.colorHex !== null) {",
+                  "            pm.expect(cat.colorHex).to.match(/^#[0-9A-Fa-f]{6}$/);",
+                  "        }",
+                  "        pm.expect(isNaN(Date.parse(cat.createdAt))).to.be.false;",
+                  "        pm.expect(isNaN(Date.parse(cat.updatedAt))).to.be.false;",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Competence",
+      "item": [
+        {
+          "name": "Create Competence",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid CompetenceResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.name).to.be.a('string').and.to.match(/^\\d{2}\\/\\d{4}$/);",
+                  "    pm.expect(jsonData.month).to.be.a('number').and.to.be.within(1, 12);",
+                  "    pm.expect(jsonData.year).to.be.a('number').and.to.be.above(1999);",
+                  "    pm.expect(isNaN(Date.parse(jsonData.createdAt))).to.be.false;",
+                  "    pm.expect(isNaN(Date.parse(jsonData.updatedAt))).to.be.false;",
+                  "    ",
+                  "    pm.collectionVariables.set(\"competenceId\", jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 6,\n  \"year\": 2026\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competences"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Competences",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid CompetenceResponse[]\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if (jsonData.length > 0) {",
+                  "        var comp = jsonData[0];",
+                  "        pm.expect(comp.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "        pm.expect(comp.name).to.be.a('string').and.to.match(/^\\d{2}\\/\\d{4}$/);",
+                  "        pm.expect(comp.month).to.be.a('number').and.to.be.within(1, 12);",
+                  "        pm.expect(comp.year).to.be.a('number').and.to.be.above(1999);",
+                  "        pm.expect(isNaN(Date.parse(comp.createdAt))).to.be.false;",
+                  "        pm.expect(isNaN(Date.parse(comp.updatedAt))).to.be.false;",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competences"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Current Competence",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Response schema is valid CompetenceResponse\", function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "        pm.expect(jsonData.name).to.be.a('string').and.to.match(/^\\d{2}\\/\\d{4}$/);",
+                  "        pm.expect(jsonData.month).to.be.a('number').and.to.be.within(1, 12);",
+                  "        pm.expect(jsonData.year).to.be.a('number').and.to.be.above(1999);",
+                  "        pm.expect(isNaN(Date.parse(jsonData.createdAt))).to.be.false;",
+                  "        pm.expect(isNaN(Date.parse(jsonData.updatedAt))).to.be.false;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competences/current",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competences",
+                "current"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transaction",
+      "item": [
+        {
+          "name": "Create Transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid TransactionResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.accountId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.categoryId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.competenceId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.userId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    if (jsonData.parentId !== null) pm.expect(jsonData.parentId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    if (jsonData.installmentCount !== null) pm.expect(jsonData.installmentCount).to.be.a('number');",
+                  "    if (jsonData.installmentNumber !== null) pm.expect(jsonData.installmentNumber).to.be.a('number');",
+                  "    pm.expect(jsonData.description).to.be.a('string');",
+                  "    pm.expect(jsonData.amount).to.be.a('number');",
+                  "    pm.expect(isNaN(Date.parse(jsonData.dateTime))).to.be.false;",
+                  "    pm.expect(jsonData.type).to.be.oneOf(['REVENUE', 'EXPENSE']);",
+                  "    pm.expect(jsonData.status).to.be.oneOf(['PENDING', 'PAID']);",
+                  "    pm.expect(isNaN(Date.parse(jsonData.createdAt))).to.be.false;",
+                  "    pm.expect(isNaN(Date.parse(jsonData.updatedAt))).to.be.false;",
+                  "    ",
+                  "    pm.collectionVariables.set(\"transactionId\", jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"competenceId\": \"{{competenceId}}\",\n  \"description\": \"Supermarket\",\n  \"amount\": 150.50,\n  \"dateTime\": \"2026-06-05T14:30:00\",\n  \"type\": \"EXPENSE\",\n  \"status\": \"PENDING\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Transactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid TransactionResponse[]\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if (jsonData.length > 0) {",
+                  "        var tx = jsonData[0];",
+                  "        pm.expect(tx.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "        pm.expect(tx.type).to.be.oneOf(['REVENUE', 'EXPENSE']);",
+                  "        pm.expect(tx.status).to.be.oneOf(['PENDING', 'PAID']);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid TransactionResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"transactionId\"));",
+                  "    pm.expect(jsonData.description).to.be.a('string');",
+                  "    pm.expect(jsonData.amount).to.be.a('number');",
+                  "    pm.expect(jsonData.type).to.be.oneOf(['REVENUE', 'EXPENSE']);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions",
+                "{{transactionId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Transaction Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Status is PAID and schema is valid\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"PAID\");",
+                  "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PAID\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transactions/{{transactionId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions",
+                "{{transactionId}}",
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions",
+                "{{transactionId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Installment",
+      "item": [
+        {
+          "name": "Create Installment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid InstallmentSeriesResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.parentId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.expect(jsonData.description).to.be.a('string');",
+                  "    pm.expect(jsonData.totalAmount).to.be.a('number');",
+                  "    pm.expect(jsonData.totalInstallments).to.be.a('number');",
+                  "    pm.expect(jsonData.paidInstallments).to.be.a('number');",
+                  "    pm.expect(jsonData.pendingInstallments).to.be.a('number');",
+                  "    pm.expect(jsonData.paidAmount).to.be.a('number');",
+                  "    pm.expect(jsonData.pendingAmount).to.be.a('number');",
+                  "    ",
+                  "    pm.collectionVariables.set(\"installmentId\", jsonData.parentId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"competenceId\": \"{{competenceId}}\",\n  \"description\": \"Laptop\",\n  \"totalAmount\": 3000.00,\n  \"installments\": 3,\n  \"dateTime\": \"2026-06-05T10:00:00\",\n  \"type\": \"EXPENSE\",\n  \"status\": \"PENDING\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/installments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "installments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Installment Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid InstallmentSeriesResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.parentId).to.eql(pm.collectionVariables.get(\"installmentId\"));",
+                  "    pm.expect(jsonData.totalAmount).to.be.a('number');",
+                  "    pm.expect(jsonData.totalInstallments).to.be.a('number');",
+                  "    pm.expect(jsonData.paidAmount).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/installments/{{installmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "installments",
+                "{{installmentId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Installment Amount",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid InstallmentSeriesResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.totalAmount).to.eql(3300.00);",
+                  "    pm.expect(jsonData.parentId).to.eql(pm.collectionVariables.get(\"installmentId\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newTotalAmount\": 3300.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/installments/{{installmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "installments",
+                "{{installmentId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change Installment Type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid InstallmentSeriesResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.parentId).to.eql(pm.collectionVariables.get(\"installmentId\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/installments/{{installmentId}}/type?type=REVENUE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "installments",
+                "{{installmentId}}",
+                "type"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "REVENUE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid DashboardSummaryResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.totalRevenue).to.be.a('number');",
+                  "    pm.expect(jsonData.totalExpenses).to.be.a('number');",
+                  "    pm.expect(jsonData.monthlyBalance).to.be.a('number');",
+                  "    pm.expect(jsonData.status).to.be.oneOf(['POSITIVE', 'NEGATIVE', 'NEUTRAL']);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/summary?competenceId={{competenceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "competenceId",
+                  "value": "{{competenceId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Expenses By Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid ExpenseByCategoryResponse[]\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if (jsonData.length > 0) {",
+                  "        var exp = jsonData[0];",
+                  "        pm.expect(exp.categoryName).to.be.a('string');",
+                  "        if (exp.colorHex !== null) pm.expect(exp.colorHex).to.match(/^#[0-9A-Fa-f]{6}$/);",
+                  "        pm.expect(exp.totalAmount).to.be.a('number');",
+                  "        pm.expect(exp.percentage).to.be.a('number');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/expenses-by-category?competenceId={{competenceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "expenses-by-category"
+              ],
+              "query": [
+                {
+                  "key": "competenceId",
+                  "value": "{{competenceId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Evolution",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid MonthlyEvolutionResponse[]\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if (jsonData.length > 0) {",
+                  "        var ev = jsonData[0];",
+                  "        pm.expect(ev.month).to.be.a('number').and.to.be.within(1, 12);",
+                  "        pm.expect(ev.year).to.be.a('number').and.to.be.above(1999);",
+                  "        pm.expect(ev.competenceName).to.be.a('string').and.to.match(/^\\d{2}\\/\\d{4}$/);",
+                  "        pm.expect(ev.totalRevenue).to.be.a('number');",
+                  "        pm.expect(ev.totalExpenses).to.be.a('number');",
+                  "        pm.expect(ev.balance).to.be.a('number');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/evolution",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "evolution"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "List Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid UserResponse[]\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if (jsonData.length > 0) {",
+                  "        var u = jsonData[0];",
+                  "        pm.expect(u.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "        pm.expect(u.name).to.be.a('string');",
+                  "        pm.expect(u.email).to.be.a('string').and.to.match(/^.+@.+\\..+$/);",
+                  "        pm.expect(isNaN(Date.parse(u.createdAt))).to.be.false;",
+                  "        pm.expect(isNaN(Date.parse(u.updatedAt))).to.be.false;",
+                  "        ",
+                  "        pm.collectionVariables.set(\"userId\", u.id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid UserResponse\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"userId\"));",
+                  "    pm.expect(jsonData.name).to.be.a('string');",
+                  "    pm.expect(jsonData.email).to.be.a('string').and.to.match(/^.+@.+\\..+$/);",
+                  "    pm.expect(isNaN(Date.parse(jsonData.createdAt))).to.be.false;",
+                  "    pm.expect(isNaN(Date.parse(jsonData.updatedAt))).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

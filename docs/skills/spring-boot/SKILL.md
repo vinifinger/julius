@@ -12,20 +12,22 @@ metadata:
 
 # Spring Boot Skill
 
-Enterprise Spring Boot 3.x development with focus on clean architecture and production-ready code.
+Enterprise Spring Boot 3.x development with focus on clean architecture and
+production-ready code.
 
 ## Core Workflow
 
-1. **Analyze** - Understand requirements, identify service boundaries, APIs, data models
+1. **Analyze** - Understand requirements, identify boundaries, APIs, models
 2. **Design** - Plan architecture, confirm design before coding
 3. **Implement** - Build with constructor injection and layered architecture
-4. **Secure** - Add Spring Security, OAuth2, method security; verify tests pass
-5. **Test** - Write unit, integration tests; run `./gradlew clean test` and confirm all pass
-6. **Deploy** - Configure health checks via Actuator; validate `/actuator/health` returns UP
+4. **Secure** - Add Spring Security, OAuth2; verify tests pass
+5. **Test** - Write tests; run `./gradlew clean test` and confirm all pass
+6. **Deploy** - Configure health checks; validate `/actuator/health` returns UP
 
 ## Quick Start Templates
 
 ### Entity
+
 ```java
 @Entity
 @Table(name = "products")
@@ -48,6 +50,7 @@ public class Product {
 ```
 
 ### Repository
+
 ```java
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByNameContainingIgnoreCase(String name);
@@ -55,6 +58,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 ```
 
 ### Service
+
 ```java
 @Service
 @Transactional(readOnly = true)
@@ -81,6 +85,7 @@ public class ProductService {
 ```
 
 ### REST Controller
+
 ```java
 @RestController
 @RequestMapping("/api/v1/products")
@@ -106,6 +111,7 @@ public class ProductController {
 ```
 
 ### DTO (Record)
+
 ```java
 public record ProductRequest(
     @NotBlank String name,
@@ -114,6 +120,7 @@ public record ProductRequest(
 ```
 
 ### Global Exception Handler
+
 ```java
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -134,6 +141,7 @@ public class GlobalExceptionHandler {
 ```
 
 ### Test Slice
+
 ```java
 @WebMvcTest(ProductController.class)
 class ProductControllerTest {
@@ -161,10 +169,10 @@ Load detailed patterns based on context:
 
 | Topic | Reference | When to Load |
 |-------|-----------|-------------|
-| Web/REST | `references/web.md` | Controllers, validation, exception handling |
-| Data Access | `references/data.md` | JPA, repositories, transactions, queries |
-| Security | `references/security.md` | Spring Security 6, OAuth2, JWT, auth |
-| Cloud/Config | `references/cloud.md` | Config server, discovery, resilience |
+| Web/REST | `references/web.md` | Controllers, validation, exceptions |
+| Data Access | `references/data.md` | JPA, repos, tx, queries |
+| Security | `references/security.md` | Spring Security 6, OAuth2, auth |
+| Cloud/Config | `references/cloud.md` | Config, discovery, resilience |
 | Testing | `references/testing.md` | Unit, integration, slice tests |
 
 ## Constraints
@@ -176,7 +184,7 @@ Load detailed patterns based on context:
 - `@Transactional(readOnly = true)` for reads
 - Type-safe config with `@ConfigurationProperties`
 - Global exception handling with `@RestControllerAdvice`
-- Externalize secrets (use env vars, not properties files)
+- Externalize secrets (use env vars)
 
 ### MUST NOT DO
 - Field injection (`@Autowired` on fields)
@@ -189,7 +197,8 @@ Load detailed patterns based on context:
 ## Architecture Patterns
 
 **Project Structure:**
-```
+
+```text
 src/main/java/pl/piomin/services/
 ├── controller/     # REST endpoints
 ├── service/        # Business logic
@@ -216,7 +225,7 @@ src/main/java/pl/piomin/services/
 
 | Annotation | Purpose |
 |------------|---------|
-| `@RestController` | REST controller (combines @Controller + @ResponseBody) |
+| `@RestController` | REST controller |
 | `@Service` | Business logic component |
 | `@Repository` | Data access component |
 | `@Transactional` | Transaction management |
@@ -273,4 +282,6 @@ public class SecurityConfig {
 
 ## Knowledge Base
 
-Spring Boot 3.x, Java 21, Spring WebFlux, Project Reactor, Spring Data JPA, Spring Security 6, OAuth2/JWT, Hibernate, R2DBC, Spring Cloud, Resilience4j, Micrometer, JUnit 5, TestContainers, Mockito, Maven/Gradle
+Spring Boot 3.x, Java 21, Spring WebFlux, Project Reactor, Spring Data JPA,
+Spring Security 6, OAuth2/JWT, Hibernate, R2DBC, Spring Cloud, Resilience4j,
+Micrometer, JUnit 5, TestContainers, Mockito, Maven/Gradle

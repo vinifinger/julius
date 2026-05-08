@@ -5,6 +5,9 @@ spring:
   profiles:
     active: local # Default to local profile
 
+  jackson:
+    default-property-inclusion: non_null
+
 springdoc:
   swagger-ui:
     tagsSorter: alpha

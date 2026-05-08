@@ -5,9 +5,11 @@ description: Comprehensive code review for Java - clean code principles, API con
 
 # Code Quality Review Skill
 
-Systematic code review combining clean code principles, API design, and Java best practices.
+Systematic code review combining clean code principles, API design, and Java best
+practices.
 
 ## When to Use
+
 - "review this code" / "code review" / "check this PR"
 - "refactor" / "clean this code" / "improve readability"
 - "review API" / "check endpoints" / "REST review"
@@ -26,6 +28,7 @@ Systematic code review combining clean code principles, API design, and Java bes
 ### DRY - Don't Repeat Yourself
 
 **Violation:**
+
 ```java
 // ❌ Duplicated validation logic
 public void createUser(UserRequest req) {
@@ -42,6 +45,7 @@ public void updateUser(UserRequest req) {
 ```
 
 **Fix:**
+
 ```java
 // ✅ Single source of truth
 public class EmailValidator {
@@ -56,6 +60,7 @@ public class EmailValidator {
 ### KISS - Keep It Simple
 
 **Violation:**
+
 ```java
 // ❌ Over-engineered
 public interface UserFactory {
@@ -67,6 +72,7 @@ public class ConcreteUserFactory implements UserFactory {
 ```
 
 **Fix:**
+
 ```java
 // ✅ Simple
 public User createUser() { return new User(); }
@@ -75,12 +81,14 @@ public User createUser() { return new User(); }
 ### YAGNI - You Aren't Gonna Need It
 
 **Violation:**
+
 ```java
 // ❌ Premature abstraction
 public class ConfigurableUserServiceFactoryProvider { }
 ```
 
 **Fix:**
+
 ```java
 // ✅ Implement when actually needed
 public class UserService { }
@@ -101,6 +109,7 @@ public class UserService { }
 | DELETE | Remove resource | Yes | No |
 
 **Common Mistakes:**
+
 ```java
 // ❌ POST for retrieval
 @PostMapping("/users/search")
@@ -166,6 +175,7 @@ public UserResponse getUser(@PathVariable Long id) {
 ### Null Safety
 
 **Check for:**
+
 ```java
 // ❌ NPE risk
 String name = user.getName().toUpperCase();
@@ -189,6 +199,7 @@ return user.getName().toUpperCase();
 ### Exception Handling
 
 **Check for:**
+
 ```java
 // ❌ Swallowing exceptions
 try {
@@ -216,6 +227,7 @@ catch (IOException e) {
 ### Resource Management
 
 **Check for:**
+
 ```java
 // ❌ Resource leak
 FileInputStream fis = new FileInputStream(file);
@@ -231,6 +243,7 @@ try (FileInputStream fis = new FileInputStream(file)) {
 ### Transaction Boundaries
 
 **Check for:**
+
 ```java
 // ❌ Missing transaction
 public void createUser(UserRequest request) {
@@ -251,6 +264,7 @@ public void createUser(UserRequest request) {
 ### Naming Conventions
 
 **Good:**
+
 ```java
 // ✅ Clear intent
 public List<User> findActiveUsersByRole(String role) { }
@@ -259,6 +273,7 @@ public void activateUser(Long userId) { }
 ```
 
 **Bad:**
+
 ```java
 // ❌ Unclear
 public List<User> get(String s) { }
@@ -269,6 +284,7 @@ public void doStuff(Long id) { }
 ### Performance
 
 **Check for:**
+
 ```java
 // ❌ N+1 query problem
 List<User> users = userRepository.findAll();
@@ -295,17 +311,20 @@ Page<User> users = userRepository.findAll(PageRequest.of(0, 20));
 ## Code Review: [Component/Feature Name]
 
 ### Critical Issues
-- **Null safety violation** (UserService.java:42) - `user.getName().toUpperCase()` can NPE. Use Optional or null check.
-- **Resource leak** (FileHandler.java:15) - FileInputStream not closed. Use try-with-resources.
+- **Null safety violation** (UserService.java:42) - `user.getName().toUpperCase()`
+  can NPE. Use Optional or null check.
+- **Resource leak** (FileHandler.java:15) - FileInputStream not closed. Use
+  try-with-resources.
 
 ### Important Improvements
-- **API design** - POST used for idempotent update (UserController.java:28). Use PUT instead.
-- **Transaction missing** - Multi-step operation needs @Transactional (OrderService.java:56).
-- **N+1 query** - Loop fetches orders individually (line 89). Use JOIN FETCH.
+- **API design** - POST used for idempotent update (UserController.java:28). Use
+  PUT instead.
+- **Transaction missing** - Multi-step operation needs @Transactional.
+- **N+1 query** - Loop fetches orders individually. Use JOIN FETCH.
 
 ### Code Smells
-- **Long method** - extractUserData() is 80 lines. Consider extracting sub-methods.
-- **Magic number** - Use named constant instead of `86400` (line 123).
+- **Long method** - extractUserData() is 80 lines.
+- **Magic number** - Use named constant instead of `86400`.
 - **Inconsistent naming** - Mix of camelCase and snake_case in variables.
 
 ### Good Practices Observed

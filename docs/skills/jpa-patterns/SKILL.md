@@ -8,6 +8,7 @@ description: JPA/Hibernate patterns and common pitfalls (N+1, lazy loading, tran
 Best practices and common pitfalls for JPA/Hibernate in Spring applications.
 
 ## When to Use
+
 - User mentions "N+1 problem" / "too many queries"
 - LazyInitializationException errors
 - Questions about fetch strategies (EAGER vs LAZY)
@@ -181,6 +182,7 @@ order.getItems().size();  // 💥 LazyInitializationException!
 ### Solutions for LazyInitializationException
 
 **Solution 1: JOIN FETCH in query**
+
 ```java
 // ✅ Fetch needed associations in query
 @Query("SELECT o FROM Order o JOIN FETCH o.items WHERE o.id = :id")
@@ -188,6 +190,7 @@ Optional<Order> findByIdWithItems(@Param("id") Long id);
 ```
 
 **Solution 2: @Transactional on service method**
+
 ```java
 // ✅ Keep transaction open while accessing
 @Service
@@ -198,3 +201,7 @@ public class OrderService {
         Order order = orderRepository.findById(id).orElseThrow();
         // Access within transaction
         int itemCount = order.getItems().size();
+        // ...
+    }
+}
+```
