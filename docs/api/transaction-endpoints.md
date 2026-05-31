@@ -13,9 +13,10 @@
 2. [Get Transaction by ID](#2-get-transaction-by-id)
 3. [List Transactions by User](#3-list-transactions-by-user)
 4. [Update Transaction Status](#4-update-transaction-status)
-5. [Delete Transaction](#5-delete-transaction)
-6. [Enums Reference](#6-enums-reference)
-7. [Error Response Shapes](#7-error-response-shapes)
+5. [Update Transaction (Partial)](#5-update-transaction-partial)
+6. [Delete Transaction](#6-delete-transaction)
+7. [Enums Reference](#7-enums-reference)
+8. [Error Response Shapes](#8-error-response-shapes)
 
 ---
 
@@ -189,7 +190,37 @@ Changes **only** the `status` field (`PENDING` ↔ `PAID`).
 
 ---
 
-## 5. Delete Transaction
+## 5. Update Transaction (Partial)
+
+Updates specific fields of an existing transaction using a generalized PATCH payload. All fields are optional.
+
+| Detail | Value |
+| --- | --- |
+| Method | `PATCH` |
+| Path | `/api/v1/transactions/{id}` |
+| Auth | Required |
+| Status | `200 OK` |
+
+### Request Body — `UpdateTransactionRequest`
+
+| Field | Type | Required | Validation | Description |
+| --- | --- | --- | --- | --- |
+| `accountId` | `UUID` | ❌ | Must exist | Associated account |
+| `categoryId` | `UUID` | ❌ | Must exist | Associated category |
+| `competenceId` | `UUID` | ❌ | Must exist | Competence period |
+| `description` | `string` | ❌ | Non-blank | Human-readable label |
+| `amount` | `number` | ❌ | `> 0.00` | Monetary value |
+| `dateTime` | `datetime` | ❌ | ISO-8601 | When it occurred |
+| `type` | `string` | ❌ | `REVENUE`/`EXPENSE` | Money flow direction |
+| `status` | `string` | ❌ | `PENDING`/`PAID` | Payment state |
+
+### Business Rules
+
+If you update the `amount`, `accountId`, `type`, or `status` of a transaction that is `PAID` (or transitioning to/from `PAID`), the application will automatically reverse the previous balance change and apply the updated transaction attributes to keep account balances perfectly accurate.
+
+---
+
+## 6. Delete Transaction
 
 Permanently deletes a transaction and reverses balance impact if `PAID`.
 
@@ -202,7 +233,7 @@ Permanently deletes a transaction and reverses balance impact if `PAID`.
 
 ---
 
-## 6. Enums Reference
+## 7. Enums Reference
 
 ### `TransactionType`
 
@@ -220,7 +251,7 @@ Permanently deletes a transaction and reverses balance impact if `PAID`.
 
 ---
 
-## 7. Error Response Shapes
+## 8. Error Response Shapes
 
 ### Standard Error
 

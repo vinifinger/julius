@@ -3,6 +3,7 @@ package com.finance.app.web.controller;
 import com.finance.app.application.usecase.TransactionUseCase;
 import com.finance.app.domain.port.UserContext;
 import com.finance.app.web.dto.request.CreateTransactionRequest;
+import com.finance.app.web.dto.request.UpdateTransactionRequest;
 import com.finance.app.web.dto.request.UpdateTransactionStatusRequest;
 import com.finance.app.web.dto.response.TransactionResponse;
 import jakarta.validation.Valid;
@@ -47,6 +48,13 @@ public class TransactionController {
         UUID userId = userContext.getAuthenticatedUserId();
         List<TransactionResponse> responses = transactionUseCase.listByUser(userId);
         return ResponseEntity.ok(responses);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<TransactionResponse> update(@PathVariable UUID id,
+            @Valid @RequestBody UpdateTransactionRequest request) {
+        TransactionResponse response = transactionUseCase.update(id, request);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/status")

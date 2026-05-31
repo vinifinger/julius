@@ -395,6 +395,53 @@ class TransactionUseCaseTest {
     }
 
     @Nested
+    @DisplayName("update")
+    class Update {
+
+        @Test
+        @DisplayName("Should update simple fields without touching balance")
+        void givenSimpleUpdate_whenUpdate_thenUpdatesFieldsAndSaves() {
+            UUID transactionId = UUID.randomUUID();
+            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.PENDING);
+            when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
+            when(transactionRepository.save(any(Transaction.class))).thenAnswer(i -> i.getArgument(0));
+
+            com.finance.app.web.dto.request.UpdateTransactionRequest request = com.finance.app.web.dto.request.UpdateTransactionRequest.builder()
+                    .description("Updated desc")
+                    .build();
+
+            TransactionResponse response = transactionUseCase.update(transactionId, request);
+
+            assertEquals("Updated desc", response.description());
+            verify(transactionService, never()).reverseTransaction(any(), any());
+            verify(transactionService, never()).processTransaction(any(), any());
+            verify(accountRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Should reverse old balance and process new when amount changes on PAID transaction")
+        void givenPaidTransaction_whenUpdateAmount_thenAdjustsBalance() {
+            UUID transactionId = UUID.randomUUID();
+            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.PAID);
+            Account account = createAccount(BigDecimal.valueOf(1000.00));
+            when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+            when(transactionRepository.save(any(Transaction.class))).thenAnswer(i -> i.getArgument(0));
+
+            com.finance.app.web.dto.request.UpdateTransactionRequest request = com.finance.app.web.dto.request.UpdateTransactionRequest.builder()
+                    .amount(BigDecimal.valueOf(100.00))
+                    .build();
+
+            TransactionResponse response = transactionUseCase.update(transactionId, request);
+
+            assertEquals(new BigDecimal("100.00"), response.amount());
+            verify(transactionService).reverseTransaction(any(Transaction.class), any(Account.class));
+            verify(transactionService).processTransaction(any(Transaction.class), any(Account.class));
+            verify(accountRepository, org.mockito.Mockito.atLeastOnce()).save(account);
+        }
+    }
+
+    @Nested
     @DisplayName("delete")
     class Delete {
 

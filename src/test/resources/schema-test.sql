@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     competence_id UUID NOT NULL REFERENCES competences(id),
     user_id       UUID NOT NULL REFERENCES users(id),
     parent_id     UUID,
+    external_id   VARCHAR(255) UNIQUE,
     description   VARCHAR(255) NOT NULL,
     "type"        VARCHAR(20) NOT NULL DEFAULT 'EXPENSE',
     amount        DECIMAL(12, 2) NOT NULL,

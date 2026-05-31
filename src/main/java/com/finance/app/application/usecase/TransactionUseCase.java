@@ -15,6 +15,7 @@ import com.finance.app.domain.repository.CompetenceRepository;
 import com.finance.app.domain.repository.TransactionRepository;
 import com.finance.app.domain.service.TransactionService;
 import com.finance.app.web.dto.request.CreateTransactionRequest;
+import com.finance.app.web.dto.request.UpdateTransactionRequest;
 import com.finance.app.web.dto.request.UpdateTransactionStatusRequest;
 import com.finance.app.web.dto.response.TransactionResponse;
 import lombok.RequiredArgsConstructor;
@@ -91,6 +92,63 @@ public class TransactionUseCase {
         return transactionRepository.findByUserId(userId).stream()
                 .map(TransactionResponse::fromDomain)
                 .toList();
+    }
+
+    @Transactional
+    public TransactionResponse update(UUID id, UpdateTransactionRequest request) {
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new TransactionNotFoundException(id));
+
+        if (request.accountId() != null && !request.accountId().equals(transaction.getAccountId())) {
+            accountRepository.findByIdAndUserId(request.accountId(), transaction.getUserId())
+                    .orElseThrow(() -> new AccountNotFoundException(request.accountId()));
+        }
+        if (request.categoryId() != null && !request.categoryId().equals(transaction.getCategoryId())) {
+            categoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> new CategoryNotFoundException(request.categoryId()));
+        }
+        if (request.competenceId() != null && !request.competenceId().equals(transaction.getCompetenceId())) {
+            competenceRepository.findById(request.competenceId())
+                    .orElseThrow(() -> new CompetenceNotFoundException(request.competenceId()));
+        }
+
+        boolean affectsBalance = request.accountId() != null || request.amount() != null 
+                || request.type() != null || request.status() != null;
+        
+        Account oldAccount = null;
+        if (transaction.isPaid() && affectsBalance) {
+            oldAccount = accountRepository.findByIdAndUserId(transaction.getAccountId(), transaction.getUserId())
+                    .orElseThrow(() -> new AccountNotFoundException(transaction.getAccountId()));
+            transactionService.reverseTransaction(transaction, oldAccount);
+        }
+
+        if (request.accountId() != null) transaction.setAccountId(request.accountId());
+        if (request.categoryId() != null) transaction.setCategoryId(request.categoryId());
+        if (request.competenceId() != null) transaction.setCompetenceId(request.competenceId());
+        if (request.description() != null) transaction.setDescription(request.description());
+        if (request.amount() != null) transaction.setAmount(request.amount().setScale(2, java.math.RoundingMode.HALF_EVEN));
+        if (request.dateTime() != null) transaction.setDateTime(request.dateTime());
+        if (request.type() != null) transaction.setType(request.type());
+        if (request.status() != null) transaction.setStatus(request.status());
+
+        if (transaction.isPaid() && affectsBalance) {
+            Account newAccount = accountRepository.findByIdAndUserId(transaction.getAccountId(), transaction.getUserId())
+                    .orElseThrow(() -> new AccountNotFoundException(transaction.getAccountId()));
+            transactionService.processTransaction(transaction, newAccount);
+            if (oldAccount != null && !oldAccount.getId().equals(newAccount.getId())) {
+                accountRepository.save(oldAccount);
+            }
+            accountRepository.save(newAccount);
+        } else if (oldAccount != null) {
+            accountRepository.save(oldAccount);
+        }
+
+        transaction.setUpdatedAt(java.time.LocalDateTime.now());
+        Transaction updatedTransaction = transactionRepository.save(transaction);
+        
+        log.atInfo().log("Updated transaction ID {} for user ID {}", id, transaction.getUserId());
+
+        return TransactionResponse.fromDomain(updatedTransaction);
     }
 
     @Transactional
