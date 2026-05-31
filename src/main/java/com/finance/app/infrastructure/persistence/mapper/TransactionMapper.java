@@ -28,6 +28,7 @@ public class TransactionMapper {
                 .status(entity.getStatus())
                 .installmentCount(entity.getInstallmentCount())
                 .installmentNumber(entity.getInstallmentNumber())
+                .externalId(entity.getExternalId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -53,6 +54,7 @@ public class TransactionMapper {
                 .status(transaction.getStatus())
                 .installmentCount(transaction.getInstallmentCount())
                 .installmentNumber(transaction.getInstallmentNumber())
+                .externalId(transaction.getExternalId())
                 .createdAt(transaction.getCreatedAt())
                 .updatedAt(transaction.getUpdatedAt())
                 .build();

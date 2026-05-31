@@ -7,6 +7,7 @@ import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.exception.CategoryNotFoundException;
 import com.finance.app.domain.exception.CompetenceNotFoundException;
+import com.finance.app.domain.exception.DuplicateTransactionException;
 import com.finance.app.domain.exception.TransactionNotFoundException;
 import com.finance.app.domain.repository.AccountRepository;
 import com.finance.app.domain.repository.CategoryRepository;
@@ -48,6 +49,11 @@ public class TransactionUseCase {
 
         TransactionType type = request.type();
         TransactionStatus status = request.status();
+        String externalId = request.externalId();
+
+        if (externalId != null && transactionRepository.existsByExternalId(externalId)) {
+            throw new DuplicateTransactionException(externalId);
+        }
 
         Transaction transaction = Transaction.create(
                 request.accountId(),
@@ -58,7 +64,11 @@ public class TransactionUseCase {
                 request.amount(),
                 request.dateTime(),
                 type,
-                status);
+                status,
+                null,
+                null,
+                null,
+                externalId);
 
         Transaction savedTransaction = transactionRepository.save(transaction);
 

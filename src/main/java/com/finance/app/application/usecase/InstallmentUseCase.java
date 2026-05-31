@@ -143,7 +143,7 @@ public class InstallmentUseCase {
         return Transaction.create(
                 request.accountId(), request.categoryId(), competenceId, userId,
                 request.description(), amount, request.dateTime(), request.type(), request.status(),
-                parentId, request.installments(), number
+                parentId, request.installments(), number, null
         );
     }
 

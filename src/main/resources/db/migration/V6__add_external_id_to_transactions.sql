@@ -1,0 +1,1 @@
+ALTER TABLE transactions ADD COLUMN external_id VARCHAR(255) UNIQUE;

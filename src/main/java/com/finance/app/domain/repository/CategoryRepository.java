@@ -12,6 +12,8 @@ public interface CategoryRepository {
 
     List<Category> findByUserId(UUID userId);
 
+    Optional<Category> findByUserIdAndName(UUID userId, String name);
+
     Category save(Category category);
 
 }

@@ -104,6 +104,11 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     }
 
     @Override
+    public boolean existsByExternalId(String externalId) {
+        return jpaRepository.existsByExternalId(externalId);
+    }
+
+    @Override
     public List<Transaction> saveAll(List<Transaction> transactions) {
         return transactions.stream()
                 .map(this::save)

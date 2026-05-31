@@ -26,7 +26,9 @@ public record CreateTransactionRequest(
 
         @NotNull(message = "Type is required") TransactionType type,
 
-        @NotNull(message = "Status is required") TransactionStatus status
+        @NotNull(message = "Status is required") TransactionStatus status,
+
+        String externalId
 
 ) {
 }

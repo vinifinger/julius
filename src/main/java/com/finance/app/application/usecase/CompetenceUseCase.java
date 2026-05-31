@@ -21,26 +21,31 @@ public class CompetenceUseCase {
     private final CompetenceRepository competenceRepository;
 
     public CompetenceResponse create(CreateCompetenceRequest request, UUID userId) {
+        Competence competence = getOrCreate(request.month(), request.year(), userId);
+        return CompetenceResponse.fromDomain(competence);
+    }
+
+    public Competence getOrCreate(Integer month, Integer year, UUID userId) {
         Optional<Competence> existing = competenceRepository.findByUserIdAndMonthAndYear(
-                userId, request.month(), request.year());
+                userId, month, year);
 
         if (existing.isPresent()) {
-            return CompetenceResponse.fromDomain(existing.get());
+            return existing.get();
         }
 
         LocalDateTime now = LocalDateTime.now();
         Competence competence = Competence.builder()
                 .userId(userId)
-                .month(request.month())
-                .year(request.year())
+                .month(month)
+                .year(year)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
 
         Competence savedCompetence = competenceRepository.save(competence);
         log.atInfo().log("Created new competence ID {} for month/year: {}/{} for user ID {}", 
-                savedCompetence.getId(), request.month(), request.year(), userId);
-        return CompetenceResponse.fromDomain(savedCompetence);
+                savedCompetence.getId(), month, year, userId);
+        return savedCompetence;
     }
 
     public List<CompetenceResponse> listAll(UUID userId) {

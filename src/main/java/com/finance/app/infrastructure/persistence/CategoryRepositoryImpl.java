@@ -35,6 +35,11 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
+    public Optional<Category> findByUserIdAndName(UUID userId, String name) {
+        return jpaRepository.findByUserIdAndName(userId, name).map(mapper::toDomain);
+    }
+
+    @Override
     public Category save(Category category) {
         UserEntity user = entityManager.getReference(UserEntity.class, category.getUserId());
         CategoryEntity entity = mapper.toEntity(category, user);

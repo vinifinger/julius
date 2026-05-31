@@ -107,7 +107,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Grocery shopping", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID);
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -136,7 +136,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Future expense", BigDecimal.valueOf(100.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PENDING);
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PENDING, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -163,7 +163,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID);
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.empty());
 
@@ -180,7 +180,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID);
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
@@ -198,7 +198,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID);
+                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -218,7 +218,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Salary", BigDecimal.valueOf(3000.00),
-                    LocalDateTime.now(), TransactionType.REVENUE, TransactionStatus.PAID);
+                    LocalDateTime.now(), TransactionType.REVENUE, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(

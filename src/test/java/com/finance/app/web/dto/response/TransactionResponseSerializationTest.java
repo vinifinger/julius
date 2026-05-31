@@ -28,6 +28,7 @@ class TransactionResponseSerializationTest {
                 null, // parentId
                 null, // installmentCount
                 null, // installmentNumber
+                null, // externalId
                 "Test description",
                 new BigDecimal("100.00"),
                 LocalDateTime.now(),
@@ -53,7 +54,8 @@ class TransactionResponseSerializationTest {
                 UUID.randomUUID(),
                 parentId,
                 12,
-                1,
+                1, // installmentNumber
+                null, // externalId
                 "Installment Test",
                 new BigDecimal("50.00"),
                 LocalDateTime.now(),

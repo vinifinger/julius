@@ -26,6 +26,7 @@ public class Transaction {
     private UUID parentId;
     private Integer installmentCount;
     private Integer installmentNumber;
+    private String externalId;
     private String description;
     private BigDecimal amount;
     private LocalDateTime dateTime;
@@ -48,7 +49,7 @@ public class Transaction {
             TransactionType type,
             TransactionStatus status) {
         return create(accountId, categoryId, competenceId, userId,
-                description, amount, dateTime, type, status, null, null, null);
+                description, amount, dateTime, type, status, null, null, null, null);
     }
 
     public static Transaction create(UUID accountId,
@@ -62,7 +63,8 @@ public class Transaction {
             TransactionStatus status,
             UUID parentId,
             Integer installmentCount,
-            Integer installmentNumber) {
+            Integer installmentNumber,
+            String externalId) {
         LocalDateTime now = LocalDateTime.now();
         return Transaction.builder()
                 .accountId(accountId)
@@ -77,6 +79,7 @@ public class Transaction {
                 .status(status)
                 .installmentCount(installmentCount)
                 .installmentNumber(installmentNumber)
+                .externalId(externalId)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();

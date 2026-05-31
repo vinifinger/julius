@@ -37,4 +37,19 @@ public class CategoryUseCase {
                 .toList();
     }
 
+    public Category getOrCreateUncategorized(UUID userId) {
+        return categoryRepository.findByUserIdAndName(userId, "Uncategorized")
+                .orElseGet(() -> {
+                    LocalDateTime now = LocalDateTime.now();
+                    Category category = Category.builder()
+                            .userId(userId)
+                            .name("Uncategorized")
+                            .colorHex("#808080")
+                            .createdAt(now)
+                            .updatedAt(now)
+                            .build();
+                    return categoryRepository.save(category);
+                });
+    }
+
 }

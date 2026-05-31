@@ -34,6 +34,8 @@ public interface TransactionRepository {
 
     boolean existsPendingByAccountId(UUID accountId);
 
+    boolean existsByExternalId(String externalId);
+
     List<Transaction> saveAll(List<Transaction> transactions);
 
 }

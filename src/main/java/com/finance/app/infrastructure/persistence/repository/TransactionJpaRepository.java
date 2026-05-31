@@ -46,4 +46,6 @@ public interface TransactionJpaRepository extends JpaRepository<TransactionEntit
     @Query("SELECT COUNT(t) > 0 FROM TransactionEntity t WHERE t.account.id = :accountId AND t.status = 'PENDING'")
     boolean existsPendingByAccountId(@Param("accountId") UUID accountId);
 
+    boolean existsByExternalId(String externalId);
+
 }

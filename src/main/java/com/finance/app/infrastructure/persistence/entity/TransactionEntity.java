@@ -85,6 +85,9 @@ public class TransactionEntity {
     @Column(name = "installment_number")
     private Integer installmentNumber;
 
+    @Column(name = "external_id", unique = true)
+    private String externalId;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
