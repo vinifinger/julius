@@ -2,8 +2,11 @@ package com.finance.app.domain.repository;
 
 import com.finance.app.domain.entity.CategoryExpenseSummary;
 import com.finance.app.domain.entity.CompetenceAmountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionCountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionAmountSummary;
 import com.finance.app.domain.entity.Transaction;
 import com.finance.app.domain.entity.TransactionType;
+import com.finance.app.domain.entity.TransactionFilter;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,6 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TransactionRepository {
+
+    List<Transaction> findByFilter(TransactionFilter filter);
 
     Optional<Transaction> findById(UUID id);
 
@@ -37,5 +42,13 @@ public interface TransactionRepository {
     boolean existsByExternalId(String externalId);
 
     List<Transaction> saveAll(List<Transaction> transactions);
+
+    long countByCompetenceId(UUID competenceId);
+
+    List<CompetenceTransactionCountSummary> countTransactionsGroupedByCompetence(UUID userId);
+
+    List<CompetenceTransactionAmountSummary> sumAmountsGroupedByCompetence(UUID userId);
+
+    List<CompetenceTransactionAmountSummary> sumAmountsByCompetenceId(UUID competenceId);
 
 }

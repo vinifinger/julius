@@ -11,7 +11,8 @@
 
 1. [Create Category](#1-create-category)
 2. [List Categories by User](#2-list-categories-by-user)
-3. [Response Schema — CategoryResponse](#response-schema--categoryresponse)
+3. [Update Category](#3-update-category)
+4. [Response Schema — CategoryResponse](#response-schema--categoryresponse)
 
 ---
 
@@ -101,6 +102,57 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 > **UI Tip:** Use the `colorHex` field to render category color indicators.
 > Returns an empty array `[]` when the user has no categories.
+
+---
+
+## 3. Update Category
+
+Updates an existing category's properties. Note that this is a full-replacement (PUT) operation, so all updatable fields must be provided.
+
+| Detail | Value |
+| --- | --- |
+| Method | `PUT` |
+| Path | `/api/v1/categories/{id}` |
+| Auth | Required |
+| Status | `200 OK` |
+
+### Path Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `id` | `UUID` | Unique identifier of the category to update |
+
+### Request Body — `UpdateCategoryRequest`
+
+| Field | Type | Required | Validation | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `string` | ✅ | Non-blank | Display name of the category |
+| `colorHex` | `string` | ❌ | — | Hex color code for UI rendering |
+
+### Request Example
+
+```http
+PUT /api/v1/categories/e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+
+{
+  "name": "Alimentação (Editado)",
+  "colorHex": "#FF0000"
+}
+```
+
+### Response `200 OK` — `CategoryResponse`
+
+```json
+{
+  "id": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
+  "name": "Alimentação (Editado)",
+  "colorHex": "#FF0000",
+  "createdAt": "2026-05-02T21:15:42",
+  "updatedAt": "2026-05-03T10:20:00"
+}
+```
 
 ---
 

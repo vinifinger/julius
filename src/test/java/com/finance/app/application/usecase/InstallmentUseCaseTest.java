@@ -99,7 +99,7 @@ class InstallmentUseCaseTest {
 
              CreateInstallmentRequest request = new CreateInstallmentRequest(
                      accountId, categoryId, competenceId, "Purchase",
-                     new BigDecimal("300.00"), null, 3, LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PENDING
+                     new BigDecimal("300.00"), null, 3, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
              InstallmentSeries series = installmentUseCase.createInstallmentSeries(request, userId);
@@ -128,7 +128,7 @@ class InstallmentUseCaseTest {
 
              CreateInstallmentRequest request = new CreateInstallmentRequest(
                      accountId, categoryId, competenceId, "Purchase",
-                     new BigDecimal("100.01"), null, 3, LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PENDING
+                     new BigDecimal("100.01"), null, 3, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
              InstallmentSeries series = installmentUseCase.createInstallmentSeries(request, userId);
@@ -150,7 +150,7 @@ class InstallmentUseCaseTest {
              
              CreateInstallmentRequest request = new CreateInstallmentRequest(
                      accountId, categoryId, competenceId, "Purchase",
-                     new BigDecimal("400.00"), null, 4, LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PENDING
+                     new BigDecimal("400.00"), null, 4, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
              // Only mock findByUserIdAndMonthAndYear matching the Rollover checks.
@@ -176,7 +176,7 @@ class InstallmentUseCaseTest {
         void shouldRejectSingleInstallment() {
              CreateInstallmentRequest request = new CreateInstallmentRequest(
                      accountId, categoryId, competenceId, "Purchase",
-                     new BigDecimal("100.00"), null, 1, LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PENDING
+                     new BigDecimal("100.00"), null, 1, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
              assertThrows(InstallmentValidationException.class, () -> 
@@ -190,12 +190,44 @@ class InstallmentUseCaseTest {
              // 3 installments of 33.00 != 100.00 (Delta = 1.00, allowed delta = 0.03)
              CreateInstallmentRequest request = new CreateInstallmentRequest(
                      accountId, categoryId, competenceId, "Purchase",
-                     new BigDecimal("100.00"), new BigDecimal("33.00"), 3, LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PENDING
+                     new BigDecimal("100.00"), new BigDecimal("33.00"), 3, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
              assertThrows(InstallmentValidationException.class, () -> 
                   installmentUseCase.createInstallmentSeries(request, userId)
              );
+        }
+
+        @Test
+        @DisplayName("Should default subtype to FIXED when not specified in request")
+        void shouldDefaultSubtypeToFixed() {
+             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(mockAccount()));
+             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(mockCategory()));
+             when(competenceRepository.findById(competenceId)).thenReturn(Optional.of(mockCompetence(1, 2026)));
+             when(competenceRepository.findByUserIdAndMonthAndYear(eq(userId), anyInt(), anyInt()))
+                    .thenAnswer(i -> Optional.of(mockCompetence(i.getArgument(1), i.getArgument(2))));
+             
+             when(transactionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+             when(transactionRepository.saveAll(any())).thenAnswer(i -> i.getArgument(0));
+
+             CreateInstallmentRequest request = new CreateInstallmentRequest(
+                     accountId, categoryId, competenceId, "Purchase",
+                     new BigDecimal("300.00"), null, 3, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
+             );
+
+             InstallmentSeries series = installmentUseCase.createInstallmentSeries(request, userId);
+
+             ArgumentCaptor<Transaction> rootCaptor = ArgumentCaptor.forClass(Transaction.class);
+             verify(transactionRepository).save(rootCaptor.capture());
+             verify(transactionRepository).saveAll(transactionsCaptor.capture());
+             
+             Transaction root = rootCaptor.getValue();
+             List<Transaction> savedChildren = transactionsCaptor.getValue();
+             assertEquals(2, savedChildren.size());
+             
+             assertEquals(com.finance.app.domain.entity.TransactionSubtype.FIXED, root.getSubtype());
+             assertEquals(com.finance.app.domain.entity.TransactionSubtype.FIXED, savedChildren.get(0).getSubtype());
+             assertEquals(com.finance.app.domain.entity.TransactionSubtype.FIXED, savedChildren.get(1).getSubtype());
         }
     }
 

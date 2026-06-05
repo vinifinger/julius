@@ -1,4 +1,7 @@
 ---
+trigger: always_on
+---
+
 name: kubernetes-specialist
 description: "Use this agent when you need to design, deploy, configure, or troubleshoot Kubernetes clusters and workloads in production environments."
 tools: Read, Write, Edit, Bash, Glob, Grep

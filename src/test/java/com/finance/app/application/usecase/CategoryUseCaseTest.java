@@ -111,4 +111,47 @@ class CategoryUseCaseTest {
         }
     }
 
+    @Nested
+    @DisplayName("update")
+    class Update {
+
+        @Test
+        @DisplayName("Should update category successfully")
+        void givenValidRequest_whenUpdate_thenReturnsUpdatedCategory() {
+            UUID categoryId = UUID.randomUUID();
+            Category existingCategory = Category.builder()
+                    .id(categoryId)
+                    .userId(userId)
+                    .name("Old Name")
+                    .colorHex("#000000")
+                    .build();
+
+            when(categoryRepository.findById(categoryId)).thenReturn(java.util.Optional.of(existingCategory));
+            when(categoryRepository.save(any(Category.class))).thenAnswer(i -> i.getArgument(0));
+
+            com.finance.app.web.dto.request.UpdateCategoryRequest request = new com.finance.app.web.dto.request.UpdateCategoryRequest("New Name", "#FFFFFF");
+
+            CategoryResponse response = categoryUseCase.update(categoryId, request);
+
+            assertNotNull(response);
+            assertEquals("New Name", response.name());
+            assertEquals("#FFFFFF", response.colorHex());
+            verify(categoryRepository).save(any(Category.class));
+        }
+
+        @Test
+        @DisplayName("Should throw CategoryNotFoundException when category does not exist")
+        void givenNonExistingCategory_whenUpdate_thenThrowsException() {
+            UUID categoryId = UUID.randomUUID();
+            when(categoryRepository.findById(categoryId)).thenReturn(java.util.Optional.empty());
+
+            com.finance.app.web.dto.request.UpdateCategoryRequest request = new com.finance.app.web.dto.request.UpdateCategoryRequest("New Name", "#FFFFFF");
+
+            org.junit.jupiter.api.Assertions.assertThrows(com.finance.app.domain.exception.CategoryNotFoundException.class, 
+                () -> categoryUseCase.update(categoryId, request));
+            
+            verify(categoryRepository, org.mockito.Mockito.never()).save(any(Category.class));
+        }
+    }
+
 }

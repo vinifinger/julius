@@ -31,6 +31,7 @@ public class Transaction {
     private BigDecimal amount;
     private LocalDateTime dateTime;
     private TransactionType type;
+    private TransactionSubtype subtype;
     private TransactionStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -47,9 +48,10 @@ public class Transaction {
             BigDecimal amount,
             LocalDateTime dateTime,
             TransactionType type,
+            TransactionSubtype subtype,
             TransactionStatus status) {
         return create(accountId, categoryId, competenceId, userId,
-                description, amount, dateTime, type, status, null, null, null, null);
+                description, amount, dateTime, type, subtype, status, null, null, null, null);
     }
 
     public static Transaction create(UUID accountId,
@@ -60,6 +62,7 @@ public class Transaction {
             BigDecimal amount,
             LocalDateTime dateTime,
             TransactionType type,
+            TransactionSubtype subtype,
             TransactionStatus status,
             UUID parentId,
             Integer installmentCount,
@@ -76,6 +79,7 @@ public class Transaction {
                 .amount(amount.setScale(2, RoundingMode.HALF_EVEN))
                 .dateTime(dateTime)
                 .type(type)
+                .subtype(subtype)
                 .status(status)
                 .installmentCount(installmentCount)
                 .installmentNumber(installmentNumber)

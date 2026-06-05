@@ -1,9 +1,15 @@
 package com.finance.app.application.usecase;
 
 import com.finance.app.domain.entity.Competence;
+import com.finance.app.domain.entity.CompetenceTransactionCountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionAmountSummary;
+import com.finance.app.domain.entity.TransactionType;
+import com.finance.app.domain.entity.TransactionStatus;
 import com.finance.app.domain.repository.CompetenceRepository;
+import com.finance.app.domain.repository.TransactionRepository;
 import com.finance.app.web.dto.request.CreateCompetenceRequest;
 import com.finance.app.web.dto.response.CompetenceResponse;
+import com.finance.app.web.dto.response.CompetenceDetailResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,6 +38,9 @@ class CompetenceUseCaseTest {
 
     @Mock
     private CompetenceRepository competenceRepository;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @InjectMocks
     private CompetenceUseCase competenceUseCase;
@@ -60,15 +71,30 @@ class CompetenceUseCaseTest {
                     .thenReturn(Optional.empty());
             when(competenceRepository.save(any(Competence.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
+            when(transactionRepository.countByCompetenceId(any()))
+                    .thenReturn(5L);
+            when(transactionRepository.sumAmountsByCompetenceId(any()))
+                    .thenReturn(List.of(
+                            new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.REVENUE, TransactionStatus.PAID, new BigDecimal("100.00")),
+                            new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.EXPENSE, TransactionStatus.PAID, new BigDecimal("40.00")),
+                            new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.REVENUE, TransactionStatus.PENDING, new BigDecimal("50.00")),
+                            new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.EXPENSE, TransactionStatus.PENDING, new BigDecimal("10.00"))
+                    ));
 
             // When
-            CompetenceResponse response = competenceUseCase.create(request, userId);
+            CompetenceDetailResponse response = competenceUseCase.create(request, userId);
 
             // Then
             assertNotNull(response);
             assertEquals(2, response.month());
             assertEquals(2026, response.year());
             assertEquals("02/2026", response.name());
+            assertEquals(5L, response.transactionCount());
+            assertEquals(new BigDecimal("60.00"), response.paidAmount());
+            assertEquals(new BigDecimal("40.00"), response.pendingAmount());
+            assertEquals(new BigDecimal("100.00"), response.totalAmount());
+            assertEquals(new BigDecimal("150.00"), response.totalRevenue());
+            assertEquals(new BigDecimal("50.00"), response.totalExpense());
             verify(competenceRepository).save(any(Competence.class));
         }
 
@@ -81,13 +107,20 @@ class CompetenceUseCaseTest {
             CreateCompetenceRequest request = new CreateCompetenceRequest(2, 2026);
             when(competenceRepository.findByUserIdAndMonthAndYear(userId, 2, 2026))
                     .thenReturn(Optional.of(existing));
+            when(transactionRepository.countByCompetenceId(existingId))
+                    .thenReturn(10L);
+            when(transactionRepository.sumAmountsByCompetenceId(existingId))
+                    .thenReturn(List.of());
 
             // When
-            CompetenceResponse response = competenceUseCase.create(request, userId);
+            CompetenceDetailResponse response = competenceUseCase.create(request, userId);
 
             // Then
             assertEquals(existingId, response.id());
             assertEquals("02/2026", response.name());
+            assertEquals(10L, response.transactionCount());
+            assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN), response.totalRevenue());
+            assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN), response.totalExpense());
             verify(competenceRepository, never()).save(any(Competence.class));
         }
 
@@ -100,12 +133,17 @@ class CompetenceUseCaseTest {
                     .thenReturn(Optional.empty());
             when(competenceRepository.save(any(Competence.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
+            when(transactionRepository.countByCompetenceId(any()))
+                    .thenReturn(0L);
+            when(transactionRepository.sumAmountsByCompetenceId(any()))
+                    .thenReturn(List.of());
 
             // When
-            CompetenceResponse response = competenceUseCase.create(request, userId);
+            CompetenceDetailResponse response = competenceUseCase.create(request, userId);
 
             // Then
             assertEquals("03/2026", response.name());
+            assertEquals(0L, response.transactionCount());
         }
 
         @Test
@@ -117,12 +155,17 @@ class CompetenceUseCaseTest {
                     .thenReturn(Optional.empty());
             when(competenceRepository.save(any(Competence.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
+            when(transactionRepository.countByCompetenceId(any()))
+                    .thenReturn(0L);
+            when(transactionRepository.sumAmountsByCompetenceId(any()))
+                    .thenReturn(List.of());
 
             // When
-            CompetenceResponse response = competenceUseCase.create(request, userId);
+            CompetenceDetailResponse response = competenceUseCase.create(request, userId);
 
             // Then
             assertEquals("12/2025", response.name());
+            assertEquals(0L, response.transactionCount());
         }
     }
 
@@ -134,12 +177,27 @@ class CompetenceUseCaseTest {
         @DisplayName("Should return competences ordered by year desc, month desc")
         void givenCompetences_whenListAll_thenReturnsOrdered() {
             // Given
-            Competence feb2026 = createCompetence(UUID.randomUUID(), 2, 2026);
-            Competence jan2026 = createCompetence(UUID.randomUUID(), 1, 2026);
-            Competence dec2025 = createCompetence(UUID.randomUUID(), 12, 2025);
+            UUID febId = UUID.randomUUID();
+            UUID janId = UUID.randomUUID();
+            UUID decId = UUID.randomUUID();
+            Competence feb2026 = createCompetence(febId, 2, 2026);
+            Competence jan2026 = createCompetence(janId, 1, 2026);
+            Competence dec2025 = createCompetence(decId, 12, 2025);
 
             when(competenceRepository.findByUserIdOrderByYearDescMonthDesc(userId))
                     .thenReturn(List.of(feb2026, jan2026, dec2025));
+            when(transactionRepository.countTransactionsGroupedByCompetence(userId))
+                    .thenReturn(List.of(
+                            new CompetenceTransactionCountSummary(febId, 3L),
+                            new CompetenceTransactionCountSummary(janId, 1L)
+                    ));
+            when(transactionRepository.sumAmountsGroupedByCompetence(userId))
+                    .thenReturn(List.of(
+                            new CompetenceTransactionAmountSummary(febId, TransactionType.REVENUE, TransactionStatus.PAID, new BigDecimal("200.00")),
+                            new CompetenceTransactionAmountSummary(febId, TransactionType.EXPENSE, TransactionStatus.PAID, new BigDecimal("50.00")),
+                            new CompetenceTransactionAmountSummary(janId, TransactionType.REVENUE, TransactionStatus.PENDING, new BigDecimal("150.00")),
+                            new CompetenceTransactionAmountSummary(janId, TransactionType.EXPENSE, TransactionStatus.PAID, new BigDecimal("30.00"))
+                    ));
 
             // When
             List<CompetenceResponse> responses = competenceUseCase.listAll(userId);
@@ -147,8 +205,19 @@ class CompetenceUseCaseTest {
             // Then
             assertEquals(3, responses.size());
             assertEquals("02/2026", responses.get(0).name());
+            assertEquals(3L, responses.get(0).transactionCount());
+            assertEquals(new BigDecimal("200.00"), responses.get(0).totalRevenue());
+            assertEquals(new BigDecimal("50.00"), responses.get(0).totalExpense());
+
             assertEquals("01/2026", responses.get(1).name());
+            assertEquals(1L, responses.get(1).transactionCount());
+            assertEquals(new BigDecimal("150.00"), responses.get(1).totalRevenue());
+            assertEquals(new BigDecimal("30.00"), responses.get(1).totalExpense());
+
             assertEquals("12/2025", responses.get(2).name());
+            assertEquals(0L, responses.get(2).transactionCount());
+            assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN), responses.get(2).totalRevenue());
+            assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN), responses.get(2).totalExpense());
         }
 
         @Test
@@ -156,6 +225,10 @@ class CompetenceUseCaseTest {
         void givenNoCompetences_whenListAll_thenReturnsEmpty() {
             // Given
             when(competenceRepository.findByUserIdOrderByYearDescMonthDesc(userId))
+                    .thenReturn(List.of());
+            when(transactionRepository.countTransactionsGroupedByCompetence(userId))
+                    .thenReturn(List.of());
+            when(transactionRepository.sumAmountsGroupedByCompetence(userId))
                     .thenReturn(List.of());
 
             // When
@@ -182,14 +255,21 @@ class CompetenceUseCaseTest {
 
             when(competenceRepository.findByUserIdAndMonthAndYear(userId, currentMonth, currentYear))
                     .thenReturn(Optional.of(existing));
+            when(transactionRepository.countByCompetenceId(existingId))
+                    .thenReturn(7L);
+            when(transactionRepository.sumAmountsByCompetenceId(existingId))
+                    .thenReturn(List.of());
 
             // When
-            CompetenceResponse response = competenceUseCase.getCurrent(userId);
+            CompetenceDetailResponse response = competenceUseCase.getCurrent(userId);
 
             // Then
             assertEquals(existingId, response.id());
             assertEquals(currentMonth, response.month());
             assertEquals(currentYear, response.year());
+            assertEquals(7L, response.transactionCount());
+            assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN), response.totalRevenue());
+            assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN), response.totalExpense());
             verify(competenceRepository, never()).save(any(Competence.class));
         }
 
@@ -207,12 +287,13 @@ class CompetenceUseCaseTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // When
-            CompetenceResponse response = competenceUseCase.getCurrent(userId);
+            CompetenceDetailResponse response = competenceUseCase.getCurrent(userId);
 
             // Then
             assertNotNull(response);
             assertEquals(currentMonth, response.month());
             assertEquals(currentYear, response.year());
+            assertEquals(0L, response.transactionCount());
             verify(competenceRepository).save(any(Competence.class));
         }
     }

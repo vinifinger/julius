@@ -3,6 +3,7 @@ package com.finance.app.application.usecase;
 import com.finance.app.domain.entity.Category;
 import com.finance.app.domain.repository.CategoryRepository;
 import com.finance.app.web.dto.request.CreateCategoryRequest;
+import com.finance.app.web.dto.request.UpdateCategoryRequest;
 import com.finance.app.web.dto.response.CategoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,18 @@ public class CategoryUseCase {
 
         Category savedCategory = categoryRepository.save(category);
         return CategoryResponse.fromDomain(savedCategory);
+    }
+
+    public CategoryResponse update(UUID id, UpdateCategoryRequest request) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new com.finance.app.domain.exception.CategoryNotFoundException(id));
+
+        category.setName(request.name());
+        category.setColorHex(request.colorHex());
+        category.setUpdatedAt(LocalDateTime.now());
+
+        Category updatedCategory = categoryRepository.save(category);
+        return CategoryResponse.fromDomain(updatedCategory);
     }
 
     public List<CategoryResponse> listByUser(UUID userId) {

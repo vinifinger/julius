@@ -5,6 +5,7 @@ import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.repository.AccountRepository;
 import com.finance.app.domain.repository.TransactionRepository;
 import com.finance.app.web.dto.request.CreateAccountRequest;
+import com.finance.app.web.dto.request.UpdateAccountRequest;
 import com.finance.app.web.dto.response.AccountResponse;
 import com.finance.app.web.dto.response.BalanceResponse;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,18 @@ public class AccountUseCase {
 
         Account savedAccount = accountRepository.save(account);
         return AccountResponse.fromDomain(savedAccount);
+    }
+
+    public AccountResponse update(UUID id, UpdateAccountRequest request, UUID userId) {
+        Account account = accountRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new AccountNotFoundException(id));
+
+        account.setName(request.name());
+        account.setCurrency(request.currency());
+        account.setUpdatedAt(LocalDateTime.now());
+
+        Account updatedAccount = accountRepository.save(account);
+        return AccountResponse.fromDomain(updatedAccount);
     }
 
     public List<AccountResponse> listByUser(UUID userId) {

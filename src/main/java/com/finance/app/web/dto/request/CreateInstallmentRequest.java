@@ -1,6 +1,7 @@
 package com.finance.app.web.dto.request;
 
 import com.finance.app.domain.entity.TransactionStatus;
+import com.finance.app.domain.entity.TransactionSubtype;
 import com.finance.app.domain.entity.TransactionType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +20,7 @@ public record CreateInstallmentRequest(
         @NotNull(message = "Number of installments is required") @Min(value = 2, message = "Installments must be at least 2") Integer installments,
         @NotNull(message = "Date/time is required") LocalDateTime dateTime,
         @NotNull(message = "Type is required") TransactionType type,
+        TransactionSubtype subtype,
         @NotNull(message = "Status is required") TransactionStatus status
 ) {
 }

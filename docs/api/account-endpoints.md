@@ -14,7 +14,8 @@
 2. [List Accounts by User](#2-list-accounts-by-user)
 3. [Get Account Balance](#3-get-account-balance)
 4. [Get Total Balance](#4-get-total-balance)
-5. [Response Schema — AccountResponse](#response-schema--accountresponse)
+5. [Update Account](#5-update-account)
+6. [Response Schema — AccountResponse](#response-schema--accountresponse)
 
 ---
 
@@ -195,6 +196,70 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 | Field | Type | Nullable | Description |
 | --- | --- | --- | --- |
 | `totalBalance` | `number` | No | Sum of all account balances (2 decimal places) |
+
+---
+
+## 5. Update Account
+
+Updates an existing account's properties. Note that this is a full-replacement (PUT) operation, so all updatable fields must be provided.
+
+> **Note:** The `balance` field is excluded from this operation. Direct balance manipulation is not allowed. To change a balance, create a transaction.
+
+| Detail | Value |
+| --- | --- |
+| Method | `PUT` |
+| Path | `/api/v1/accounts/{id}` |
+| Auth | Required |
+| Status | `200 OK` |
+
+### Path Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `id` | `UUID` | Unique identifier of the account to update |
+
+### Request Body — `UpdateAccountRequest`
+
+| Field | Type | Required | Validation | Description |
+| --- | --- | --- | --- | --- |
+| `name` | `string` | ✅ | Non-blank | Display name of the account (e.g. "Nubank") |
+| `currency` | `string` | ❌ | — | ISO currency code (e.g. `"BRL"`, `"USD"`). |
+
+### Request Example
+
+```http
+PUT /api/v1/accounts/a1b2c3d4-e5f6-7890-abcd-ef1234567890 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+
+{
+  "name": "Nubank (Editado)",
+  "currency": "BRL"
+}
+```
+
+### Response `200 OK` — `AccountResponse`
+
+```json
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "Nubank (Editado)",
+  "balance": 4810.50,
+  "currency": "BRL",
+  "createdAt": "2026-05-02T21:15:42",
+  "updatedAt": "2026-05-03T10:20:00"
+}
+```
+
+### Error `400 Bad Request`
+
+```json
+{
+  "timestamp": "2026-05-03T10:21:00",
+  "status": 400,
+  "error": "Account not found with id: a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
+```
 
 ---
 

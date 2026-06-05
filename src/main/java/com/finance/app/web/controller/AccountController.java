@@ -3,6 +3,7 @@ package com.finance.app.web.controller;
 import com.finance.app.application.usecase.AccountUseCase;
 import com.finance.app.domain.port.UserContext;
 import com.finance.app.web.dto.request.CreateAccountRequest;
+import com.finance.app.web.dto.request.UpdateAccountRequest;
 import com.finance.app.web.dto.response.AccountResponse;
 import com.finance.app.web.dto.response.BalanceResponse;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,6 +54,13 @@ public class AccountController {
     public ResponseEntity<BalanceResponse> getTotalBalance() {
         UUID userId = userContext.getAuthenticatedUserId();
         BalanceResponse response = accountUseCase.getTotalBalance(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AccountResponse> update(@PathVariable UUID id, @Valid @RequestBody UpdateAccountRequest request) {
+        UUID userId = userContext.getAuthenticatedUserId();
+        AccountResponse response = accountUseCase.update(id, request, userId);
         return ResponseEntity.ok(response);
     }
 

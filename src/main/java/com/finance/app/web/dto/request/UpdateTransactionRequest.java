@@ -1,6 +1,7 @@
 package com.finance.app.web.dto.request;
 
 import com.finance.app.domain.entity.TransactionStatus;
+import com.finance.app.domain.entity.TransactionSubtype;
 import com.finance.app.domain.entity.TransactionType;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
@@ -19,6 +20,7 @@ public record UpdateTransactionRequest(
         BigDecimal amount,
         LocalDateTime dateTime,
         TransactionType type,
+        TransactionSubtype subtype,
         TransactionStatus status
 ) {
 }

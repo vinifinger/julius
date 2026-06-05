@@ -42,6 +42,7 @@ Creates a new financial transaction (revenue or expense) for the user.
 | `amount` | `number` | ✅ | `> 0.00` | Monetary value |
 | `dateTime` | `datetime` | ✅ | ISO-8601 | When it occurred |
 | `type` | `string` | ✅ | `REVENUE`/`EXPENSE` | Money flow direction |
+| `subtype` | `string` | ❌ | `FIXED`/`VARIABLE` | Fixed or variable nature |
 | `status` | `string` | ✅ | `PENDING`/`PAID` | Payment state |
 
 ### Request Example
@@ -59,6 +60,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "amount": 189.50,
   "dateTime": "2026-05-02T14:30:00",
   "type": "EXPENSE",
+  "subtype": "FIXED",
   "status": "PENDING"
 }
 ```
@@ -76,6 +78,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "amount": 189.50,
   "dateTime": "2026-05-02T14:30:00",
   "type": "EXPENSE",
+  "subtype": "FIXED",
   "status": "PENDING",
   "createdAt": "2026-05-02T21:15:42",
   "updatedAt": "2026-05-02T21:15:42"
@@ -122,6 +125,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "description": "Monthly electricity bill",
   "amount": 189.50,
   "type": "EXPENSE",
+  "subtype": "FIXED",
   "status": "PENDING"
 }
 ```
@@ -139,6 +143,27 @@ Returns all transactions belonging to the authenticated user.
 | Auth | Required |
 | Status | `200 OK` |
 
+### Query Parameters (Optional)
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `competenceId` | `UUID` | Filter by competence period |
+| `status` | `string` | `PENDING` or `PAID` |
+| `type` | `string` | `REVENUE` or `EXPENSE` |
+| `subtype` | `string` | `FIXED` or `VARIABLE` |
+| `categoryId` | `UUID` | Filter by category |
+| `accountId` | `UUID` | Filter by account |
+| `description` | `string` | Filter by partial description (case-insensitive) |
+| `startDate` | `date` | Return transactions from this date (`YYYY-MM-DD`) |
+| `endDate` | `date` | Return transactions up to this date (`YYYY-MM-DD`) |
+
+### Request Example
+
+```http
+GET /api/v1/transactions?status=PAID&type=EXPENSE&subtype=FIXED HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
 ### Response `200 OK` — `TransactionResponse[]`
 
 ```json
@@ -148,6 +173,7 @@ Returns all transactions belonging to the authenticated user.
     "description": "Monthly electricity bill",
     "amount": 189.50,
     "type": "EXPENSE",
+    "subtype": "FIXED",
     "status": "PENDING"
   }
 ]
@@ -212,6 +238,7 @@ Updates specific fields of an existing transaction using a generalized PATCH pay
 | `amount` | `number` | ❌ | `> 0.00` | Monetary value |
 | `dateTime` | `datetime` | ❌ | ISO-8601 | When it occurred |
 | `type` | `string` | ❌ | `REVENUE`/`EXPENSE` | Money flow direction |
+| `subtype` | `string` | ❌ | `FIXED`/`VARIABLE` | Fixed or variable nature |
 | `status` | `string` | ❌ | `PENDING`/`PAID` | Payment state |
 
 ### Business Rules
@@ -241,6 +268,13 @@ Permanently deletes a transaction and reverses balance impact if `PAID`.
 | --- | --- |
 | `REVENUE` | Incoming money |
 | `EXPENSE` | Outgoing money |
+
+### `TransactionSubtype`
+
+| Value | Description |
+| --- | --- |
+| `FIXED` | Expected recurrent transaction |
+| `VARIABLE` | Non-recurrent or varying transaction |
 
 ### `TransactionStatus`
 
@@ -294,6 +328,7 @@ Permanently deletes a transaction and reverses balance impact if `PAID`.
 | `amount` | `number` | No | Monetary value |
 | `dateTime` | `datetime` | No | When occurred |
 | `type` | `string` | No | `"REVENUE"` or `"EXPENSE"` |
+| `subtype` | `string` | Yes | `"FIXED"` or `"VARIABLE"` |
 | `status` | `string` | No | `"PENDING"` or `"PAID"` |
 | `createdAt` | `datetime` | No | Record creation timestamp |
 | `updatedAt` | `datetime` | No | Last update timestamp |

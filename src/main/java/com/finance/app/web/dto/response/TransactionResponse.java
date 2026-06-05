@@ -20,6 +20,7 @@ public record TransactionResponse(
         BigDecimal amount,
         LocalDateTime dateTime,
         String type,
+        String subtype,
         String status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {
@@ -39,6 +40,7 @@ public record TransactionResponse(
                 transaction.getAmount(),
                 transaction.getDateTime(),
                 transaction.getType().name(),
+                transaction.getSubtype() != null ? transaction.getSubtype().name() : null,
                 transaction.getStatus().name(),
                 transaction.getCreatedAt(),
                 transaction.getUpdatedAt());

@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     external_id   VARCHAR(255) UNIQUE,
     description   VARCHAR(255) NOT NULL,
     "type"        VARCHAR(20) NOT NULL DEFAULT 'EXPENSE',
+    subtype       VARCHAR(20),
     amount        DECIMAL(12, 2) NOT NULL,
     date_time     TIMESTAMP NOT NULL,
     "status"      VARCHAR(20) NOT NULL DEFAULT 'PENDING',

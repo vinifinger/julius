@@ -2,6 +2,8 @@ package com.finance.app.infrastructure.persistence;
 
 import com.finance.app.domain.entity.CategoryExpenseSummary;
 import com.finance.app.domain.entity.CompetenceAmountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionCountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionAmountSummary;
 import com.finance.app.domain.entity.Transaction;
 import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.repository.TransactionRepository;
@@ -12,6 +14,8 @@ import com.finance.app.infrastructure.persistence.entity.TransactionEntity;
 import com.finance.app.infrastructure.persistence.entity.UserEntity;
 import com.finance.app.infrastructure.persistence.mapper.TransactionMapper;
 import com.finance.app.infrastructure.persistence.repository.TransactionJpaRepository;
+import com.finance.app.infrastructure.persistence.repository.specification.TransactionSpecification;
+import com.finance.app.domain.entity.TransactionFilter;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -33,6 +37,13 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     @Override
     public Optional<Transaction> findById(UUID id) {
         return jpaRepository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Transaction> findByFilter(TransactionFilter filter) {
+        return jpaRepository.findAll(TransactionSpecification.from(filter)).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -113,6 +124,26 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         return transactions.stream()
                 .map(this::save)
                 .toList();
+    }
+
+    @Override
+    public long countByCompetenceId(UUID competenceId) {
+        return jpaRepository.countByCompetenceId(competenceId);
+    }
+
+    @Override
+    public List<CompetenceTransactionCountSummary> countTransactionsGroupedByCompetence(UUID userId) {
+        return jpaRepository.countTransactionsGroupedByCompetence(userId);
+    }
+
+    @Override
+    public List<CompetenceTransactionAmountSummary> sumAmountsGroupedByCompetence(UUID userId) {
+        return jpaRepository.sumAmountsGroupedByCompetence(userId);
+    }
+
+    @Override
+    public List<CompetenceTransactionAmountSummary> sumAmountsByCompetenceId(UUID competenceId) {
+        return jpaRepository.sumAmountsByCompetenceId(competenceId);
     }
 
 }

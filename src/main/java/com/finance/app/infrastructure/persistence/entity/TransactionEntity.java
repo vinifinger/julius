@@ -1,6 +1,7 @@
 package com.finance.app.infrastructure.persistence.entity;
 
 import com.finance.app.domain.entity.TransactionStatus;
+import com.finance.app.domain.entity.TransactionSubtype;
 import com.finance.app.domain.entity.TransactionType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -68,6 +69,10 @@ public class TransactionEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "`type`", nullable = false)
     private TransactionType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subtype")
+    private TransactionSubtype subtype;
 
     @Column(name = "amount", precision = 12, scale = 2, nullable = false)
     private BigDecimal amount;

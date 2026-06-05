@@ -33,6 +33,7 @@ class TransactionResponseSerializationTest {
                 new BigDecimal("100.00"),
                 LocalDateTime.now(),
                 "EXPENSE",
+                null, // subtype
                 "PENDING",
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -60,6 +61,7 @@ class TransactionResponseSerializationTest {
                 new BigDecimal("50.00"),
                 LocalDateTime.now(),
                 "EXPENSE",
+                "FIXED", // subtype
                 "PAID",
                 LocalDateTime.now(),
                 LocalDateTime.now()

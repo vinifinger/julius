@@ -1,6 +1,7 @@
 package com.finance.app.web.dto.request;
 
 import com.finance.app.domain.entity.TransactionStatus;
+import com.finance.app.domain.entity.TransactionSubtype;
 import com.finance.app.domain.entity.TransactionType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -13,21 +14,14 @@ import java.util.UUID;
 public record CreateTransactionRequest(
 
         @NotNull(message = "Account ID is required") UUID accountId,
-
         @NotNull(message = "Category ID is required") UUID categoryId,
-
         @NotNull(message = "Competence ID is required") UUID competenceId,
-
         @NotBlank(message = "Description is required") String description,
-
         @NotNull(message = "Amount is required") @DecimalMin(value = "0.01", message = "Amount must be greater than zero") BigDecimal amount,
-
         @NotNull(message = "Date/time is required") LocalDateTime dateTime,
-
         @NotNull(message = "Type is required") TransactionType type,
-
+        TransactionSubtype subtype,
         @NotNull(message = "Status is required") TransactionStatus status,
-
         String externalId
 
 ) {

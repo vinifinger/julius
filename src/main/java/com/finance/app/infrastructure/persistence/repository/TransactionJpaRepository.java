@@ -2,19 +2,22 @@ package com.finance.app.infrastructure.persistence.repository;
 
 import com.finance.app.domain.entity.CategoryExpenseSummary;
 import com.finance.app.domain.entity.CompetenceAmountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionCountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionAmountSummary;
 import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.infrastructure.persistence.entity.TransactionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface TransactionJpaRepository extends JpaRepository<TransactionEntity, UUID> {
+public interface TransactionJpaRepository extends JpaRepository<TransactionEntity, UUID>, JpaSpecificationExecutor<TransactionEntity> {
 
     List<TransactionEntity> findByUserId(UUID userId);
 
@@ -47,5 +50,25 @@ public interface TransactionJpaRepository extends JpaRepository<TransactionEntit
     boolean existsPendingByAccountId(@Param("accountId") UUID accountId);
 
     boolean existsByExternalId(String externalId);
+
+    long countByCompetenceId(UUID competenceId);
+
+    @Query("SELECT new com.finance.app.domain.entity.CompetenceTransactionCountSummary(t.competence.id, COUNT(t)) " +
+            "FROM TransactionEntity t " +
+            "WHERE t.user.id = :userId " +
+            "GROUP BY t.competence.id")
+    List<CompetenceTransactionCountSummary> countTransactionsGroupedByCompetence(@Param("userId") UUID userId);
+
+    @Query("SELECT new com.finance.app.domain.entity.CompetenceTransactionAmountSummary(t.competence.id, t.type, t.status, COALESCE(SUM(t.amount), 0)) " +
+            "FROM TransactionEntity t " +
+            "WHERE t.user.id = :userId " +
+            "GROUP BY t.competence.id, t.type, t.status")
+    List<CompetenceTransactionAmountSummary> sumAmountsGroupedByCompetence(@Param("userId") UUID userId);
+
+    @Query("SELECT new com.finance.app.domain.entity.CompetenceTransactionAmountSummary(t.competence.id, t.type, t.status, COALESCE(SUM(t.amount), 0)) " +
+            "FROM TransactionEntity t " +
+            "WHERE t.competence.id = :competenceId " +
+            "GROUP BY t.competence.id, t.type, t.status")
+    List<CompetenceTransactionAmountSummary> sumAmountsByCompetenceId(@Param("competenceId") UUID competenceId);
 
 }

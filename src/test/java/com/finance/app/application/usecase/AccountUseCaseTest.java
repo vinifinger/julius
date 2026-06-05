@@ -224,4 +224,42 @@ class AccountUseCaseTest {
         }
     }
 
+    @Nested
+    @DisplayName("update")
+    class Update {
+
+        @Test
+        @DisplayName("Should update account successfully")
+        void givenValidRequest_whenUpdate_thenReturnsUpdatedAccount() {
+            UUID accountId = UUID.randomUUID();
+            Account existingAccount = createAccount(accountId, "Old Name", BigDecimal.valueOf(100.00));
+            existingAccount.setCurrency("USD");
+
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(java.util.Optional.of(existingAccount));
+            when(accountRepository.save(any(Account.class))).thenAnswer(i -> i.getArgument(0));
+
+            com.finance.app.web.dto.request.UpdateAccountRequest request = new com.finance.app.web.dto.request.UpdateAccountRequest("New Name", "EUR");
+
+            AccountResponse response = accountUseCase.update(accountId, request, userId);
+
+            assertNotNull(response);
+            assertEquals("New Name", response.name());
+            assertEquals("EUR", response.currency());
+            assertEquals(BigDecimal.valueOf(100.00).setScale(2, RoundingMode.HALF_EVEN), response.balance());
+            verify(accountRepository).save(any(Account.class));
+        }
+
+        @Test
+        @DisplayName("Should throw AccountNotFoundException when account does not exist")
+        void givenNonExistingAccount_whenUpdate_thenThrowsException() {
+            UUID accountId = UUID.randomUUID();
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(java.util.Optional.empty());
+
+            com.finance.app.web.dto.request.UpdateAccountRequest request = new com.finance.app.web.dto.request.UpdateAccountRequest("New Name", "EUR");
+
+            assertThrows(AccountNotFoundException.class, () -> accountUseCase.update(accountId, request, userId));
+            verify(accountRepository, never()).save(any(Account.class));
+        }
+    }
+
 }

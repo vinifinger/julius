@@ -4,6 +4,7 @@ import com.finance.app.domain.entity.Account;
 import com.finance.app.domain.entity.Competence;
 import com.finance.app.domain.entity.InstallmentSeries;
 import com.finance.app.domain.entity.Transaction;
+import com.finance.app.domain.entity.TransactionSubtype;
 import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.exception.CategoryNotFoundException;
@@ -140,9 +141,10 @@ public class InstallmentUseCase {
     }
 
     private Transaction createTransaction(CreateInstallmentRequest request, UUID userId, UUID parentId, int number, BigDecimal amount, UUID competenceId) {
+        TransactionSubtype subtype = request.subtype() != null ? request.subtype() : TransactionSubtype.FIXED;
         return Transaction.create(
                 request.accountId(), request.categoryId(), competenceId, userId,
-                request.description(), amount, request.dateTime(), request.type(), request.status(),
+                request.description(), amount, request.dateTime(), request.type(), subtype, request.status(),
                 parentId, request.installments(), number, null
         );
     }

@@ -5,7 +5,9 @@ import com.finance.app.domain.port.UserContext;
 import com.finance.app.web.dto.request.CreateTransactionRequest;
 import com.finance.app.web.dto.request.UpdateTransactionRequest;
 import com.finance.app.web.dto.request.UpdateTransactionStatusRequest;
+import com.finance.app.web.dto.request.TransactionFilterRequest;
 import com.finance.app.web.dto.response.TransactionResponse;
+import com.finance.app.domain.entity.TransactionFilter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -44,9 +47,10 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> listByUser() {
+    public ResponseEntity<List<TransactionResponse>> listByUser(@Valid @ModelAttribute TransactionFilterRequest request) {
         UUID userId = userContext.getAuthenticatedUserId();
-        List<TransactionResponse> responses = transactionUseCase.listByUser(userId);
+        TransactionFilter filter = request.toDomain(userId);
+        List<TransactionResponse> responses = transactionUseCase.listTransactions(filter);
         return ResponseEntity.ok(responses);
     }
 

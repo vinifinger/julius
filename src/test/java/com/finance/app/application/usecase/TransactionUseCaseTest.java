@@ -107,7 +107,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Grocery shopping", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -136,7 +136,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Future expense", BigDecimal.valueOf(100.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PENDING, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -163,7 +163,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.empty());
 
@@ -180,7 +180,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
@@ -198,7 +198,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -218,7 +218,7 @@ class TransactionUseCaseTest {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId, categoryId, competenceId,
                     "Salary", BigDecimal.valueOf(3000.00),
-                    LocalDateTime.now(), TransactionType.REVENUE, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.REVENUE, null, TransactionStatus.PAID, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -234,6 +234,36 @@ class TransactionUseCaseTest {
             // Then
             assertNotNull(response);
             assertEquals("REVENUE", response.type());
+            assertEquals("PAID", response.status());
+            verify(transactionService).processTransaction(any(Transaction.class), any(Account.class));
+            verify(accountRepository).save(account);
+        }
+
+        @Test
+        @DisplayName("Should create transaction with subtype FIXED and process balance")
+        void givenTransactionWithSubtype_whenCreate_thenCreatesWithSubtype() {
+            // Given
+            Account account = createAccount(BigDecimal.valueOf(1000.00));
+            CreateTransactionRequest request = new CreateTransactionRequest(
+                    accountId, categoryId, competenceId,
+                    "Gym membership", BigDecimal.valueOf(100.00),
+                    LocalDateTime.now(), TransactionType.EXPENSE, com.finance.app.domain.entity.TransactionSubtype.FIXED, TransactionStatus.PAID, null);
+
+            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
+                    com.finance.app.domain.entity.Category.builder().id(categoryId).build()));
+            when(competenceRepository.findById(competenceId)).thenReturn(Optional.of(
+                    com.finance.app.domain.entity.Competence.builder().id(competenceId).build()));
+            when(transactionRepository.save(any(Transaction.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // When
+            TransactionResponse response = transactionUseCase.create(request, userId);
+
+            // Then
+            assertNotNull(response);
+            assertEquals("EXPENSE", response.type());
+            assertEquals("FIXED", response.subtype());
             assertEquals("PAID", response.status());
             verify(transactionService).processTransaction(any(Transaction.class), any(Account.class));
             verify(accountRepository).save(account);
@@ -438,6 +468,27 @@ class TransactionUseCaseTest {
             verify(transactionService).reverseTransaction(any(Transaction.class), any(Account.class));
             verify(transactionService).processTransaction(any(Transaction.class), any(Account.class));
             verify(accountRepository, org.mockito.Mockito.atLeastOnce()).save(account);
+        }
+
+        @Test
+        @DisplayName("Should update subtype from null to VARIABLE")
+        void givenTransaction_whenUpdateSubtype_thenUpdatesSubtype() {
+            UUID transactionId = UUID.randomUUID();
+            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.PENDING);
+            transaction.setSubtype(null);
+            when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
+            when(transactionRepository.save(any(Transaction.class))).thenAnswer(i -> i.getArgument(0));
+
+            com.finance.app.web.dto.request.UpdateTransactionRequest request = com.finance.app.web.dto.request.UpdateTransactionRequest.builder()
+                    .subtype(com.finance.app.domain.entity.TransactionSubtype.VARIABLE)
+                    .build();
+
+            TransactionResponse response = transactionUseCase.update(transactionId, request);
+
+            assertEquals("VARIABLE", response.subtype());
+            verify(transactionService, never()).reverseTransaction(any(), any());
+            verify(transactionService, never()).processTransaction(any(), any());
+            verify(accountRepository, never()).save(any());
         }
     }
 

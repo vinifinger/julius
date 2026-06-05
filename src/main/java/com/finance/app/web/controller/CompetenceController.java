@@ -4,6 +4,7 @@ import com.finance.app.application.usecase.CompetenceUseCase;
 import com.finance.app.domain.port.UserContext;
 import com.finance.app.web.dto.request.CreateCompetenceRequest;
 import com.finance.app.web.dto.response.CompetenceResponse;
+import com.finance.app.web.dto.response.CompetenceDetailResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,9 +27,9 @@ public class CompetenceController {
     private final UserContext userContext;
 
     @PostMapping
-    public ResponseEntity<CompetenceResponse> create(@Valid @RequestBody CreateCompetenceRequest request) {
+    public ResponseEntity<CompetenceDetailResponse> create(@Valid @RequestBody CreateCompetenceRequest request) {
         UUID userId = userContext.getAuthenticatedUserId();
-        CompetenceResponse response = competenceUseCase.create(request, userId);
+        CompetenceDetailResponse response = competenceUseCase.create(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -39,10 +40,17 @@ public class CompetenceController {
         return ResponseEntity.ok(responses);
     }
 
-    @GetMapping("/current")
-    public ResponseEntity<CompetenceResponse> getCurrent() {
+    @GetMapping("/{id}")
+    public ResponseEntity<CompetenceDetailResponse> getById(@org.springframework.web.bind.annotation.PathVariable UUID id) {
         UUID userId = userContext.getAuthenticatedUserId();
-        CompetenceResponse response = competenceUseCase.getCurrent(userId);
+        CompetenceDetailResponse response = competenceUseCase.getById(id, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<CompetenceDetailResponse> getCurrent() {
+        UUID userId = userContext.getAuthenticatedUserId();
+        CompetenceDetailResponse response = competenceUseCase.getCurrent(userId);
         return ResponseEntity.ok(response);
     }
 

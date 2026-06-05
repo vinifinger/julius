@@ -76,6 +76,7 @@ public class ImportStatementUseCase {
                     pt.amount(),
                     pt.dateTime(),
                     pt.type(),
+                    null,
                     TransactionStatus.PAID,
                     pt.externalId()
             );

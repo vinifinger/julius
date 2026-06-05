@@ -3,6 +3,7 @@ package com.finance.app.application.usecase;
 import com.finance.app.domain.entity.Account;
 import com.finance.app.domain.entity.Transaction;
 import com.finance.app.domain.entity.TransactionStatus;
+import com.finance.app.domain.entity.TransactionSubtype;
 import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.exception.CategoryNotFoundException;
@@ -18,6 +19,7 @@ import com.finance.app.web.dto.request.CreateTransactionRequest;
 import com.finance.app.web.dto.request.UpdateTransactionRequest;
 import com.finance.app.web.dto.request.UpdateTransactionStatusRequest;
 import com.finance.app.web.dto.response.TransactionResponse;
+import com.finance.app.domain.entity.TransactionFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -65,6 +67,7 @@ public class TransactionUseCase {
                 request.amount(),
                 request.dateTime(),
                 type,
+                request.subtype(),
                 status,
                 null,
                 null,
@@ -90,6 +93,12 @@ public class TransactionUseCase {
 
     public List<TransactionResponse> listByUser(UUID userId) {
         return transactionRepository.findByUserId(userId).stream()
+                .map(TransactionResponse::fromDomain)
+                .toList();
+    }
+
+    public List<TransactionResponse> listTransactions(TransactionFilter filter) {
+        return transactionRepository.findByFilter(filter).stream()
                 .map(TransactionResponse::fromDomain)
                 .toList();
     }
@@ -129,6 +138,7 @@ public class TransactionUseCase {
         if (request.amount() != null) transaction.setAmount(request.amount().setScale(2, java.math.RoundingMode.HALF_EVEN));
         if (request.dateTime() != null) transaction.setDateTime(request.dateTime());
         if (request.type() != null) transaction.setType(request.type());
+        if (request.subtype() != null) transaction.setSubtype(request.subtype());
         if (request.status() != null) transaction.setStatus(request.status());
 
         if (transaction.isPaid() && affectsBalance) {
