@@ -52,6 +52,10 @@ public class TransactionEntity {
     private CategoryEntity category;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subcategory_id")
+    private SubcategoryEntity subcategory;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "competence_id", nullable = false)
     private CompetenceEntity competence;
 

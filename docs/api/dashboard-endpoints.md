@@ -47,8 +47,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 | Field | Type | Nullable | Description |
 | --- | --- | --- | --- |
-| `totalRevenue` | `number` | No | Sum of all `REVENUE` transactions (PAID) |
-| `totalExpenses` | `number` | No | Sum of all `EXPENSE` transactions (PAID) |
+| `totalRevenue` | `number` | No | Sum of all `REVENUE` transactions (COMPLETED) |
+| `totalExpenses` | `number` | No | Sum of all `EXPENSE` transactions (COMPLETED) |
 | `monthlyBalance` | `number` | No | `totalRevenue - totalExpenses` |
 | `status` | `string` | No | `"POSITIVE"` if balance >= 0, else `"NEGATIVE"` |
 

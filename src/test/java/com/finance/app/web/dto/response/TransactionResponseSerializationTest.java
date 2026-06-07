@@ -23,6 +23,7 @@ class TransactionResponseSerializationTest {
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 UUID.randomUUID(),
+                null, // subcategoryId
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 null, // parentId
@@ -51,6 +52,7 @@ class TransactionResponseSerializationTest {
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 UUID.randomUUID(),
+                null, // subcategoryId
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 parentId,
@@ -62,7 +64,7 @@ class TransactionResponseSerializationTest {
                 LocalDateTime.now(),
                 "EXPENSE",
                 "FIXED", // subtype
-                "PAID",
+                "COMPLETED",
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );

@@ -4,12 +4,14 @@ import com.finance.app.domain.entity.CategoryExpenseSummary;
 import com.finance.app.domain.entity.CompetenceAmountSummary;
 import com.finance.app.domain.entity.CompetenceTransactionCountSummary;
 import com.finance.app.domain.entity.CompetenceTransactionAmountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionSubtypeSummary;
 import com.finance.app.domain.entity.Transaction;
 import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.repository.TransactionRepository;
 import com.finance.app.infrastructure.persistence.entity.AccountEntity;
 import com.finance.app.infrastructure.persistence.entity.CategoryEntity;
 import com.finance.app.infrastructure.persistence.entity.CompetenceEntity;
+import com.finance.app.infrastructure.persistence.entity.SubcategoryEntity;
 import com.finance.app.infrastructure.persistence.entity.TransactionEntity;
 import com.finance.app.infrastructure.persistence.entity.UserEntity;
 import com.finance.app.infrastructure.persistence.mapper.TransactionMapper;
@@ -71,13 +73,16 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     public Transaction save(Transaction transaction) {
         AccountEntity account = entityManager.getReference(AccountEntity.class, transaction.getAccountId());
         CategoryEntity category = entityManager.getReference(CategoryEntity.class, transaction.getCategoryId());
+        SubcategoryEntity subcategory = Objects.nonNull(transaction.getSubcategoryId())
+                ? entityManager.getReference(SubcategoryEntity.class, transaction.getSubcategoryId())
+                : null;
         CompetenceEntity competence = entityManager.getReference(CompetenceEntity.class, transaction.getCompetenceId());
         UserEntity user = entityManager.getReference(UserEntity.class, transaction.getUserId());
         TransactionEntity parent = Objects.nonNull(transaction.getParentId())
                 ? entityManager.getReference(TransactionEntity.class, transaction.getParentId())
                 : null;
 
-        TransactionEntity entity = mapper.toEntity(transaction, account, category, competence, user, parent);
+        TransactionEntity entity = mapper.toEntity(transaction, account, category, subcategory, competence, user, parent);
         TransactionEntity savedEntity = jpaRepository.save(entity);
         return mapper.toDomain(savedEntity);
     }
@@ -144,6 +149,11 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     @Override
     public List<CompetenceTransactionAmountSummary> sumAmountsByCompetenceId(UUID competenceId) {
         return jpaRepository.sumAmountsByCompetenceId(competenceId);
+    }
+
+    @Override
+    public List<CompetenceTransactionSubtypeSummary> sumSubtypeAmountsByCompetenceId(UUID competenceId) {
+        return jpaRepository.sumSubtypeAmountsByCompetenceId(competenceId);
     }
 
 }

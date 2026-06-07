@@ -9,7 +9,7 @@ The system will parse the files, map the data to the `Transaction` entity, dedup
 - **Account Binding:** All imported transactions must be bound to a specific `AccountId` provided in the import request.
 - **Categorization:** Since bank statements lack internal system categories, a `defaultCategoryId` must be provided in the import request. The user can manually re-categorize them later.
 - **Competence Resolution:** The system must automatically resolve the `CompetenceId` based on the transaction date (`Month`/`Year`). If the competence doesn't exist, it should be created via `CompetenceUseCase`.
-- **Status:** All imported transactions are inherently `PAID`.
+- **Status:** All imported transactions are inherently `COMPLETED`.
 - **Deduplication:** Transactions with an `externalId` that already exists in the system will be silently skipped/ignored during the import process to prevent double counting.
 - **Mapping (Nubank):**
   - Amount > 0: `TransactionType.REVENUE`
@@ -39,7 +39,7 @@ The system will parse the files, map the data to the `Transaction` entity, dedup
   - Iterates over transactions:
     - Checks `transactionRepository.existsByExternalId`. If yes, increments `ignoredCount`.
     - Resolves `CompetenceId` via `CompetenceUseCase.getOrCreate(...)`.
-    - Creates `Transaction` via `TransactionUseCase.create(...)` with `status = PAID`.
+    - Creates `Transaction` via `TransactionUseCase.create(...)` with `status = COMPLETED`.
   - Returns a summary of the import (e.g., `importedCount`, `ignoredCount`).
 
 ### 3.3. Infrastructure Layer

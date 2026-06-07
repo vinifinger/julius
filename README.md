@@ -120,11 +120,11 @@ http://localhost:8080/swagger-ui/index.html
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `POST` | `/api/v1/transactions` | Cria transação — atualiza saldo se PAID (Header: `X-User-Id`) |
+| `POST` | `/api/v1/transactions` | Cria transação — atualiza saldo se COMPLETED (Header: `X-User-Id`) |
 | `GET` | `/api/v1/transactions/{id}` | Detalha uma transação |
 | `GET` | `/api/v1/transactions` | Lista transações do usuário (Header: `X-User-Id`) |
-| `PATCH` | `/api/v1/transactions/{id}/status` | Altera status (PENDING ↔ PAID) |
-| `DELETE` | `/api/v1/transactions/{id}` | Remove transação — estorna saldo se PAID |
+| `PATCH` | `/api/v1/transactions/{id}/status` | Altera status (PENDING ↔ COMPLETED) |
+| `DELETE` | `/api/v1/transactions/{id}` | Remove transação — estorna saldo se COMPLETED |
 
 ### Parcelamentos (Installments)
 
@@ -185,7 +185,7 @@ curl -X POST http://localhost:8080/api/v1/transactions \
     "amount": 150.50,
     "dateTime": "2026-02-27T10:30:00",
     "type": "EXPENSE",
-    "status": "PAID"
+    "status": "COMPLETED"
   }'
 ```
 
@@ -200,7 +200,7 @@ curl http://localhost:8080/api/v1/dashboard/summary?competenceId=<UUID_DA_COMPET
 ```bash
 curl -X PATCH http://localhost:8080/api/v1/transactions/<UUID>/status \
   -H "Content-Type: application/json" \
-  -d '{ "status": "PAID" }'
+  -d '{ "status": "COMPLETED" }'
 ```
 
 ---

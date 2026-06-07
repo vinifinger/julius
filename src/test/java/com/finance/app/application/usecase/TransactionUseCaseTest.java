@@ -100,14 +100,14 @@ class TransactionUseCaseTest {
     class Create {
 
         @Test
-        @DisplayName("Should create transaction with PAID status and process balance")
+        @DisplayName("Should create transaction with COMPLETED status and process balance")
         void givenPaidTransaction_whenCreate_thenProcessesBalance() {
             // Given
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId,
+                    accountId, categoryId, null, competenceId,
                     "Grocery shopping", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.COMPLETED, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -123,7 +123,7 @@ class TransactionUseCaseTest {
             // Then
             assertNotNull(response);
             assertEquals("EXPENSE", response.type());
-            assertEquals("PAID", response.status());
+            assertEquals("COMPLETED", response.status());
             verify(transactionService).processTransaction(any(Transaction.class), any(Account.class));
             verify(accountRepository).save(account);
         }
@@ -134,7 +134,7 @@ class TransactionUseCaseTest {
             // Given
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId,
+                    accountId, categoryId, null, competenceId,
                     "Future expense", BigDecimal.valueOf(100.00),
                     LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING, null);
 
@@ -161,9 +161,9 @@ class TransactionUseCaseTest {
         void givenInvalidAccount_whenCreate_thenThrowsAccountNotFound() {
             // Given
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId,
+                    accountId, categoryId, null, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.COMPLETED, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.empty());
 
@@ -178,9 +178,9 @@ class TransactionUseCaseTest {
             // Given
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId,
+                    accountId, categoryId, null, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.COMPLETED, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
@@ -196,9 +196,9 @@ class TransactionUseCaseTest {
             // Given
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId,
+                    accountId, categoryId, null, competenceId,
                     "Test", BigDecimal.valueOf(50.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.COMPLETED, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -211,14 +211,14 @@ class TransactionUseCaseTest {
         }
 
         @Test
-        @DisplayName("Should create REVENUE transaction with PAID status and process balance")
+        @DisplayName("Should create REVENUE transaction with COMPLETED status and process balance")
         void givenRevenuePaid_whenCreate_thenProcessesBalance() {
             // Given
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId,
+                    accountId, categoryId, null, competenceId,
                     "Salary", BigDecimal.valueOf(3000.00),
-                    LocalDateTime.now(), TransactionType.REVENUE, null, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.REVENUE, null, TransactionStatus.COMPLETED, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -234,7 +234,7 @@ class TransactionUseCaseTest {
             // Then
             assertNotNull(response);
             assertEquals("REVENUE", response.type());
-            assertEquals("PAID", response.status());
+            assertEquals("COMPLETED", response.status());
             verify(transactionService).processTransaction(any(Transaction.class), any(Account.class));
             verify(accountRepository).save(account);
         }
@@ -245,9 +245,9 @@ class TransactionUseCaseTest {
             // Given
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             CreateTransactionRequest request = new CreateTransactionRequest(
-                    accountId, categoryId, competenceId,
+                    accountId, categoryId, null, competenceId,
                     "Gym membership", BigDecimal.valueOf(100.00),
-                    LocalDateTime.now(), TransactionType.EXPENSE, com.finance.app.domain.entity.TransactionSubtype.FIXED, TransactionStatus.PAID, null);
+                    LocalDateTime.now(), TransactionType.EXPENSE, com.finance.app.domain.entity.TransactionSubtype.FIXED, TransactionStatus.COMPLETED, null);
 
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(
@@ -264,7 +264,7 @@ class TransactionUseCaseTest {
             assertNotNull(response);
             assertEquals("EXPENSE", response.type());
             assertEquals("FIXED", response.subtype());
-            assertEquals("PAID", response.status());
+            assertEquals("COMPLETED", response.status());
             verify(transactionService).processTransaction(any(Transaction.class), any(Account.class));
             verify(accountRepository).save(account);
         }
@@ -279,7 +279,7 @@ class TransactionUseCaseTest {
         void givenExistingId_whenGetById_thenReturnsResponse() {
             // Given
             UUID transactionId = UUID.randomUUID();
-            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.PAID);
+            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.COMPLETED);
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
 
             // When
@@ -311,7 +311,7 @@ class TransactionUseCaseTest {
         void givenUserId_whenListByUser_thenReturnsTransactions() {
             // Given
             Transaction transaction = createTransaction(UUID.randomUUID(), TransactionType.EXPENSE,
-                    TransactionStatus.PAID);
+                    TransactionStatus.COMPLETED);
             when(transactionRepository.findByUserId(userId)).thenReturn(List.of(transaction));
 
             // When
@@ -340,7 +340,7 @@ class TransactionUseCaseTest {
     class UpdateStatus {
 
         @Test
-        @DisplayName("Should process balance when changing PENDING to PAID")
+        @DisplayName("Should process balance when changing PENDING to COMPLETED")
         void givenPendingToPaid_whenUpdateStatus_thenProcessesBalance() {
             // Given
             UUID transactionId = UUID.randomUUID();
@@ -353,23 +353,23 @@ class TransactionUseCaseTest {
             when(transactionRepository.save(any(Transaction.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.PAID);
+            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.COMPLETED);
 
             // When
             TransactionResponse response = transactionUseCase.updateStatus(transactionId, request);
 
             // Then
-            assertEquals("PAID", response.status());
+            assertEquals("COMPLETED", response.status());
             verify(transactionService).processTransaction(any(Transaction.class), any(Account.class));
             verify(accountRepository).save(account);
         }
 
         @Test
-        @DisplayName("Should reverse balance when changing PAID to PENDING")
+        @DisplayName("Should reverse balance when changing COMPLETED to PENDING")
         void givenPaidToPending_whenUpdateStatus_thenReversesBalance() {
             // Given
             UUID transactionId = UUID.randomUUID();
-            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.PAID);
+            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.COMPLETED);
             Account account = createAccount(BigDecimal.valueOf(950.00));
 
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
@@ -393,7 +393,7 @@ class TransactionUseCaseTest {
         void givenNonExistingId_whenUpdateStatus_thenThrowsTransactionNotFound() {
             // Given
             UUID transactionId = UUID.randomUUID();
-            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.PAID);
+            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.COMPLETED);
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.empty());
 
             // When / Then
@@ -406,18 +406,18 @@ class TransactionUseCaseTest {
         void givenSameStatus_whenUpdateStatus_thenReturnsUnchangedWithoutProcessing() {
             // Given
             UUID transactionId = UUID.randomUUID();
-            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.PAID);
+            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.COMPLETED);
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
 
-            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.PAID);
+            UpdateTransactionStatusRequest request = new UpdateTransactionStatusRequest(TransactionStatus.COMPLETED);
 
             // When
             TransactionResponse response = transactionUseCase.updateStatus(transactionId, request);
 
             // Then
-            assertEquals("PAID", response.status());
+            assertEquals("COMPLETED", response.status());
             verify(transactionService, never()).processTransaction(any(), any());
             verify(transactionService, never()).reverseTransaction(any(), any());
             verify(transactionRepository, never()).save(any());
@@ -449,10 +449,10 @@ class TransactionUseCaseTest {
         }
 
         @Test
-        @DisplayName("Should reverse old balance and process new when amount changes on PAID transaction")
+        @DisplayName("Should reverse old balance and process new when amount changes on COMPLETED transaction")
         void givenPaidTransaction_whenUpdateAmount_thenAdjustsBalance() {
             UUID transactionId = UUID.randomUUID();
-            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.PAID);
+            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.COMPLETED);
             Account account = createAccount(BigDecimal.valueOf(1000.00));
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
             when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
@@ -497,11 +497,11 @@ class TransactionUseCaseTest {
     class Delete {
 
         @Test
-        @DisplayName("Should reverse balance and delete when transaction is PAID")
+        @DisplayName("Should reverse balance and delete when transaction is COMPLETED")
         void givenPaidTransaction_whenDelete_thenReversesBalanceAndDeletes() {
             // Given
             UUID transactionId = UUID.randomUUID();
-            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.PAID);
+            Transaction transaction = createTransaction(transactionId, TransactionType.EXPENSE, TransactionStatus.COMPLETED);
             Account account = createAccount(BigDecimal.valueOf(950.00));
 
             when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));

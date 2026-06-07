@@ -98,7 +98,7 @@ class InstallmentUseCaseTest {
              when(transactionRepository.saveAll(any())).thenAnswer(i -> i.getArgument(0));
 
              CreateInstallmentRequest request = new CreateInstallmentRequest(
-                     accountId, categoryId, competenceId, "Purchase",
+                     accountId, categoryId, null, competenceId, "Purchase",
                      new BigDecimal("300.00"), null, 3, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
@@ -127,7 +127,7 @@ class InstallmentUseCaseTest {
              when(transactionRepository.saveAll(any())).thenAnswer(i -> i.getArgument(0));
 
              CreateInstallmentRequest request = new CreateInstallmentRequest(
-                     accountId, categoryId, competenceId, "Purchase",
+                     accountId, categoryId, null, competenceId, "Purchase",
                      new BigDecimal("100.01"), null, 3, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
@@ -149,7 +149,7 @@ class InstallmentUseCaseTest {
              when(competenceRepository.findById(competenceId)).thenReturn(Optional.of(mockCompetence(11, 2026))); // Nov
              
              CreateInstallmentRequest request = new CreateInstallmentRequest(
-                     accountId, categoryId, competenceId, "Purchase",
+                     accountId, categoryId, null, competenceId, "Purchase",
                      new BigDecimal("400.00"), null, 4, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
@@ -175,7 +175,7 @@ class InstallmentUseCaseTest {
         @DisplayName("Should reject installments < 2")
         void shouldRejectSingleInstallment() {
              CreateInstallmentRequest request = new CreateInstallmentRequest(
-                     accountId, categoryId, competenceId, "Purchase",
+                     accountId, categoryId, null, competenceId, "Purchase",
                      new BigDecimal("100.00"), null, 1, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
@@ -189,7 +189,7 @@ class InstallmentUseCaseTest {
         void shouldRejectDivergence() {
              // 3 installments of 33.00 != 100.00 (Delta = 1.00, allowed delta = 0.03)
              CreateInstallmentRequest request = new CreateInstallmentRequest(
-                     accountId, categoryId, competenceId, "Purchase",
+                     accountId, categoryId, null, competenceId, "Purchase",
                      new BigDecimal("100.00"), new BigDecimal("33.00"), 3, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
@@ -211,7 +211,7 @@ class InstallmentUseCaseTest {
              when(transactionRepository.saveAll(any())).thenAnswer(i -> i.getArgument(0));
 
              CreateInstallmentRequest request = new CreateInstallmentRequest(
-                     accountId, categoryId, competenceId, "Purchase",
+                     accountId, categoryId, null, competenceId, "Purchase",
                      new BigDecimal("300.00"), null, 3, LocalDateTime.now(), TransactionType.EXPENSE, null, TransactionStatus.PENDING
              );
 
@@ -239,8 +239,8 @@ class InstallmentUseCaseTest {
         @DisplayName("Should recalculate only pending installments")
         void shouldRecalculatePendingOnly() {
             UUID parentId = UUID.randomUUID();
-            Transaction paid1 = Transaction.builder().id(parentId).parentId(parentId).installmentNumber(1).amount(new BigDecimal("100.00")).status(TransactionStatus.PAID).build();
-            Transaction paid2 = Transaction.builder().id(UUID.randomUUID()).parentId(parentId).installmentNumber(2).amount(new BigDecimal("100.00")).status(TransactionStatus.PAID).build();
+            Transaction paid1 = Transaction.builder().id(parentId).parentId(parentId).installmentNumber(1).amount(new BigDecimal("100.00")).status(TransactionStatus.COMPLETED).build();
+            Transaction paid2 = Transaction.builder().id(UUID.randomUUID()).parentId(parentId).installmentNumber(2).amount(new BigDecimal("100.00")).status(TransactionStatus.COMPLETED).build();
             Transaction pending3 = Transaction.builder().id(UUID.randomUUID()).parentId(parentId).installmentNumber(3).amount(new BigDecimal("100.00")).status(TransactionStatus.PENDING).build();
             Transaction pending4 = Transaction.builder().id(UUID.randomUUID()).parentId(parentId).installmentNumber(4).amount(new BigDecimal("100.00")).status(TransactionStatus.PENDING).build();
             
@@ -271,7 +271,7 @@ class InstallmentUseCaseTest {
             UUID parentId = UUID.randomUUID();
             Account account = mockAccount();
             Transaction paid = Transaction.builder().id(parentId).parentId(parentId).accountId(accountId).userId(userId)
-                    .amount(BigDecimal.valueOf(100.00)).type(TransactionType.EXPENSE).status(TransactionStatus.PAID).build();
+                    .amount(BigDecimal.valueOf(100.00)).type(TransactionType.EXPENSE).status(TransactionStatus.COMPLETED).build();
             Transaction pending = Transaction.builder().id(UUID.randomUUID()).parentId(parentId).accountId(accountId).userId(userId)
                     .amount(BigDecimal.valueOf(100.00)).type(TransactionType.EXPENSE).status(TransactionStatus.PENDING).build();
 

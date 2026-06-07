@@ -77,27 +77,27 @@ There is no dedicated `Installment` table. Instead, Julius uses a
 
 Users can modify the total value of an ongoing installment series.
 
-- **Rule of Preservation:** Already **PAID** installments are never modified.
+- **Rule of Preservation:** Already **COMPLETED** installments are never modified.
 - **Rule of Redistribution:** The difference between the new total and the sum
-  of paid installments is redistributed across the remaining **PENDING**
+  of completed installments is redistributed across the remaining **PENDING**
   installments.
 - **Validation:** The `newTotalAmount` must be greater than the sum of already
-  paid installments.
+  completed installments.
 
 ### 3.2 Type Reversal
 
 Changing the type of a series (e.g., from `EXPENSE` to `REVENUE`):
 
 - The system iterates through all transactions in the series.
-- For **PAID** transactions, it calls `transactionService.reverseTransaction()`
+- For **COMPLETED** transactions, it calls `transactionService.reverseTransaction()`
   to roll back the previous impact on the Account balance, updates the type, and
   then calls `processTransaction()` to apply the new impact.
 - **PENDING** transactions simply have their type updated.
 
 ### 3.3 Account Balance Interaction
 
-- Only **PAID** installments affect the Account balance.
-- If a series is created with status `PAID`, all generated transactions
+- Only **COMPLETED** installments affect the Account balance.
+- If a series is created with status `COMPLETED`, all generated transactions
   immediately affect the account (though typically only the first one is paid
   initially).
 

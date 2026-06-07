@@ -15,6 +15,7 @@ public record CreateTransactionRequest(
 
         @NotNull(message = "Account ID is required") UUID accountId,
         @NotNull(message = "Category ID is required") UUID categoryId,
+        UUID subcategoryId,
         @NotNull(message = "Competence ID is required") UUID competenceId,
         @NotBlank(message = "Description is required") String description,
         @NotNull(message = "Amount is required") @DecimalMin(value = "0.01", message = "Amount must be greater than zero") BigDecimal amount,

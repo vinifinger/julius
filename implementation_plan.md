@@ -5,7 +5,7 @@ This plan details the implementation of transaction filters for the `GET /transa
 ## User Review Required
 
 > [!IMPORTANT]
-> The previous response fields `paidAmount`, `pendingAmount`, and `totalAmount` will be removed from `CompetenceResponse` as requested, replacing them with `totalRevenue` and `totalExpense`. Since this is a breaking change to the API, please confirm this is strictly intended for all consumers of the competence endpoints.
+> The previous response fields `completedAmount`, `pendingAmount`, and `totalAmount` will be removed from `CompetenceResponse` as requested, replacing them with `totalRevenue` and `totalExpense`. Since this is a breaking change to the API, please confirm this is strictly intended for all consumers of the competence endpoints.
 
 ## Open Questions
 
@@ -58,7 +58,7 @@ None at this moment.
 ### Web/Presentation Layer
 
 #### [MODIFY] [CompetenceResponse.java](file:///c:/Users/Vinicius%20Finger/Documents/projects/julius/src/main/java/com/finance/app/web/dto/response/CompetenceResponse.java)
-- Replace `paidAmount`, `pendingAmount`, and `totalAmount` with `totalRevenue` and `totalExpense`. Update the `fromDomain` builder method.
+- Replace `completedAmount`, `pendingAmount`, and `totalAmount` with `totalRevenue` and `totalExpense`. Update the `fromDomain` builder method.
 
 #### [MODIFY] [CompetenceController.java](file:///c:/Users/Vinicius%20Finger/Documents/projects/julius/src/main/java/com/finance/app/web/controller/CompetenceController.java)
 - Add `@GetMapping("/{id}")` endpoint returning `ResponseEntity<CompetenceResponse>`. Call `competenceUseCase.getById`.

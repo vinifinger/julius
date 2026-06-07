@@ -4,6 +4,7 @@ import com.finance.app.domain.entity.CategoryExpenseSummary;
 import com.finance.app.domain.entity.CompetenceAmountSummary;
 import com.finance.app.domain.entity.CompetenceTransactionCountSummary;
 import com.finance.app.domain.entity.CompetenceTransactionAmountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionSubtypeSummary;
 import com.finance.app.domain.entity.Transaction;
 import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.entity.TransactionFilter;
@@ -50,5 +51,7 @@ public interface TransactionRepository {
     List<CompetenceTransactionAmountSummary> sumAmountsGroupedByCompetence(UUID userId);
 
     List<CompetenceTransactionAmountSummary> sumAmountsByCompetenceId(UUID competenceId);
+
+    List<CompetenceTransactionSubtypeSummary> sumSubtypeAmountsByCompetenceId(UUID competenceId);
 
 }

@@ -1,0 +1,49 @@
+{
+    "id": "759baeda-39d3-4daa-b691-887312c5b594",
+    "name": "06/2026",
+    "month": 6,
+    "year": 2026,
+    "pendingSummary": {
+        "transactionCount": 18,
+        "fixed": {
+            "revenue": 1500.00,
+            "expense": -770.00,
+            "balance": 730.00
+        },
+        "variable": {
+            "revenue": 250.00,
+            "expense": -580.00,
+            "balance": -330.00
+        },
+        "totalSummary": {
+            "totalRevenue": 1750.00,
+            "totalExpense": -1350.00,
+            "totalBalance": 400.00
+        }
+    },
+    "completedSummary": {
+        "transactionCount": 18,
+        "fixed": {
+            "revenue": 1500.00,
+            "expense": -770.00,
+            "balance": 730.00
+        },
+        "variable": {
+            "revenue": 250.00,
+            "expense": -580.00,
+            "balance": -330.00
+        },
+        "totalSummary": {
+            "totalRevenue": 1750.00,
+            "totalExpense": -1350.00,
+            "totalBalance": 400.00
+        }
+    },
+    "totalSummary": {
+        "totalRevenue": 6000.00,
+        "totalExpense": 8184.00,
+        "totalBalance": 400.00
+    },
+    "createdAt": "2026-06-03T00:18:56",
+    "updatedAt": "2026-06-03T00:18:56"
+}

@@ -3,13 +3,16 @@ package com.finance.app.application.usecase;
 import com.finance.app.domain.entity.Competence;
 import com.finance.app.domain.entity.CompetenceTransactionCountSummary;
 import com.finance.app.domain.entity.CompetenceTransactionAmountSummary;
+import com.finance.app.domain.entity.CompetenceTransactionSubtypeSummary;
 import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.entity.TransactionStatus;
+import com.finance.app.domain.entity.TransactionSubtype;
 import com.finance.app.domain.repository.CompetenceRepository;
 import com.finance.app.domain.repository.TransactionRepository;
 import com.finance.app.web.dto.request.CreateCompetenceRequest;
 import com.finance.app.web.dto.response.CompetenceResponse;
 import com.finance.app.web.dto.response.CompetenceDetailResponse;
+import com.finance.app.web.dto.response.CompetenceDetailResponseV2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,8 +28,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.finance.app.domain.exception.CompetenceNotFoundException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -75,8 +81,8 @@ class CompetenceUseCaseTest {
                     .thenReturn(5L);
             when(transactionRepository.sumAmountsByCompetenceId(any()))
                     .thenReturn(List.of(
-                            new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.REVENUE, TransactionStatus.PAID, new BigDecimal("100.00")),
-                            new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.EXPENSE, TransactionStatus.PAID, new BigDecimal("40.00")),
+                            new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.REVENUE, TransactionStatus.COMPLETED, new BigDecimal("100.00")),
+                            new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.EXPENSE, TransactionStatus.COMPLETED, new BigDecimal("40.00")),
                             new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.REVENUE, TransactionStatus.PENDING, new BigDecimal("50.00")),
                             new CompetenceTransactionAmountSummary(UUID.randomUUID(), TransactionType.EXPENSE, TransactionStatus.PENDING, new BigDecimal("10.00"))
                     ));
@@ -90,7 +96,7 @@ class CompetenceUseCaseTest {
             assertEquals(2026, response.year());
             assertEquals("02/2026", response.name());
             assertEquals(5L, response.transactionCount());
-            assertEquals(new BigDecimal("60.00"), response.paidAmount());
+            assertEquals(new BigDecimal("60.00"), response.completedAmount());
             assertEquals(new BigDecimal("40.00"), response.pendingAmount());
             assertEquals(new BigDecimal("100.00"), response.totalAmount());
             assertEquals(new BigDecimal("150.00"), response.totalRevenue());
@@ -170,6 +176,60 @@ class CompetenceUseCaseTest {
     }
 
     @Nested
+    @DisplayName("getByIdV2")
+    class GetByIdV2 {
+
+        @Test
+        @DisplayName("Should return CompetenceDetailResponseV2 when competence exists")
+        void givenExistingCompetence_whenGetByIdV2_thenReturnsResponse() {
+            // Given
+            UUID compId = UUID.randomUUID();
+            Competence competence = createCompetence(compId, 6, 2026);
+            when(competenceRepository.findById(compId)).thenReturn(Optional.of(competence));
+
+            when(transactionRepository.sumSubtypeAmountsByCompetenceId(compId)).thenReturn(List.of(
+                    new CompetenceTransactionSubtypeSummary(compId, TransactionType.REVENUE, TransactionStatus.PENDING, TransactionSubtype.FIXED, 5L, new BigDecimal("1500.00")),
+                    new CompetenceTransactionSubtypeSummary(compId, TransactionType.EXPENSE, TransactionStatus.PENDING, TransactionSubtype.FIXED, 7L, new BigDecimal("770.00")),
+                    new CompetenceTransactionSubtypeSummary(compId, TransactionType.REVENUE, TransactionStatus.PENDING, TransactionSubtype.VARIABLE, 2L, new BigDecimal("250.00")),
+                    new CompetenceTransactionSubtypeSummary(compId, TransactionType.EXPENSE, TransactionStatus.PENDING, TransactionSubtype.VARIABLE, 4L, new BigDecimal("580.00"))
+            ));
+
+            // When
+            CompetenceDetailResponseV2 response = competenceUseCase.getByIdV2(compId, userId);
+
+            // Then
+            assertNotNull(response);
+            assertEquals("06/2026", response.name());
+            
+            CompetenceDetailResponseV2.SummaryDetail pending = response.pendingSummary();
+            assertEquals(18L, pending.transactionCount());
+            
+            assertEquals(new BigDecimal("1500.00"), pending.fixed().revenue());
+            assertEquals(new BigDecimal("-770.00"), pending.fixed().expense());
+            assertEquals(new BigDecimal("730.00"), pending.fixed().balance());
+            
+            assertEquals(new BigDecimal("250.00"), pending.variable().revenue());
+            assertEquals(new BigDecimal("-580.00"), pending.variable().expense());
+            assertEquals(new BigDecimal("-330.00"), pending.variable().balance());
+            
+            assertEquals(new BigDecimal("1750.00"), pending.totalSummary().totalRevenue());
+            assertEquals(new BigDecimal("-1350.00"), pending.totalSummary().totalExpense());
+            assertEquals(new BigDecimal("400.00"), pending.totalSummary().totalBalance());
+        }
+
+        @Test
+        @DisplayName("Should throw CompetenceNotFoundException when not found")
+        void givenNotExistingCompetence_whenGetByIdV2_thenThrows() {
+            // Given
+            UUID compId = UUID.randomUUID();
+            when(competenceRepository.findById(compId)).thenReturn(Optional.empty());
+
+            // When / Then
+            assertThrows(CompetenceNotFoundException.class, () -> competenceUseCase.getByIdV2(compId, userId));
+        }
+    }
+
+    @Nested
     @DisplayName("listAll")
     class ListAll {
 
@@ -193,10 +253,10 @@ class CompetenceUseCaseTest {
                     ));
             when(transactionRepository.sumAmountsGroupedByCompetence(userId))
                     .thenReturn(List.of(
-                            new CompetenceTransactionAmountSummary(febId, TransactionType.REVENUE, TransactionStatus.PAID, new BigDecimal("200.00")),
-                            new CompetenceTransactionAmountSummary(febId, TransactionType.EXPENSE, TransactionStatus.PAID, new BigDecimal("50.00")),
+                            new CompetenceTransactionAmountSummary(febId, TransactionType.REVENUE, TransactionStatus.COMPLETED, new BigDecimal("200.00")),
+                            new CompetenceTransactionAmountSummary(febId, TransactionType.EXPENSE, TransactionStatus.COMPLETED, new BigDecimal("50.00")),
                             new CompetenceTransactionAmountSummary(janId, TransactionType.REVENUE, TransactionStatus.PENDING, new BigDecimal("150.00")),
-                            new CompetenceTransactionAmountSummary(janId, TransactionType.EXPENSE, TransactionStatus.PAID, new BigDecimal("30.00"))
+                            new CompetenceTransactionAmountSummary(janId, TransactionType.EXPENSE, TransactionStatus.COMPLETED, new BigDecimal("30.00"))
                     ));
 
             // When

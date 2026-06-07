@@ -9,9 +9,9 @@ public record InstallmentSeries(
         String description,
         BigDecimal totalAmount,
         int totalInstallments,
-        int paidInstallments,
+        int completedInstallments,
         int pendingInstallments,
-        BigDecimal paidAmount,
+        BigDecimal completedAmount,
         BigDecimal pendingAmount
 ) {
     public static InstallmentSeries fromTransactions(List<Transaction> transactions) {
@@ -23,15 +23,15 @@ public record InstallmentSeries(
         UUID parentId = first.getParentId() != null ? first.getParentId() : first.getId();
 
         int totalInstallments = transactions.size();
-        int paidCount = 0;
+        int completedCount = 0;
         int pendingCount = 0;
-        BigDecimal paidSum = BigDecimal.ZERO;
+        BigDecimal completedSum = BigDecimal.ZERO;
         BigDecimal pendingSum = BigDecimal.ZERO;
 
         for (Transaction t : transactions) {
-            if (t.isPaid()) {
-                paidCount++;
-                paidSum = paidSum.add(t.getAmount());
+            if (t.isCompleted()) {
+                completedCount++;
+                completedSum = completedSum.add(t.getAmount());
             } else {
                 pendingCount++;
                 pendingSum = pendingSum.add(t.getAmount());
@@ -41,11 +41,11 @@ public record InstallmentSeries(
         return new InstallmentSeries(
                 parentId,
                 first.getDescription(),
-                paidSum.add(pendingSum),
+                completedSum.add(pendingSum),
                 totalInstallments,
-                paidCount,
+                completedCount,
                 pendingCount,
-                paidSum,
+                completedSum,
                 pendingSum
         );
     }

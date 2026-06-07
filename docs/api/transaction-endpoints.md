@@ -37,13 +37,14 @@ Creates a new financial transaction (revenue or expense) for the user.
 | --- | --- | --- | --- | --- |
 | `accountId` | `UUID` | ✅ | Must exist | Associated account |
 | `categoryId` | `UUID` | ✅ | Must exist | Associated category |
+| `subcategoryId` | `UUID` | ❌ | Must exist if provided | Associated subcategory |
 | `competenceId` | `UUID` | ✅ | Must exist | Competence period |
 | `description` | `string` | ✅ | Non-blank | Human-readable label |
 | `amount` | `number` | ✅ | `> 0.00` | Monetary value |
 | `dateTime` | `datetime` | ✅ | ISO-8601 | When it occurred |
 | `type` | `string` | ✅ | `REVENUE`/`EXPENSE` | Money flow direction |
 | `subtype` | `string` | ❌ | `FIXED`/`VARIABLE` | Fixed or variable nature |
-| `status` | `string` | ✅ | `PENDING`/`PAID` | Payment state |
+| `status` | `string` | ✅ | `PENDING`/`COMPLETED` | Payment state |
 
 ### Request Example
 
@@ -55,6 +56,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 {
   "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "categoryId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "subcategoryId": null,
   "competenceId": "c9bf9e57-1685-4c89-bafb-ff5af830be8a",
   "description": "Monthly electricity bill",
   "amount": 189.50,
@@ -72,6 +74,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
   "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "categoryId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "subcategoryId": null,
   "competenceId": "c9bf9e57-1685-4c89-bafb-ff5af830be8a",
   "userId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
   "description": "Monthly electricity bill",
@@ -87,7 +90,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 ### Business Rules
 
-- `status: "PAID"` immediately updates the account balance.
+- `status: "COMPLETED"` immediately updates the account balance.
 - `status: "PENDING"` does not affect the balance.
 - `amount` is rounded using `HALF_EVEN` rounding.
 
@@ -148,10 +151,11 @@ Returns all transactions belonging to the authenticated user.
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `competenceId` | `UUID` | Filter by competence period |
-| `status` | `string` | `PENDING` or `PAID` |
+| `status` | `string` | `PENDING` or `COMPLETED` |
 | `type` | `string` | `REVENUE` or `EXPENSE` |
 | `subtype` | `string` | `FIXED` or `VARIABLE` |
 | `categoryId` | `UUID` | Filter by category |
+| `subcategoryId` | `UUID` | Filter by subcategory |
 | `accountId` | `UUID` | Filter by account |
 | `description` | `string` | Filter by partial description (case-insensitive) |
 | `startDate` | `date` | Return transactions from this date (`YYYY-MM-DD`) |
@@ -160,7 +164,7 @@ Returns all transactions belonging to the authenticated user.
 ### Request Example
 
 ```http
-GET /api/v1/transactions?status=PAID&type=EXPENSE&subtype=FIXED HTTP/1.1
+GET /api/v1/transactions?status=COMPLETED&type=EXPENSE&subtype=FIXED HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 ```
 
@@ -183,7 +187,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 ## 4. Update Transaction Status
 
-Changes **only** the `status` field (`PENDING` ↔ `PAID`).
+Changes **only** the `status` field (`PENDING` ↔ `COMPLETED`).
 
 | Detail | Value |
 | --- | --- |
@@ -196,14 +200,14 @@ Changes **only** the `status` field (`PENDING` ↔ `PAID`).
 
 | Field | Type | Required | Validation | Description |
 | --- | --- | --- | --- | --- |
-| `status` | `string` | ✅ | `PENDING`/`PAID` | The new status |
+| `status` | `string` | ✅ | `PENDING`/`COMPLETED` | The new status |
 
 ### Response `200 OK` — `TransactionResponse`
 
 ```json
 {
   "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
-  "status": "PAID"
+  "status": "COMPLETED"
 }
 ```
 
@@ -211,8 +215,8 @@ Changes **only** the `status` field (`PENDING` ↔ `PAID`).
 
 | Transition | Balance Effect |
 | --- | --- |
-| `PENDING` → `PAID` | Updated: **+amount** for `REVENUE`, **−amount** for `EXPENSE` |
-| `PAID` → `PENDING` | The previous balance change is **reversed** |
+| `PENDING` → `COMPLETED` | Updated: **+amount** for `REVENUE`, **−amount** for `EXPENSE` |
+| `COMPLETED` → `PENDING` | The previous balance change is **reversed** |
 
 ---
 
@@ -233,23 +237,24 @@ Updates specific fields of an existing transaction using a generalized PATCH pay
 | --- | --- | --- | --- | --- |
 | `accountId` | `UUID` | ❌ | Must exist | Associated account |
 | `categoryId` | `UUID` | ❌ | Must exist | Associated category |
+| `subcategoryId` | `UUID` | ❌ | Must exist if provided | Associated subcategory |
 | `competenceId` | `UUID` | ❌ | Must exist | Competence period |
 | `description` | `string` | ❌ | Non-blank | Human-readable label |
 | `amount` | `number` | ❌ | `> 0.00` | Monetary value |
 | `dateTime` | `datetime` | ❌ | ISO-8601 | When it occurred |
 | `type` | `string` | ❌ | `REVENUE`/`EXPENSE` | Money flow direction |
 | `subtype` | `string` | ❌ | `FIXED`/`VARIABLE` | Fixed or variable nature |
-| `status` | `string` | ❌ | `PENDING`/`PAID` | Payment state |
+| `status` | `string` | ❌ | `PENDING`/`COMPLETED` | Payment state |
 
 ### Business Rules
 
-If you update the `amount`, `accountId`, `type`, or `status` of a transaction that is `PAID` (or transitioning to/from `PAID`), the application will automatically reverse the previous balance change and apply the updated transaction attributes to keep account balances perfectly accurate.
+If you update the `amount`, `accountId`, `type`, or `status` of a transaction that is `COMPLETED` (or transitioning to/from `COMPLETED`), the application will automatically reverse the previous balance change and apply the updated transaction attributes to keep account balances perfectly accurate.
 
 ---
 
 ## 6. Delete Transaction
 
-Permanently deletes a transaction and reverses balance impact if `PAID`.
+Permanently deletes a transaction and reverses balance impact if `COMPLETED`.
 
 | Detail | Value |
 | --- | --- |
@@ -281,7 +286,7 @@ Permanently deletes a transaction and reverses balance impact if `PAID`.
 | Value | Description |
 | --- | --- |
 | `PENDING` | Planned — does not affect balance |
-| `PAID` | Confirmed — balance is impacted |
+| `COMPLETED` | Confirmed — balance is impacted |
 
 ---
 
@@ -319,6 +324,7 @@ Permanently deletes a transaction and reverses balance impact if `PAID`.
 | `id` | `UUID` | No | Unique transaction identifier |
 | `accountId` | `UUID` | No | Account reference |
 | `categoryId` | `UUID` | No | Category reference |
+| `subcategoryId` | `UUID` | Yes | Subcategory reference |
 | `competenceId` | `UUID` | No | Competence reference |
 | `userId` | `UUID` | No | Owner of the transaction |
 | `parentId` | `UUID` | Yes | Parent ID (installments only) |
@@ -329,7 +335,7 @@ Permanently deletes a transaction and reverses balance impact if `PAID`.
 | `dateTime` | `datetime` | No | When occurred |
 | `type` | `string` | No | `"REVENUE"` or `"EXPENSE"` |
 | `subtype` | `string` | Yes | `"FIXED"` or `"VARIABLE"` |
-| `status` | `string` | No | `"PENDING"` or `"PAID"` |
+| `status` | `string` | No | `"PENDING"` or `"COMPLETED"` |
 | `createdAt` | `datetime` | No | Record creation timestamp |
 | `updatedAt` | `datetime` | No | Last update timestamp |
 

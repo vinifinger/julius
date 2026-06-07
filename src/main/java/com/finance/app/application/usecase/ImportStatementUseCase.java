@@ -71,13 +71,14 @@ public class ImportStatementUseCase {
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId,
                     finalCategoryId,
+                    null,
                     competence.getId(),
                     pt.description(),
                     pt.amount(),
                     pt.dateTime(),
                     pt.type(),
                     null,
-                    TransactionStatus.PAID,
+                    TransactionStatus.COMPLETED,
                     pt.externalId()
             );
 

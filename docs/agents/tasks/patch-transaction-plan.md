@@ -4,7 +4,7 @@ This document outlines the approach to implement a new `PATCH` endpoint for upda
 
 ## Goal Description
 
-Provide a flexible `PATCH /api/v1/transactions/{id}` endpoint that allows clients to update any modifiable field of a transaction without requiring the entire object. The system must accurately adjust account balances when critical fields (`accountId`, `amount`, `type`, or `status`) are modified on a paid transaction.
+Provide a flexible `PATCH /api/v1/transactions/{id}` endpoint that allows clients to update any modifiable field of a transaction without requiring the entire object. The system must accurately adjust account balances when critical fields (`accountId`, `amount`, `type`, or `status`) are modified on a completed transaction.
 
 ## User Review Required
 
@@ -40,9 +40,9 @@ Provide a flexible `PATCH /api/v1/transactions/{id}` endpoint that allows client
 - **Balance Update Strategy:**
   1. Retrieve the existing transaction.
   2. Check if the update affects the balance (changes in `accountId`, `amount`, `type`, or `status`).
-  3. If the transaction was `PAID` before the update and the balance is affected, **reverse** the old transaction's effect on the old account.
+  3. If the transaction was `COMPLETED` before the update and the balance is affected, **reverse** the old transaction's effect on the old account.
   4. Apply the field updates to the transaction entity.
-  5. If the new status is `PAID` and the balance is affected, **process** the new transaction's effect on the new (or same) account.
+  5. If the new status is `COMPLETED` and the balance is affected, **process** the new transaction's effect on the new (or same) account.
   6. Save the modified transaction and account(s).
 
 ---
@@ -57,9 +57,9 @@ Provide a flexible `PATCH /api/v1/transactions/{id}` endpoint that allows client
 ### Automated Tests
 - Unit tests in `TransactionUseCaseTest.java` verifying:
   - Updating a simple text field (no balance change).
-  - Updating the `amount` of a `PAID` transaction (old balance reversed, new balance applied).
+  - Updating the `amount` of a `COMPLETED` transaction (old balance reversed, new balance applied).
   - Updating the `type` (`EXPENSE` -> `REVENUE`) and checking balance adjustments.
-  - Updating the `accountId` of a `PAID` transaction (moving a transaction between accounts).
+  - Updating the `accountId` of a `COMPLETED` transaction (moving a transaction between accounts).
   - Validation failures if passing invalid negative amounts.
 
 ### Manual Verification

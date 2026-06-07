@@ -51,6 +51,9 @@ class AuthUseCaseTest {
     @Mock
     private TokenVerifier tokenVerifier;
 
+    @Mock
+    private CategoryUseCase categoryUseCase;
+
     @InjectMocks
     private AuthUseCase authUseCase;
 

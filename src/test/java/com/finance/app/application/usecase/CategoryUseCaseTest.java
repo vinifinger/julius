@@ -29,6 +29,9 @@ class CategoryUseCaseTest {
     @Mock
     private CategoryRepository categoryRepository;
 
+    @Mock
+    private com.finance.app.domain.repository.SubcategoryRepository subcategoryRepository;
+
     @InjectMocks
     private CategoryUseCase categoryUseCase;
 

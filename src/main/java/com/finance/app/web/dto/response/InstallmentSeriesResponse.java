@@ -10,9 +10,9 @@ public record InstallmentSeriesResponse(
         String description,
         BigDecimal totalAmount,
         int totalInstallments,
-        int paidInstallments,
+        int completedInstallments,
         int pendingInstallments,
-        BigDecimal paidAmount,
+        BigDecimal completedAmount,
         BigDecimal pendingAmount
 ) {
     public static InstallmentSeriesResponse fromDomain(InstallmentSeries series) {
@@ -22,9 +22,9 @@ public record InstallmentSeriesResponse(
                 series.description(),
                 series.totalAmount(),
                 series.totalInstallments(),
-                series.paidInstallments(),
+                series.completedInstallments(),
                 series.pendingInstallments(),
-                series.paidAmount(),
+                series.completedAmount(),
                 series.pendingAmount()
         );
     }

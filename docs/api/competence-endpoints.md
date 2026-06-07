@@ -42,7 +42,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "month": 5,
   "year": 2026,
   "transactionCount": 0,
-  "paidAmount": 0.00,
+  "completedAmount": 0.00,
   "pendingAmount": 0.00,
   "totalAmount": 0.00,
   "totalRevenue": 0.00,
@@ -85,7 +85,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "month": 5,
   "year": 2026,
   "transactionCount": 15,
-  "paidAmount": 1500.00,
+  "completedAmount": 1500.00,
   "pendingAmount": 500.00,
   "totalAmount": 2000.00,
   "totalRevenue": 4000.00,
@@ -158,7 +158,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "month": 5,
   "year": 2026,
   "transactionCount": 15,
-  "paidAmount": 1500.00,
+  "completedAmount": 1500.00,
   "pendingAmount": 500.00,
   "totalAmount": 2000.00,
   "totalRevenue": 4000.00,
@@ -197,10 +197,123 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 | `month` | `integer` | No | Month number (1–12) |
 | `year` | `integer` | No | Four-digit year |
 | `transactionCount` | `integer` | No | Number of transactions |
-| `paidAmount` | `number` | No | Net balance of paid transactions |
+| `completedAmount` | `number` | No | Net balance of completed transactions |
 | `pendingAmount` | `number` | No | Net balance of pending transactions |
 | `totalAmount` | `number` | No | Net balance of all transactions |
 | `totalRevenue` | `number` | No | Sum of all revenue transactions |
 | `totalExpense` | `number` | No | Sum of all expense transactions |
 | `createdAt` | `datetime` | No | Record creation timestamp |
 | `updatedAt` | `datetime` | No | Last update timestamp |
+
+---
+
+## 5. Get Competence by ID (V2)
+
+Retrieves a competence's detailed summary grouped by transaction status and subtype.
+
+| Detail | Value |
+| --- | --- |
+| Method | `GET` |
+| Path | `/api/v2/competences/{id}` |
+| Auth | Required |
+| Status | `200 OK` |
+
+### Path Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `id` | `UUID` | Unique identifier of the competence |
+
+### Request Example
+
+```http
+GET /api/v2/competences/759baeda-39d3-4daa-b691-887312c5b594 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
+### Response `200 OK` — `CompetenceDetailResponseV2`
+
+```json
+{
+    "id": "759baeda-39d3-4daa-b691-887312c5b594",
+    "name": "06/2026",
+    "month": 6,
+    "year": 2026,
+    "pendingSummary": {
+        "transactionCount": 18,
+        "fixed": {
+            "revenue": 1500.00,
+            "expense": -770.00,
+            "balance": 730.00
+        },
+        "variable": {
+            "revenue": 250.00,
+            "expense": -580.00,
+            "balance": -330.00
+        },
+        "totalSummary": {
+            "totalRevenue": 1750.00,
+            "totalExpense": -1350.00,
+            "totalBalance": 400.00
+        }
+    },
+    "completedSummary": {
+        "transactionCount": 18,
+        "fixed": {
+            "revenue": 1500.00,
+            "expense": -770.00,
+            "balance": 730.00
+        },
+        "variable": {
+            "revenue": 250.00,
+            "expense": -580.00,
+            "balance": -330.00
+        },
+        "totalSummary": {
+            "totalRevenue": 1750.00,
+            "totalExpense": -1350.00,
+            "totalBalance": 400.00
+        }
+    },
+    "totalSummary": {
+        "totalRevenue": 6000.00,
+        "totalExpense": -8184.00,
+        "totalBalance": -2184.00
+    },
+    "createdAt": "2026-06-03T00:18:56",
+    "updatedAt": "2026-06-03T00:18:56"
+}
+```
+
+---
+
+## Response Schema — `CompetenceDetailResponseV2`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `UUID` | Unique competence identifier |
+| `name` | `string` | Auto-generated display name (`"MM/YYYY"`) |
+| `month` | `integer` | Month number (1–12) |
+| `year` | `integer` | Four-digit year |
+| `pendingSummary` | `SubtypeSummary` | Summary of pending transactions |
+| `completedSummary` | `SubtypeSummary` | Summary of completed transactions |
+| `totalSummary` | `SimpleSummary` | Overall summary (pending + completed) |
+| `createdAt` | `datetime` | Record creation timestamp |
+| `updatedAt` | `datetime` | Last update timestamp |
+
+### `SubtypeSummary` Object
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `transactionCount` | `integer` | Number of transactions matching this status |
+| `fixed` | `SimpleSummary` | Summary of fixed transactions |
+| `variable` | `SimpleSummary` | Summary of variable transactions |
+| `totalSummary` | `SimpleSummary` | Sum of fixed + variable transactions |
+
+### `SimpleSummary` Object
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `totalRevenue` | `number` | Total incoming money (positive) |
+| `totalExpense` | `number` | Total outgoing money (negative) |
+| `totalBalance` | `number` | `totalRevenue` + `totalExpense` |

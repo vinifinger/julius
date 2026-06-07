@@ -225,7 +225,7 @@ public class OrderService {
 
         try {
             paymentService.processPayment(order);
-            order.setStatus(OrderStatus.PAID);
+            order.setStatus(OrderStatus.COMPLETED);
         } catch (PaymentException e) {
             order.setStatus(OrderStatus.PAYMENT_FAILED);
             throw e; // Transaction will rollback

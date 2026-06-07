@@ -58,7 +58,7 @@ com.finance.app
 │   │   ├── Competence.java
 │   │   ├── CompetenceAmountSummary.java   (Record de projeção)
 │   │   ├── Transaction.java
-│   │   ├── TransactionStatus.java         (enum: PAID, PENDING)
+│   │   ├── TransactionStatus.java         (enum: COMPLETED, PENDING)
 │   │   ├── TransactionType.java           (enum: REVENUE, EXPENSE)
 │   │   └── User.java
 │   ├── exception
@@ -153,22 +153,22 @@ Períodos financeiros mensais (Mês/Ano) para agrupamento de transações.
 
 ### 4.5 Transaction (Transação)
 
-Transações financeiras (REVENUE/EXPENSE) com controle de status (PAID/PENDING) e impacto automático no saldo.
+Transações financeiras (REVENUE/EXPENSE) com controle de status (COMPLETED/PENDING) e impacto automático no saldo.
 
 | Endpoint | Método | Header/Param | Descrição |
 |---|---|---|---|
-| `/api/v1/transactions` | `POST` | `X-User-Id` | Cria transação (atualiza saldo se PAID) |
+| `/api/v1/transactions` | `POST` | `X-User-Id` | Cria transação (atualiza saldo se COMPLETED) |
 | `/api/v1/transactions/{id}` | `GET` | — | Detalha transação |
 | `/api/v1/transactions` | `GET` | `X-User-Id` | Lista transações do usuário |
-| `/api/v1/transactions/{id}/status` | `PATCH` | — | Altera status (PENDING ↔ PAID) |
-| `/api/v1/transactions/{id}` | `DELETE` | — | Remove (estorna saldo se PAID) |
+| `/api/v1/transactions/{id}/status` | `PATCH` | — | Altera status (PENDING ↔ COMPLETED) |
+| `/api/v1/transactions/{id}` | `DELETE` | — | Remove (estorna saldo se COMPLETED) |
 
 **Regras de negócio:**
-- Transação `PAID` → atualiza saldo da conta automaticamente
-- `PENDING → PAID` → aplica valor no saldo
-- `PAID → PENDING` → reverte valor do saldo
-- `DELETE` de transação `PAID` → estorna saldo
-- Apenas transações com status `PAID` afetam o saldo
+- Transação `COMPLETED` → atualiza saldo da conta automaticamente
+- `PENDING → COMPLETED` → aplica valor no saldo
+- `COMPLETED → PENDING` → reverte valor do saldo
+- `DELETE` de transação `COMPLETED` → estorna saldo
+- Apenas transações com status `COMPLETED` afetam o saldo
 
 ### 4.6 Installment (Parcelamento)
 

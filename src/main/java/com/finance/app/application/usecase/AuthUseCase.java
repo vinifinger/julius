@@ -29,6 +29,7 @@ public class AuthUseCase {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenVerifier tokenVerifier;
+    private final CategoryUseCase categoryUseCase;
 
     @Transactional
     public UserResponse register(RegisterRequest request) {
@@ -40,6 +41,8 @@ public class AuthUseCase {
         String hashedPassword = passwordEncoder.encode(request.password());
         User user = User.create(request.name(), request.email(), hashedPassword);
         User savedUser = userRepository.save(user);
+
+        categoryUseCase.createDefaultCategories(savedUser.getId());
 
         log.atInfo().log("Successfully registered new user with ID: {}", savedUser.getId());
         return UserResponse.fromDomain(savedUser);
@@ -77,6 +80,7 @@ public class AuthUseCase {
         } else {
             User newUser = User.createFromSocial(profile.name(), profile.email());
             user = userRepository.save(newUser);
+            categoryUseCase.createDefaultCategories(user.getId());
             log.atInfo().log("Google login created new user ID: {}", user.getId());
         }
 

@@ -13,6 +13,7 @@
 2. [List Categories by User](#2-list-categories-by-user)
 3. [Update Category](#3-update-category)
 4. [Response Schema — CategoryResponse](#response-schema--categoryresponse)
+5. [Response Schema — SubcategoryResponse](#response-schema--subcategoryresponse)
 
 ---
 
@@ -54,6 +55,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "id": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
   "name": "Alimentação",
   "colorHex": "#E74C3C",
+  "subcategories": [],
   "createdAt": "2026-05-02T21:15:42",
   "updatedAt": "2026-05-02T21:15:42"
 }
@@ -87,6 +89,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
     "id": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
     "name": "Alimentação",
     "colorHex": "#E74C3C",
+    "subcategories": [
+      {
+        "id": "1111a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
+        "categoryId": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
+        "name": "Supermercado",
+        "createdAt": "2026-05-02T21:15:42",
+        "updatedAt": "2026-05-02T21:15:42"
+      }
+    ],
     "createdAt": "2026-05-02T21:15:42",
     "updatedAt": "2026-05-02T21:15:42"
   },
@@ -94,6 +105,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
     "id": "f6a1b2c3-d4e5-4f6a-bd4e-5f6a1b2c3d4e",
     "name": "Moradia",
     "colorHex": "#3498DB",
+    "subcategories": [],
     "createdAt": "2026-05-02T21:15:42",
     "updatedAt": "2026-05-02T21:15:42"
   }
@@ -149,6 +161,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "id": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
   "name": "Alimentação (Editado)",
   "colorHex": "#FF0000",
+  "subcategories": [],
   "createdAt": "2026-05-02T21:15:42",
   "updatedAt": "2026-05-03T10:20:00"
 }
@@ -163,5 +176,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 | `id` | `UUID` | No | Unique category identifier |
 | `name` | `string` | No | Display name of the category |
 | `colorHex` | `string` | Yes | Hex color code (e.g. `"#E74C3C"`) |
+| `subcategories` | `array` | No | List of associated subcategories |
+| `createdAt` | `datetime` | No | Record creation timestamp |
+| `updatedAt` | `datetime` | No | Last update timestamp |
+
+---
+
+## Response Schema — `SubcategoryResponse`
+
+| Field | Type | Nullable | Description |
+| --- | --- | --- | --- |
+| `id` | `UUID` | No | Unique subcategory identifier |
+| `categoryId` | `UUID` | No | Category reference |
+| `name` | `string` | No | Display name of the subcategory |
 | `createdAt` | `datetime` | No | Record creation timestamp |
 | `updatedAt` | `datetime` | No | Last update timestamp |

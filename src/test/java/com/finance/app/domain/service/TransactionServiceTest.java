@@ -59,12 +59,12 @@ class TransactionServiceTest {
     class ProcessTransaction {
 
         @Test
-        @DisplayName("Given balance 100.00 and EXPENSE of 30.55 PAID, then balance should be 69.45")
+        @DisplayName("Given balance 100.00 and EXPENSE of 30.55 COMPLETED, then balance should be 69.45")
         void givenExpensePaid_whenProcess_thenSubtractsFromBalance() {
             // Given
             Account account = createAccountWithBalance(BigDecimal.valueOf(100.00));
             Transaction transaction = createTransaction(
-                    BigDecimal.valueOf(30.55), TransactionType.EXPENSE, TransactionStatus.PAID);
+                    BigDecimal.valueOf(30.55), TransactionType.EXPENSE, TransactionStatus.COMPLETED);
 
             // When
             transactionService.processTransaction(transaction, account);
@@ -74,12 +74,12 @@ class TransactionServiceTest {
         }
 
         @Test
-        @DisplayName("Given balance 100.00 and REVENUE of 50.00 PAID, then balance should be 150.00")
+        @DisplayName("Given balance 100.00 and REVENUE of 50.00 COMPLETED, then balance should be 150.00")
         void givenRevenuePaid_whenProcess_thenAddsToBalance() {
             // Given
             Account account = createAccountWithBalance(BigDecimal.valueOf(100.00));
             Transaction transaction = createTransaction(
-                    BigDecimal.valueOf(50.00), TransactionType.REVENUE, TransactionStatus.PAID);
+                    BigDecimal.valueOf(50.00), TransactionType.REVENUE, TransactionStatus.COMPLETED);
 
             // When
             transactionService.processTransaction(transaction, account);
@@ -114,7 +114,7 @@ class TransactionServiceTest {
             // Given
             Account account = createAccountWithBalance(BigDecimal.valueOf(69.45));
             Transaction transaction = createTransaction(
-                    BigDecimal.valueOf(30.55), TransactionType.EXPENSE, TransactionStatus.PAID);
+                    BigDecimal.valueOf(30.55), TransactionType.EXPENSE, TransactionStatus.COMPLETED);
 
             // When
             transactionService.reverseTransaction(transaction, account);
@@ -129,7 +129,7 @@ class TransactionServiceTest {
             // Given
             Account account = createAccountWithBalance(BigDecimal.valueOf(150.00));
             Transaction transaction = createTransaction(
-                    BigDecimal.valueOf(50.00), TransactionType.REVENUE, TransactionStatus.PAID);
+                    BigDecimal.valueOf(50.00), TransactionType.REVENUE, TransactionStatus.COMPLETED);
 
             // When
             transactionService.reverseTransaction(transaction, account);
@@ -159,7 +159,7 @@ class TransactionServiceTest {
             // Given
             Account account = createAccountWithBalance(BigDecimal.valueOf(400.01));
             Transaction transaction = createTransaction(
-                    BigDecimal.valueOf(99.99), TransactionType.EXPENSE, TransactionStatus.PAID);
+                    BigDecimal.valueOf(99.99), TransactionType.EXPENSE, TransactionStatus.COMPLETED);
 
             // When
             transactionService.reverseTransaction(transaction, account);
@@ -174,12 +174,12 @@ class TransactionServiceTest {
     class ProcessTransactionPrecision {
 
         @Test
-        @DisplayName("Given balance 1234.56 and REVENUE of 0.01 PAID, then balance should be 1234.57")
+        @DisplayName("Given balance 1234.56 and REVENUE of 0.01 COMPLETED, then balance should be 1234.57")
         void givenRevenuePaidWithMinimalAmount_whenProcess_thenPreciseBalance() {
             // Given
             Account account = createAccountWithBalance(BigDecimal.valueOf(1234.56));
             Transaction transaction = createTransaction(
-                    BigDecimal.valueOf(0.01), TransactionType.REVENUE, TransactionStatus.PAID);
+                    BigDecimal.valueOf(0.01), TransactionType.REVENUE, TransactionStatus.COMPLETED);
 
             // When
             transactionService.processTransaction(transaction, account);

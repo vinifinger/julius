@@ -56,7 +56,7 @@ The core financial entry in the system.
 
 **Statuses:**
 - `PENDING`: A planned transaction that has not yet occurred.
-- `PAID`: A realized transaction that has officially occurred.
+- `COMPLETED`: A realized transaction that has officially occurred.
 
 **Relations:** Every transaction must belong to a User, an Account, a Category,
 and a Competence.
@@ -75,13 +75,13 @@ Represents a single transaction spread across multiple, consecutive months
 
 ### 3.1 Account Balance Processing
 
-- **Strict Realization Rule:** Only transactions with a `PAID` status affect the
+- **Strict Realization Rule:** Only transactions with a `COMPLETED` status affect the
   Account balance. `PENDING` transactions are considered projections and do not
   alter the current balance.
 - **State Transitions:**
-  - Changing a transaction from `PENDING` to `PAID` immediately applies the
+  - Changing a transaction from `PENDING` to `COMPLETED` immediately applies the
     value to the account balance.
-  - Changing a transaction from `PAID` to `PENDING` (or deleting it)
+  - Changing a transaction from `COMPLETED` to `PENDING` (or deleting it)
     automatically reverses the previous impact on the account balance.
 
 ### 3.2 Installment Logic & Constraints
@@ -96,10 +96,10 @@ Represents a single transaction spread across multiple, consecutive months
   - Users can update the total amount of an ongoing installment series.
   - **Constraint:** The system only updates the remaining (`PENDING`)
     installments. The new total amount provided must be greater than the sum of
-    the installments that have already been `PAID`.
+    the installments that have already been `COMPLETED`.
   - **Type Changing:** Changing an installment series type (e.g., from Expense
     to Revenue) will retroactively reverse the account balance for already
-    `PAID` installments and re-apply them correctly.
+    `COMPLETED` installments and re-apply them correctly.
 
 ### 3.3 Dashboard & Analytics Calculations
 

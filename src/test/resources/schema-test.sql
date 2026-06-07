@@ -38,10 +38,19 @@ CREATE TABLE IF NOT EXISTS categories (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS subcategories (
+    id          UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+    category_id UUID NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+    name        VARCHAR(50) NOT NULL,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS transactions (
     id            UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
     account_id    UUID NOT NULL REFERENCES accounts(id),
     category_id   UUID NOT NULL REFERENCES categories(id),
+    subcategory_id UUID REFERENCES subcategories(id),
     competence_id UUID NOT NULL REFERENCES competences(id),
     user_id       UUID NOT NULL REFERENCES users(id),
     parent_id     UUID,

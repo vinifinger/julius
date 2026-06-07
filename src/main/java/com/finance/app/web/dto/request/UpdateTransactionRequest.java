@@ -14,6 +14,7 @@ import java.util.UUID;
 public record UpdateTransactionRequest(
         UUID accountId,
         UUID categoryId,
+        UUID subcategoryId,
         UUID competenceId,
         String description,
         @Positive(message = "Amount must be positive")

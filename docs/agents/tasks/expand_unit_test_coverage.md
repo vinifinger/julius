@@ -18,12 +18,12 @@ Os seguintes componentes devem ser analisados e testados exaustivamente:
 - [ ] Autenticação Firebase com token inválido.
 
 ### 2. `TransactionUseCase` & `TransactionService`
-- [ ] Criação de transação `PAID` (deve impactar o saldo da conta).
+- [ ] Criação de transação `COMPLETED` (deve impactar o saldo da conta).
 - [ ] Criação de transação `PENDING` (não deve impactar o saldo).
 - [ ] Criação de transação com ID de categoria/conta/competência inexistente.
-- [ ] Transição de `PENDING` para `PAID` (deve somar/subtrair do saldo).
-- [ ] Transição de `PAID` para `PENDING` (deve estornar o saldo).
-- [ ] Deleção de transação `PAID` (deve estornar o saldo).
+- [ ] Transição de `PENDING` para `COMPLETED` (deve somar/subtrair do saldo).
+- [ ] Transição de `COMPLETED` para `PENDING` (deve estornar o saldo).
+- [ ] Deleção de transação `COMPLETED` (deve estornar o saldo).
 - [ ] Deleção de transação `PENDING` (não deve alterar o saldo).
 - [ ] Transações do tipo `EXPENSE` (despesa) vs `REVENUE` (receita) e seus impactos matemáticos corretos.
 

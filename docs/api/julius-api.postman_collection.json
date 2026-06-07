@@ -705,7 +705,7 @@
                   "    pm.expect(jsonData.amount).to.be.a('number');",
                   "    pm.expect(isNaN(Date.parse(jsonData.dateTime))).to.be.false;",
                   "    pm.expect(jsonData.type).to.be.oneOf(['REVENUE', 'EXPENSE']);",
-                  "    pm.expect(jsonData.status).to.be.oneOf(['PENDING', 'PAID']);",
+                  "    pm.expect(jsonData.status).to.be.oneOf(['PENDING', 'COMPLETED']);",
                   "    pm.expect(isNaN(Date.parse(jsonData.createdAt))).to.be.false;",
                   "    pm.expect(isNaN(Date.parse(jsonData.updatedAt))).to.be.false;",
                   "    ",
@@ -767,7 +767,7 @@
                   "        var tx = jsonData[0];",
                   "        pm.expect(tx.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
                   "        pm.expect(tx.type).to.be.oneOf(['REVENUE', 'EXPENSE']);",
-                  "        pm.expect(tx.status).to.be.oneOf(['PENDING', 'PAID']);",
+                  "        pm.expect(tx.status).to.be.oneOf(['PENDING', 'COMPLETED']);",
                   "    }",
                   "});"
                 ],
@@ -858,9 +858,9 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Status is PAID and schema is valid\", function () {",
+                  "pm.test(\"Status is COMPLETED and schema is valid\", function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.status).to.eql(\"PAID\");",
+                  "    pm.expect(jsonData.status).to.eql(\"COMPLETED\");",
                   "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
                   "});"
                 ],
@@ -888,7 +888,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"PAID\"\n}"
+              "raw": "{\n  \"status\": \"COMPLETED\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/transactions/{{transactionId}}/status",
@@ -965,9 +965,9 @@
                   "    pm.expect(jsonData.description).to.be.a('string');",
                   "    pm.expect(jsonData.totalAmount).to.be.a('number');",
                   "    pm.expect(jsonData.totalInstallments).to.be.a('number');",
-                  "    pm.expect(jsonData.paidInstallments).to.be.a('number');",
+                  "    pm.expect(jsonData.completedInstallments).to.be.a('number');",
                   "    pm.expect(jsonData.pendingInstallments).to.be.a('number');",
-                  "    pm.expect(jsonData.paidAmount).to.be.a('number');",
+                  "    pm.expect(jsonData.completedAmount).to.be.a('number');",
                   "    pm.expect(jsonData.pendingAmount).to.be.a('number');",
                   "    ",
                   "    pm.collectionVariables.set(\"installmentId\", jsonData.parentId);",
@@ -1026,7 +1026,7 @@
                   "    pm.expect(jsonData.parentId).to.eql(pm.collectionVariables.get(\"installmentId\"));",
                   "    pm.expect(jsonData.totalAmount).to.be.a('number');",
                   "    pm.expect(jsonData.totalInstallments).to.be.a('number');",
-                  "    pm.expect(jsonData.paidAmount).to.be.a('number');",
+                  "    pm.expect(jsonData.completedAmount).to.be.a('number');",
                   "});"
                 ],
                 "type": "text/javascript"

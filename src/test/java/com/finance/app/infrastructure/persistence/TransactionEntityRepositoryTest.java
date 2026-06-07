@@ -154,7 +154,7 @@ class TransactionEntityRepositoryTest {
                 .amount(BigDecimal.valueOf(2000.00))
                 .dateTime(LocalDateTime.of(2026, 3, 1, 0, 0))
                 .type(TransactionType.EXPENSE)
-                .status(TransactionStatus.PAID)
+                .status(TransactionStatus.COMPLETED)
                 .build());
 
         // When — create child transaction referencing parent

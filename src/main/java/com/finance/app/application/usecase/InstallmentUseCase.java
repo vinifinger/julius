@@ -79,7 +79,7 @@ public class InstallmentUseCase {
         BigDecimal amount = InstallmentCalculator.calculateCurrentInstallmentAmount(1, request.installments(), totalAmount, installmentAmount, BigDecimal.ZERO);
         Transaction root = createTransaction(request, userId, null, 1, amount, initialCompetence.getId());
         
-        if (root.isPaid()) {
+        if (root.isCompleted()) {
             transactionService.processTransaction(root, account);
         }
         return root;
@@ -106,7 +106,7 @@ public class InstallmentUseCase {
             Transaction transaction = createTransaction(request, userId, parentId, i, amount, competence.getId());
             
             children.add(transaction);
-            if (transaction.isPaid()) {
+            if (transaction.isCompleted()) {
                 transactionService.processTransaction(transaction, account);
             }
 
@@ -143,7 +143,7 @@ public class InstallmentUseCase {
     private Transaction createTransaction(CreateInstallmentRequest request, UUID userId, UUID parentId, int number, BigDecimal amount, UUID competenceId) {
         TransactionSubtype subtype = request.subtype() != null ? request.subtype() : TransactionSubtype.FIXED;
         return Transaction.create(
-                request.accountId(), request.categoryId(), competenceId, userId,
+                request.accountId(), request.categoryId(), request.subcategoryId(), competenceId, userId,
                 request.description(), amount, request.dateTime(), request.type(), subtype, request.status(),
                 parentId, request.installments(), number, null
         );
@@ -173,22 +173,22 @@ public class InstallmentUseCase {
     public InstallmentSeries updateInstallmentSeries(UUID parentId, UpdateInstallmentRequest request) {
         List<Transaction> transactions = findTransactionsByParent(parentId);
 
-        List<Transaction> paidInstallments = transactions.stream().filter(Transaction::isPaid).toList();
+        List<Transaction> completedInstallments = transactions.stream().filter(Transaction::isCompleted).toList();
         List<Transaction> pendingInstallments = transactions.stream()
-                .filter(t -> !t.isPaid())
+                .filter(t -> !t.isCompleted())
                 .sorted(Comparator.comparingInt(Transaction::getInstallmentNumber))
                 .toList();
 
         if (pendingInstallments.isEmpty()) {
-            throw new InstallmentValidationException("Cannot update series where all installments are paid");
+            throw new InstallmentValidationException("Cannot update series where all installments are completed");
         }
 
-        BigDecimal paidTotal = sumOfPrevious(paidInstallments);
+        BigDecimal completedTotal = sumOfPrevious(completedInstallments);
         BigDecimal newTotal = request.newTotalAmount().setScale(2, RoundingMode.HALF_EVEN);
-        BigDecimal newPendingTotal = newTotal.subtract(paidTotal);
+        BigDecimal newPendingTotal = newTotal.subtract(completedTotal);
 
         if (newPendingTotal.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InstallmentValidationException("New total amount must be greater than the already paid amount (" + paidTotal + ")");
+            throw new InstallmentValidationException("New total amount must be greater than the already completed amount (" + completedTotal + ")");
         }
 
         redistributeRemaining(pendingInstallments, newPendingTotal);
@@ -220,7 +220,7 @@ public class InstallmentUseCase {
         Account account = findAccount(transactions.get(0).getAccountId(), transactions.get(0).getUserId());
 
         transactions.forEach(t -> {
-            if (t.isPaid()) {
+            if (t.isCompleted()) {
                 transactionService.reverseTransaction(t, account);
                 t.setType(newType);
                 transactionService.processTransaction(t, account);

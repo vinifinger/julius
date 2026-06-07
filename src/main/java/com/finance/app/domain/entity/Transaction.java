@@ -21,6 +21,7 @@ public class Transaction {
     private UUID id;
     private UUID accountId;
     private UUID categoryId;
+    private UUID subcategoryId;
     private UUID competenceId;
     private UUID userId;
     private UUID parentId;
@@ -36,12 +37,13 @@ public class Transaction {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public boolean isPaid() {
-        return TransactionStatus.PAID.equals(this.status);
+    public boolean isCompleted() {
+        return TransactionStatus.COMPLETED.equals(this.status);
     }
 
     public static Transaction create(UUID accountId,
             UUID categoryId,
+            UUID subcategoryId,
             UUID competenceId,
             UUID userId,
             String description,
@@ -50,12 +52,13 @@ public class Transaction {
             TransactionType type,
             TransactionSubtype subtype,
             TransactionStatus status) {
-        return create(accountId, categoryId, competenceId, userId,
+        return create(accountId, categoryId, subcategoryId, competenceId, userId,
                 description, amount, dateTime, type, subtype, status, null, null, null, null);
     }
 
     public static Transaction create(UUID accountId,
             UUID categoryId,
+            UUID subcategoryId,
             UUID competenceId,
             UUID userId,
             String description,
@@ -72,6 +75,7 @@ public class Transaction {
         return Transaction.builder()
                 .accountId(accountId)
                 .categoryId(categoryId)
+                .subcategoryId(subcategoryId)
                 .competenceId(competenceId)
                 .userId(userId)
                 .parentId(parentId)

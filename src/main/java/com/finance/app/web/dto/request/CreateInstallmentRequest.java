@@ -13,6 +13,7 @@ import java.util.UUID;
 public record CreateInstallmentRequest(
         @NotNull(message = "Account ID is required") UUID accountId,
         @NotNull(message = "Category ID is required") UUID categoryId,
+        UUID subcategoryId,
         @NotNull(message = "Competence ID is required") UUID competenceId,
         @NotBlank(message = "Description is required") String description,
         BigDecimal totalAmount,

@@ -13,6 +13,7 @@ import com.finance.app.domain.exception.TransactionNotFoundException;
 import com.finance.app.domain.repository.AccountRepository;
 import com.finance.app.domain.repository.CategoryRepository;
 import com.finance.app.domain.repository.CompetenceRepository;
+import com.finance.app.domain.repository.SubcategoryRepository;
 import com.finance.app.domain.repository.TransactionRepository;
 import com.finance.app.domain.service.TransactionService;
 import com.finance.app.web.dto.request.CreateTransactionRequest;
@@ -36,6 +37,7 @@ public class TransactionUseCase {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
+    private final SubcategoryRepository subcategoryRepository;
     private final CompetenceRepository competenceRepository;
     private final TransactionService transactionService;
 
@@ -46,6 +48,11 @@ public class TransactionUseCase {
 
         categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new CategoryNotFoundException(request.categoryId()));
+
+        if (request.subcategoryId() != null) {
+            subcategoryRepository.findById(request.subcategoryId())
+                    .orElseThrow(() -> new RuntimeException("Subcategory not found"));
+        }
 
         competenceRepository.findById(request.competenceId())
                 .orElseThrow(() -> new CompetenceNotFoundException(request.competenceId()));
@@ -61,6 +68,7 @@ public class TransactionUseCase {
         Transaction transaction = Transaction.create(
                 request.accountId(),
                 request.categoryId(),
+                request.subcategoryId(),
                 request.competenceId(),
                 userId,
                 request.description(),
@@ -116,6 +124,10 @@ public class TransactionUseCase {
             categoryRepository.findById(request.categoryId())
                     .orElseThrow(() -> new CategoryNotFoundException(request.categoryId()));
         }
+        if (request.subcategoryId() != null && !request.subcategoryId().equals(transaction.getSubcategoryId())) {
+            subcategoryRepository.findById(request.subcategoryId())
+                    .orElseThrow(() -> new RuntimeException("Subcategory not found"));
+        }
         if (request.competenceId() != null && !request.competenceId().equals(transaction.getCompetenceId())) {
             competenceRepository.findById(request.competenceId())
                     .orElseThrow(() -> new CompetenceNotFoundException(request.competenceId()));
@@ -125,7 +137,7 @@ public class TransactionUseCase {
                 || request.type() != null || request.status() != null;
         
         Account oldAccount = null;
-        if (transaction.isPaid() && affectsBalance) {
+        if (transaction.isCompleted() && affectsBalance) {
             oldAccount = accountRepository.findByIdAndUserId(transaction.getAccountId(), transaction.getUserId())
                     .orElseThrow(() -> new AccountNotFoundException(transaction.getAccountId()));
             transactionService.reverseTransaction(transaction, oldAccount);
@@ -133,6 +145,7 @@ public class TransactionUseCase {
 
         if (request.accountId() != null) transaction.setAccountId(request.accountId());
         if (request.categoryId() != null) transaction.setCategoryId(request.categoryId());
+        if (request.subcategoryId() != null) transaction.setSubcategoryId(request.subcategoryId());
         if (request.competenceId() != null) transaction.setCompetenceId(request.competenceId());
         if (request.description() != null) transaction.setDescription(request.description());
         if (request.amount() != null) transaction.setAmount(request.amount().setScale(2, java.math.RoundingMode.HALF_EVEN));
@@ -141,7 +154,7 @@ public class TransactionUseCase {
         if (request.subtype() != null) transaction.setSubtype(request.subtype());
         if (request.status() != null) transaction.setStatus(request.status());
 
-        if (transaction.isPaid() && affectsBalance) {
+        if (transaction.isCompleted() && affectsBalance) {
             Account newAccount = accountRepository.findByIdAndUserId(transaction.getAccountId(), transaction.getUserId())
                     .orElseThrow(() -> new AccountNotFoundException(transaction.getAccountId()));
             transactionService.processTransaction(transaction, newAccount);
@@ -176,10 +189,10 @@ public class TransactionUseCase {
             return TransactionResponse.fromDomain(transaction);
         }
 
-        if (TransactionStatus.PENDING.equals(oldStatus) && TransactionStatus.PAID.equals(newStatus)) {
-            transaction.setStatus(TransactionStatus.PAID);
+        if (TransactionStatus.PENDING.equals(oldStatus) && TransactionStatus.COMPLETED.equals(newStatus)) {
+            transaction.setStatus(TransactionStatus.COMPLETED);
             transactionService.processTransaction(transaction, account);
-        } else if (TransactionStatus.PAID.equals(oldStatus) && TransactionStatus.PENDING.equals(newStatus)) {
+        } else if (TransactionStatus.COMPLETED.equals(oldStatus) && TransactionStatus.PENDING.equals(newStatus)) {
             transactionService.reverseTransaction(transaction, account);
             transaction.setStatus(TransactionStatus.PENDING);
         }
@@ -198,7 +211,7 @@ public class TransactionUseCase {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new TransactionNotFoundException(id));
 
-        if (transaction.isPaid()) {
+        if (transaction.isCompleted()) {
             Account account = accountRepository.findByIdAndUserId(transaction.getAccountId(), transaction.getUserId())
                     .orElseThrow(() -> new AccountNotFoundException(transaction.getAccountId()));
             transactionService.reverseTransaction(transaction, account);

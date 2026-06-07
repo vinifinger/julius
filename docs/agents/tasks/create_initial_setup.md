@@ -117,7 +117,7 @@ CREATE TABLE transactions (
     description VARCHAR(255) NOT NULL,
     amount DECIMAL(12, 2) NOT NULL,
     date_time DATETIME NOT NULL,
-    status ENUM('PENDING', 'PAID') DEFAULT 'PENDING',
+    status ENUM('PENDING', 'COMPLETED') DEFAULT 'PENDING',
     FOREIGN KEY (account_id) REFERENCES accounts(id),
     FOREIGN KEY (category_id) REFERENCES categories(id),
     FOREIGN KEY (competence_id) REFERENCES competences(id),

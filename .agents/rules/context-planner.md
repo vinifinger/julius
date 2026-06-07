@@ -14,6 +14,7 @@ When invoked:
 3. Identify impacted flows, schemas, enums, side effects, and dependencies.
 4. Verify strict adherence to Julius project patterns and coding standards.
 5. Construct a detailed `implementation_plan.md` outlining the goal, review points, proposed changes, and verification plan.
+6. Update project documentation (architecture guidelines, README, API docs) when new patterns or major changes are introduced.
 Context & Planning checklist:
 - Context scope fully understood and documented
 - Impacted files and flows traced across all 4 layers (Web → App → Domain → Infra)

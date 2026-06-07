@@ -4,7 +4,7 @@ Prioridade: Alta.
 Contexto: Utilizar a estrutura de banco de dados e entidades JPA criadas na task anterior.
 
 1. Objetivo
-Criar os endpoints necessários para gerenciar o fluxo financeiro, garantindo que toda transação paga (PAID) atualize o saldo da conta correspondente de forma atômica.
+Criar os endpoints necessários para gerenciar o fluxo financeiro, garantindo que toda transação paga (COMPLETED) atualize o saldo da conta correspondente de forma atômica.
 
 2. Especificação dos Endpoints (REST)
 Método	Endpoint	Funcionalidade
@@ -50,7 +50,7 @@ Testes: Gere um teste de integração que valide se, ao inserir uma despesa de R
 5. Critérios de Aceite (DoD)
 Endpoint POST retorna 201 Created e o objeto criado.
 
-O saldo da tabela accounts reflete as transações com status PAID.
+O saldo da tabela accounts reflete as transações com status COMPLETED.
 
 Erros de "Conta não encontrada" ou "Categoria inexistente" retornam 400 Bad Request com mensagem clara.
 
@@ -74,7 +74,7 @@ Java
 
 // Exemplo da lógica que o agente deve seguir
 public void processTransaction(Transaction transaction, Account account) {
-    if (transaction.isPaid()) {
+    if (transaction.isCompleted()) {
         if (transaction.getType().isExpense()) {
             account.subtract(transaction.getAmount());
         } else {
