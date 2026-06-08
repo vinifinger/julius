@@ -19,8 +19,9 @@
 | Installment | `/api/v1/installments` | [installment-endpoints.md](./installment-endpoints.md) | 4 |
 | Dashboard | `/api/v1/dashboard` | [dashboard-endpoints.md](./dashboard-endpoints.md) | 3 |
 | User | `/api/v1/users` | [user-endpoints.md](./user-endpoints.md) | 2 |
+| Savings | `/api/v1/savings` | [savings-endpoints.md](./savings-endpoints.md) | 8 |
 
-### Total: 26 endpoints
+### Total: 34 endpoints
 
 ---
 
@@ -91,6 +92,19 @@
 | --- | --- | --- |
 | GET | `/api/v1/users/{id}` | Get user by ID |
 | GET | `/api/v1/users` | List all users |
+
+### Savings
+
+| Method | Path | Description |
+| --- | --- | --- |
+| POST | `/api/v1/savings` | Create new savings vault |
+| GET | `/api/v1/savings` | List all user savings vaults |
+| GET | `/api/v1/savings/{id}` | Get single savings vault |
+| PUT | `/api/v1/savings/{id}` | Update savings vault |
+| DELETE | `/api/v1/savings/{id}` | Delete savings vault |
+| POST | `/api/v1/savings/{id}/deposit` | Deposit money into vault |
+| POST | `/api/v1/savings/{id}/withdraw` | Withdraw money from vault |
+| GET | `/api/v1/savings/{id}/history` | Get savings vault history |
 
 ---
 

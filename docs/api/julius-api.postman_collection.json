@@ -44,6 +44,11 @@
       "key": "userId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "savingsId",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -84,7 +89,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Vinícius Finger\",\n  \"email\": \"vinicius.test@email.com\",\n  \"password\": \"mySecureP@ss123\"\n}"
+              "raw": "{\n  \"name\": \"Vin\u00edcius Finger\",\n  \"email\": \"vinicius.test@email.com\",\n  \"password\": \"mySecureP@ss123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
@@ -438,7 +443,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Alimentação Teste\",\n  \"colorHex\": \"#E74C3C\"\n}"
+              "raw": "{\n  \"name\": \"Alimenta\u00e7\u00e3o Teste\",\n  \"colorHex\": \"#E74C3C\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/categories",
@@ -1440,6 +1445,279 @@
               "path": [
                 "users",
                 "{{userId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Savings",
+      "item": [
+        {
+          "name": "Create Savings Vault",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response schema is valid\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
+                  "    pm.collectionVariables.set(\"savingsId\", jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Emergency Fund\",\n  \"initialBalance\": 0.00,\n  \"colorHex\": \"#E91E63\",\n  \"icon\": \"safe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/savings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savings"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List User Savings Vaults",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/savings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savings"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Savings Vault by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/savings/{{savingsId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savings",
+                "{{savingsId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Savings Vault",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Travel Fund\",\n  \"colorHex\": \"#2196F3\",\n  \"icon\": \"airplane\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/savings/{{savingsId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savings",
+                "{{savingsId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Savings Vault",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/savings/{{savingsId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savings",
+                "{{savingsId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deposit to Savings Vault",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"amount\": 500.00,\n  \"description\": \"Monthly savings transfer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/savings/{{savingsId}}/deposit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savings",
+                "{{savingsId}}",
+                "deposit"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Withdraw from Savings Vault",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"amount\": 200.00,\n  \"description\": \"Emergency expense\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/savings/{{savingsId}}/withdraw",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savings",
+                "{{savingsId}}",
+                "withdraw"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Savings History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/savings/{{savingsId}}/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savings",
+                "{{savingsId}}",
+                "history"
               ]
             }
           }

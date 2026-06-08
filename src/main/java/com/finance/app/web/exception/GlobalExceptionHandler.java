@@ -56,6 +56,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(com.finance.app.domain.exception.SavingsNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleSavingsNotFound(com.finance.app.domain.exception.SavingsNotFoundException ex) {
+        log.atWarn().log("Savings vault not found: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
     @ExceptionHandler(InvalidTransactionException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidTransaction(InvalidTransactionException ex) {
         log.atWarn().log("Invalid transaction: {}", ex.getMessage());
