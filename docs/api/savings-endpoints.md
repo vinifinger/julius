@@ -116,6 +116,7 @@ Deposits money from a specified account into the savings vault.
 ```json
 {
   "accountId": "a3b7df29-2fa2-4c2c-8ab5-dc729c1c4e95",
+  "competenceId": "c4b5e6f7-3fa2-4c2c-8ab5-dc729c1c4e95",
   "amount": 500.00,
   "description": "Monthly savings transfer"
 }
@@ -143,6 +144,7 @@ Withdraws money from the savings vault and adds it to the specified account.
 ```json
 {
   "accountId": "a3b7df29-2fa2-4c2c-8ab5-dc729c1c4e95",
+  "competenceId": "c4b5e6f7-3fa2-4c2c-8ab5-dc729c1c4e95",
   "amount": 200.00,
   "description": "Emergency expense"
 }
@@ -173,6 +175,7 @@ Gets the history of all deposits and withdrawals for a specific savings vault.
     "id": "h8c7df29-2fa2-4c2c-8ab5-dc729c1c4e95",
     "savingsId": "e0a7df29-2fa2-4c2c-8ab5-dc729c1c4e95",
     "accountId": "a3b7df29-2fa2-4c2c-8ab5-dc729c1c4e95",
+    "transactionId": "t9d8ef30-2fa2-4c2c-8ab5-dc729c1c4e95",
     "type": "DEPOSIT",
     "amount": 500.00,
     "description": "Monthly savings transfer",

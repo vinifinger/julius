@@ -101,12 +101,29 @@ http://localhost:8080/swagger-ui/index.html
 | `GET` | `/api/v1/accounts/total-balance` | Saldo total consolidado (Header: `X-User-Id`) |
 | `DELETE` | `/api/v1/accounts/{id}` | Remove conta (protegida se houver parcelamentos pendentes) (Header: `X-User-Id`) |
 
-### Categorias
+### Categorias e Subcategorias
 
 | Método | Endpoint | Descrição |
 |---|---|---|
 | `POST` | `/api/v1/categories` | Cria uma categoria (Header: `X-User-Id`) |
 | `GET` | `/api/v1/categories` | Lista categorias do usuário (Header: `X-User-Id`) |
+| `PUT` | `/api/v1/categories/{id}` | Atualiza uma categoria |
+| `POST` | `/api/v1/categories/{categoryId}/subcategories` | Cria uma subcategoria para a categoria |
+| `PUT` | `/api/v1/subcategories/{id}` | Atualiza uma subcategoria |
+| `DELETE` | `/api/v1/subcategories/{id}` | Remove uma subcategoria |
+
+### Cofres (Savings)
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/v1/savings` | Cria um cofre (Header: `X-User-Id`) |
+| `GET` | `/api/v1/savings` | Lista cofres do usuário (Header: `X-User-Id`) |
+| `GET` | `/api/v1/savings/{id}` | Detalha um cofre específico |
+| `PUT` | `/api/v1/savings/{id}` | Atualiza um cofre |
+| `DELETE` | `/api/v1/savings/{id}` | Remove um cofre |
+| `POST` | `/api/v1/savings/{id}/deposit` | Realiza depósito (Requer `competenceId` e `accountId`) |
+| `POST` | `/api/v1/savings/{id}/withdraw` | Realiza saque (Requer `competenceId` e `accountId`) |
+| `GET` | `/api/v1/savings/{id}/history` | Histórico de movimentações do cofre |
 
 ### Competências
 

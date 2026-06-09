@@ -1643,7 +1643,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"amount\": 500.00,\n  \"description\": \"Monthly savings transfer\"\n}"
+              "raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"competenceId\": \"{{competenceId}}\",\n  \"amount\": 500.00,\n  \"description\": \"Monthly savings transfer\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/savings/{{savingsId}}/deposit",
@@ -1680,7 +1680,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"amount\": 200.00,\n  \"description\": \"Emergency expense\"\n}"
+              "raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"competenceId\": \"{{competenceId}}\",\n  \"amount\": 200.00,\n  \"description\": \"Emergency expense\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/savings/{{savingsId}}/withdraw",

@@ -20,6 +20,7 @@ public class SavingsHistory {
     private UUID id;
     private UUID savingsId;
     private UUID accountId;
+    private UUID transactionId;
     private SavingsHistoryType type;
     private BigDecimal amount;
     private String description;

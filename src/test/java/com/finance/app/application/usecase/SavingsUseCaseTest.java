@@ -1,18 +1,17 @@
 package com.finance.app.application.usecase;
 
-import com.finance.app.domain.entity.Account;
+import com.finance.app.domain.entity.Category;
 import com.finance.app.domain.entity.Savings;
 import com.finance.app.domain.entity.SavingsHistory;
-import com.finance.app.domain.entity.SavingsHistoryType;
-import com.finance.app.domain.entity.TransactionType;
-import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.exception.SavingsNotFoundException;
-import com.finance.app.domain.repository.AccountRepository;
+import com.finance.app.domain.repository.CategoryRepository;
 import com.finance.app.domain.repository.SavingsHistoryRepository;
 import com.finance.app.domain.repository.SavingsRepository;
 import com.finance.app.web.dto.request.CreateSavingsRequest;
+import com.finance.app.web.dto.request.CreateTransactionRequest;
 import com.finance.app.web.dto.request.SavingsTransactionRequest;
 import com.finance.app.web.dto.response.SavingsResponse;
+import com.finance.app.web.dto.response.TransactionResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +43,10 @@ class SavingsUseCaseTest {
     private SavingsHistoryRepository savingsHistoryRepository;
 
     @Mock
-    private AccountRepository accountRepository;
+    private CategoryRepository categoryRepository;
+
+    @Mock
+    private TransactionUseCase transactionUseCase;
 
     @InjectMocks
     private SavingsUseCase savingsUseCase;
@@ -50,6 +54,9 @@ class SavingsUseCaseTest {
     private final UUID userId = UUID.randomUUID();
     private final UUID savingsId = UUID.randomUUID();
     private final UUID accountId = UUID.randomUUID();
+    private final UUID competenceId = UUID.randomUUID();
+    private final UUID categoryId = UUID.randomUUID();
+    private final UUID transactionId = UUID.randomUUID();
 
     @Nested
     @DisplayName("create")
@@ -78,16 +85,22 @@ class SavingsUseCaseTest {
     class Deposit {
 
         @Test
-        @DisplayName("Should deposit money, deduct from account and create history")
+        @DisplayName("Should deposit money, create transaction and create history")
         void givenValidRequest_whenDeposit_thenUpdatesBalancesAndCreatesHistory() {
             // Given
-            SavingsTransactionRequest request = new SavingsTransactionRequest(accountId, new BigDecimal("200.00"), "Monthly deposit");
+            SavingsTransactionRequest request = new SavingsTransactionRequest(accountId, competenceId, new BigDecimal("200.00"), "Monthly deposit");
             
             Savings savings = Savings.builder().id(savingsId).userId(userId).balance(new BigDecimal("1000.00")).build();
             when(savingsRepository.findById(savingsId)).thenReturn(Optional.of(savings));
             
-            Account account = Account.builder().id(accountId).userId(userId).balance(new BigDecimal("500.00")).build();
-            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+            Category category = Category.builder().id(categoryId).name("Savings Vault").userId(userId).build();
+            when(categoryRepository.findByUserIdAndName(userId, "Savings Vault")).thenReturn(Optional.of(category));
+
+            TransactionResponse txResponse = new TransactionResponse(
+                    transactionId, accountId, categoryId, null, competenceId, userId, null, null, null, null,
+                    "Monthly deposit", new BigDecimal("200.00"), LocalDateTime.now(), "EXPENSE", null, "COMPLETED",
+                    LocalDateTime.now(), LocalDateTime.now());
+            when(transactionUseCase.create(any(CreateTransactionRequest.class), eq(userId))).thenReturn(txResponse);
             
             when(savingsRepository.save(any(Savings.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -97,9 +110,8 @@ class SavingsUseCaseTest {
             // Then
             assertNotNull(response);
             assertEquals(new BigDecimal("1200.00"), savings.getBalance()); // Savings increased
-            assertEquals(new BigDecimal("300.00"), account.getBalance());  // Account decreased
             
-            verify(accountRepository).save(account);
+            verify(transactionUseCase).create(any(CreateTransactionRequest.class), eq(userId));
             verify(savingsRepository).save(savings);
             verify(savingsHistoryRepository).save(any(SavingsHistory.class));
         }
@@ -107,7 +119,7 @@ class SavingsUseCaseTest {
         @Test
         @DisplayName("Should throw SavingsNotFoundException when savings does not exist")
         void givenInvalidSavings_whenDeposit_thenThrowsException() {
-            SavingsTransactionRequest request = new SavingsTransactionRequest(accountId, new BigDecimal("200.00"), "Monthly deposit");
+            SavingsTransactionRequest request = new SavingsTransactionRequest(accountId, competenceId, new BigDecimal("200.00"), "Monthly deposit");
             when(savingsRepository.findById(savingsId)).thenReturn(Optional.empty());
 
             assertThrows(SavingsNotFoundException.class, () -> savingsUseCase.deposit(savingsId, request, userId));
@@ -119,16 +131,22 @@ class SavingsUseCaseTest {
     class Withdraw {
 
         @Test
-        @DisplayName("Should withdraw money, add to account and create history")
+        @DisplayName("Should withdraw money, create transaction and create history")
         void givenValidRequest_whenWithdraw_thenUpdatesBalancesAndCreatesHistory() {
             // Given
-            SavingsTransactionRequest request = new SavingsTransactionRequest(accountId, new BigDecimal("200.00"), "Need cash");
+            SavingsTransactionRequest request = new SavingsTransactionRequest(accountId, competenceId, new BigDecimal("200.00"), "Need cash");
             
             Savings savings = Savings.builder().id(savingsId).userId(userId).balance(new BigDecimal("1000.00")).build();
             when(savingsRepository.findById(savingsId)).thenReturn(Optional.of(savings));
             
-            Account account = Account.builder().id(accountId).userId(userId).balance(new BigDecimal("500.00")).build();
-            when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+            Category category = Category.builder().id(categoryId).name("Savings Vault").userId(userId).build();
+            when(categoryRepository.findByUserIdAndName(userId, "Savings Vault")).thenReturn(Optional.of(category));
+
+            TransactionResponse txResponse = new TransactionResponse(
+                    transactionId, accountId, categoryId, null, competenceId, userId, null, null, null, null,
+                    "Need cash", new BigDecimal("200.00"), LocalDateTime.now(), "REVENUE", null, "COMPLETED",
+                    LocalDateTime.now(), LocalDateTime.now());
+            when(transactionUseCase.create(any(CreateTransactionRequest.class), eq(userId))).thenReturn(txResponse);
             
             when(savingsRepository.save(any(Savings.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -138,9 +156,8 @@ class SavingsUseCaseTest {
             // Then
             assertNotNull(response);
             assertEquals(new BigDecimal("800.00"), savings.getBalance()); // Savings decreased
-            assertEquals(new BigDecimal("700.00"), account.getBalance()); // Account increased
             
-            verify(accountRepository).save(account);
+            verify(transactionUseCase).create(any(CreateTransactionRequest.class), eq(userId));
             verify(savingsRepository).save(savings);
             verify(savingsHistoryRepository).save(any(SavingsHistory.class));
         }
@@ -148,7 +165,7 @@ class SavingsUseCaseTest {
         @Test
         @DisplayName("Should throw exception when insufficient funds in savings")
         void givenInsufficientFunds_whenWithdraw_thenThrowsException() {
-            SavingsTransactionRequest request = new SavingsTransactionRequest(accountId, new BigDecimal("2000.00"), "Need cash");
+            SavingsTransactionRequest request = new SavingsTransactionRequest(accountId, competenceId, new BigDecimal("2000.00"), "Need cash");
             
             Savings savings = Savings.builder().id(savingsId).userId(userId).balance(new BigDecimal("1000.00")).build();
             when(savingsRepository.findById(savingsId)).thenReturn(Optional.of(savings));

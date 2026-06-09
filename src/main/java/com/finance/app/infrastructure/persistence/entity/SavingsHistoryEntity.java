@@ -43,6 +43,9 @@ public class SavingsHistoryEntity {
     @JoinColumn(name = "account_id", nullable = false)
     private AccountEntity account;
 
+    @Column(name = "transaction_id")
+    private UUID transactionId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "`type`", nullable = false)
     private SavingsHistoryType type;

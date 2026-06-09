@@ -188,6 +188,95 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 | --- | --- | --- | --- |
 | `id` | `UUID` | No | Unique subcategory identifier |
 | `categoryId` | `UUID` | No | Category reference |
-| `name` | `string` | No | Display name of the subcategory |
-| `createdAt` | `datetime` | No | Record creation timestamp |
 | `updatedAt` | `datetime` | No | Last update timestamp |
+
+---
+
+## 4. Create Subcategory
+
+Creates a new subcategory under an existing category.
+
+| Detail | Value |
+| --- | --- |
+| Method | `POST` |
+| Path | `/api/v1/categories/{categoryId}/subcategories` |
+| Auth | Required |
+| Status | `201 Created` |
+
+### Path Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `categoryId` | `UUID` | ID of the parent category |
+
+### Request Body
+
+```json
+{
+  "name": "Supermercado"
+}
+```
+
+### Response `201 Created` — `SubcategoryResponse`
+
+```json
+{
+  "id": "1111a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
+  "categoryId": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
+  "name": "Supermercado",
+  "createdAt": "2026-06-08T20:00:00",
+  "updatedAt": "2026-06-08T20:00:00"
+}
+```
+
+---
+
+## 5. Update Subcategory
+
+Updates the name of an existing subcategory.
+
+| Detail | Value |
+| --- | --- |
+| Method | `PUT` |
+| Path | `/api/v1/subcategories/{id}` |
+| Auth | Required |
+| Status | `200 OK` |
+
+### Path Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `id` | `UUID` | ID of the subcategory to update |
+
+### Request Body
+
+```json
+{
+  "name": "Mercado e Padaria"
+}
+```
+
+### Response `200 OK` — `SubcategoryResponse`
+
+```json
+{
+  "id": "1111a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
+  "categoryId": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
+  "name": "Mercado e Padaria",
+  "createdAt": "2026-06-08T20:00:00",
+  "updatedAt": "2026-06-08T20:05:00"
+}
+```
+
+---
+
+## 6. Delete Subcategory
+
+Deletes a subcategory.
+
+| Detail | Value |
+| --- | --- |
+| Method | `DELETE` |
+| Path | `/api/v1/subcategories/{id}` |
+| Auth | Required |
+| Status | `204 No Content` |

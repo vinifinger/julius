@@ -1,20 +1,25 @@
 package com.finance.app.application.usecase;
 
 import com.finance.app.domain.entity.Account;
+import com.finance.app.domain.entity.Category;
 import com.finance.app.domain.entity.Savings;
 import com.finance.app.domain.entity.SavingsHistory;
 import com.finance.app.domain.entity.SavingsHistoryType;
+import com.finance.app.domain.entity.TransactionStatus;
 import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.domain.exception.AccountNotFoundException;
 import com.finance.app.domain.exception.SavingsNotFoundException;
 import com.finance.app.domain.repository.AccountRepository;
+import com.finance.app.domain.repository.CategoryRepository;
 import com.finance.app.domain.repository.SavingsHistoryRepository;
 import com.finance.app.domain.repository.SavingsRepository;
 import com.finance.app.web.dto.request.CreateSavingsRequest;
+import com.finance.app.web.dto.request.CreateTransactionRequest;
 import com.finance.app.web.dto.request.SavingsTransactionRequest;
 import com.finance.app.web.dto.request.UpdateSavingsRequest;
 import com.finance.app.web.dto.response.SavingsHistoryResponse;
 import com.finance.app.web.dto.response.SavingsResponse;
+import com.finance.app.web.dto.response.TransactionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +37,11 @@ public class SavingsUseCase {
     private final SavingsRepository savingsRepository;
     private final SavingsHistoryRepository savingsHistoryRepository;
     private final AccountRepository accountRepository;
+    private final CategoryRepository categoryRepository;
+    private final TransactionUseCase transactionUseCase;
+
+    private static final String SAVINGS_CATEGORY_NAME = "Savings Vault";
+    private static final String SAVINGS_CATEGORY_COLOR = "#FFD700"; // Gold color
 
     @Transactional
     public SavingsResponse create(CreateSavingsRequest request, UUID userId) {
@@ -87,6 +97,20 @@ public class SavingsUseCase {
         return SavingsResponse.fromDomain(savings);
     }
 
+    private Category getOrCreateSavingsCategory(UUID userId) {
+        return categoryRepository.findByUserIdAndName(userId, SAVINGS_CATEGORY_NAME)
+                .orElseGet(() -> {
+                    Category newCategory = Category.builder()
+                            .userId(userId)
+                            .name(SAVINGS_CATEGORY_NAME)
+                            .colorHex(SAVINGS_CATEGORY_COLOR)
+                            .createdAt(LocalDateTime.now())
+                            .updatedAt(LocalDateTime.now())
+                            .build();
+                    return categoryRepository.save(newCategory);
+                });
+    }
+
     @Transactional
     public SavingsResponse deposit(UUID savingsId, SavingsTransactionRequest request, UUID userId) {
         Savings savings = savingsRepository.findById(savingsId)
@@ -96,14 +120,25 @@ public class SavingsUseCase {
             throw new SavingsNotFoundException(savingsId);
         }
 
-        Account account = accountRepository.findByIdAndUserId(request.accountId(), userId)
-                .orElseThrow(() -> new AccountNotFoundException(request.accountId()));
-
+        Category savingsCategory = getOrCreateSavingsCategory(userId);
         LocalDateTime now = LocalDateTime.now();
-        
-        // Deduct from account (EXPENSE-like action)
-        account.updateBalance(request.amount(), TransactionType.EXPENSE);
-        accountRepository.save(account);
+
+        // Create transaction to deduct from account balance and associate with competence
+        CreateTransactionRequest txRequest = new CreateTransactionRequest(
+                request.accountId(),
+                savingsCategory.getId(),
+                null,
+                request.competenceId(),
+                request.description() != null ? request.description() : "Transfer to Savings",
+                request.amount(),
+                now,
+                TransactionType.EXPENSE,
+                null,
+                TransactionStatus.COMPLETED,
+                null
+        );
+
+        TransactionResponse txResponse = transactionUseCase.create(txRequest, userId);
 
         // Add to savings
         savings.setBalance(savings.getBalance().add(request.amount()));
@@ -113,7 +148,8 @@ public class SavingsUseCase {
         // Record history
         SavingsHistory history = SavingsHistory.builder()
                 .savingsId(savings.getId())
-                .accountId(account.getId())
+                .accountId(request.accountId())
+                .transactionId(txResponse.id())
                 .type(SavingsHistoryType.DEPOSIT)
                 .amount(request.amount())
                 .description(request.description())
@@ -137,14 +173,25 @@ public class SavingsUseCase {
             throw new IllegalArgumentException("Insufficient funds in savings vault");
         }
 
-        Account account = accountRepository.findByIdAndUserId(request.accountId(), userId)
-                .orElseThrow(() -> new AccountNotFoundException(request.accountId()));
-
+        Category savingsCategory = getOrCreateSavingsCategory(userId);
         LocalDateTime now = LocalDateTime.now();
-        
-        // Add to account (REVENUE-like action)
-        account.updateBalance(request.amount(), TransactionType.REVENUE);
-        accountRepository.save(account);
+
+        // Create transaction to add to account balance and associate with competence
+        CreateTransactionRequest txRequest = new CreateTransactionRequest(
+                request.accountId(),
+                savingsCategory.getId(),
+                null,
+                request.competenceId(),
+                request.description() != null ? request.description() : "Withdraw from Savings",
+                request.amount(),
+                now,
+                TransactionType.REVENUE,
+                null,
+                TransactionStatus.COMPLETED,
+                null
+        );
+
+        TransactionResponse txResponse = transactionUseCase.create(txRequest, userId);
 
         // Deduct from savings
         savings.setBalance(savings.getBalance().subtract(request.amount()));
@@ -154,7 +201,8 @@ public class SavingsUseCase {
         // Record history
         SavingsHistory history = SavingsHistory.builder()
                 .savingsId(savings.getId())
-                .accountId(account.getId())
+                .accountId(request.accountId())
+                .transactionId(txResponse.id())
                 .type(SavingsHistoryType.WITHDRAWAL)
                 .amount(request.amount())
                 .description(request.description())
