@@ -62,6 +62,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(com.finance.app.domain.exception.SubcategoryNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleSubcategoryNotFound(com.finance.app.domain.exception.SubcategoryNotFoundException ex) {
+        log.atWarn().log("Subcategory not found: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
     @ExceptionHandler(InvalidTransactionException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidTransaction(InvalidTransactionException ex) {
         log.atWarn().log("Invalid transaction: {}", ex.getMessage());

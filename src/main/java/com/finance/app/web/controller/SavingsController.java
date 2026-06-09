@@ -1,6 +1,7 @@
 package com.finance.app.web.controller;
 
 import com.finance.app.application.usecase.SavingsUseCase;
+import com.finance.app.domain.port.UserContext;
 import com.finance.app.web.dto.request.CreateSavingsRequest;
 import com.finance.app.web.dto.request.SavingsTransactionRequest;
 import com.finance.app.web.dto.request.UpdateSavingsRequest;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,26 +29,27 @@ import java.util.UUID;
 public class SavingsController {
 
     private final SavingsUseCase savingsUseCase;
+    private final UserContext userContext;
 
     @PostMapping
     public ResponseEntity<SavingsResponse> create(
-            @Valid @RequestBody CreateSavingsRequest request,
-            @RequestHeader("X-User-ID") UUID userId) {
+            @Valid @RequestBody CreateSavingsRequest request) {
+        UUID userId = userContext.getAuthenticatedUserId();
         SavingsResponse response = savingsUseCase.create(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<SavingsResponse>> listByUser(
-            @RequestHeader("X-User-ID") UUID userId) {
+    public ResponseEntity<List<SavingsResponse>> listByUser() {
+        UUID userId = userContext.getAuthenticatedUserId();
         List<SavingsResponse> response = savingsUseCase.listByUser(userId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<SavingsResponse> getById(
-            @PathVariable UUID id,
-            @RequestHeader("X-User-ID") UUID userId) {
+            @PathVariable UUID id) {
+        UUID userId = userContext.getAuthenticatedUserId();
         SavingsResponse response = savingsUseCase.getById(id, userId);
         return ResponseEntity.ok(response);
     }
@@ -56,16 +57,16 @@ public class SavingsController {
     @PutMapping("/{id}")
     public ResponseEntity<SavingsResponse> update(
             @PathVariable UUID id,
-            @Valid @RequestBody UpdateSavingsRequest request,
-            @RequestHeader("X-User-ID") UUID userId) {
+            @Valid @RequestBody UpdateSavingsRequest request) {
+        UUID userId = userContext.getAuthenticatedUserId();
         SavingsResponse response = savingsUseCase.update(id, request, userId);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
-            @PathVariable UUID id,
-            @RequestHeader("X-User-ID") UUID userId) {
+            @PathVariable UUID id) {
+        UUID userId = userContext.getAuthenticatedUserId();
         savingsUseCase.delete(id, userId);
         return ResponseEntity.noContent().build();
     }
@@ -73,8 +74,8 @@ public class SavingsController {
     @PostMapping("/{id}/deposit")
     public ResponseEntity<SavingsResponse> deposit(
             @PathVariable UUID id,
-            @Valid @RequestBody SavingsTransactionRequest request,
-            @RequestHeader("X-User-ID") UUID userId) {
+            @Valid @RequestBody SavingsTransactionRequest request) {
+        UUID userId = userContext.getAuthenticatedUserId();
         SavingsResponse response = savingsUseCase.deposit(id, request, userId);
         return ResponseEntity.ok(response);
     }
@@ -82,16 +83,16 @@ public class SavingsController {
     @PostMapping("/{id}/withdraw")
     public ResponseEntity<SavingsResponse> withdraw(
             @PathVariable UUID id,
-            @Valid @RequestBody SavingsTransactionRequest request,
-            @RequestHeader("X-User-ID") UUID userId) {
+            @Valid @RequestBody SavingsTransactionRequest request) {
+        UUID userId = userContext.getAuthenticatedUserId();
         SavingsResponse response = savingsUseCase.withdraw(id, request, userId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/history")
     public ResponseEntity<List<SavingsHistoryResponse>> getHistory(
-            @PathVariable UUID id,
-            @RequestHeader("X-User-ID") UUID userId) {
+            @PathVariable UUID id) {
+        UUID userId = userContext.getAuthenticatedUserId();
         List<SavingsHistoryResponse> response = savingsUseCase.getHistory(id, userId);
         return ResponseEntity.ok(response);
     }
