@@ -3,6 +3,8 @@ package com.finance.app.infrastructure.persistence.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,6 +23,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import com.finance.app.domain.entity.TransactionType;
 
 @Entity
 @Table(name = "categories")
@@ -46,6 +50,10 @@ public class CategoryEntity {
 
     @Column(name = "color_hex", length = 7)
     private String colorHex;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "`type`", nullable = false, length = 20)
+    private TransactionType type;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

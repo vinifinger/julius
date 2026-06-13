@@ -33,6 +33,7 @@ Creates a new spending/income category for the authenticated user.
 | Field | Type | Required | Validation | Description |
 | --- | --- | --- | --- | --- |
 | `name` | `string` | ✅ | Non-blank | Display name of the category |
+| `type` | `string` | ✅ | Enum (`INCOME`, `EXPENSE`) | Transaction type of the category |
 | `colorHex` | `string` | ❌ | — | Hex color code for UI rendering |
 
 ### Request Example
@@ -44,6 +45,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 {
   "name": "Alimentação",
+  "type": "EXPENSE",
   "colorHex": "#E74C3C"
 }
 ```
@@ -54,6 +56,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 {
   "id": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
   "name": "Alimentação",
+  "type": "EXPENSE",
   "colorHex": "#E74C3C",
   "subcategories": [],
   "createdAt": "2026-05-02T21:15:42",
@@ -74,10 +77,16 @@ Returns all categories belonging to the authenticated user.
 | Auth | Required |
 | Status | `200 OK` |
 
+### Query Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `type` | `string` | ❌ | Filter categories by `TransactionType` (`INCOME` or `EXPENSE`) |
+
 ### Request Example
 
 ```http
-GET /api/v1/categories HTTP/1.1
+GET /api/v1/categories?type=EXPENSE HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 ```
 
@@ -88,6 +97,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   {
     "id": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
     "name": "Alimentação",
+    "type": "EXPENSE",
     "colorHex": "#E74C3C",
     "subcategories": [
       {
@@ -104,6 +114,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   {
     "id": "f6a1b2c3-d4e5-4f6a-bd4e-5f6a1b2c3d4e",
     "name": "Moradia",
+    "type": "EXPENSE",
     "colorHex": "#3498DB",
     "subcategories": [],
     "createdAt": "2026-05-02T21:15:42",
@@ -139,6 +150,7 @@ Updates an existing category's properties. Note that this is a full-replacement 
 | Field | Type | Required | Validation | Description |
 | --- | --- | --- | --- | --- |
 | `name` | `string` | ✅ | Non-blank | Display name of the category |
+| `type` | `string` | ✅ | Enum (`INCOME`, `EXPENSE`) | Transaction type of the category |
 | `colorHex` | `string` | ❌ | — | Hex color code for UI rendering |
 
 ### Request Example
@@ -150,6 +162,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 {
   "name": "Alimentação (Editado)",
+  "type": "EXPENSE",
   "colorHex": "#FF0000"
 }
 ```
@@ -160,6 +173,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 {
   "id": "e5f6a1b2-c3d4-4e5f-bd4e-5f6a1b2c3d4e",
   "name": "Alimentação (Editado)",
+  "type": "EXPENSE",
   "colorHex": "#FF0000",
   "subcategories": [],
   "createdAt": "2026-05-02T21:15:42",
@@ -175,6 +189,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 | --- | --- | --- | --- |
 | `id` | `UUID` | No | Unique category identifier |
 | `name` | `string` | No | Display name of the category |
+| `type` | `string` | No | Transaction type (`INCOME`, `EXPENSE`) |
 | `colorHex` | `string` | Yes | Hex color code (e.g. `"#E74C3C"`) |
 | `subcategories` | `array` | No | List of associated subcategories |
 | `createdAt` | `datetime` | No | Record creation timestamp |

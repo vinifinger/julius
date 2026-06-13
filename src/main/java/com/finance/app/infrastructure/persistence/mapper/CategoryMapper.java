@@ -14,6 +14,7 @@ public class CategoryMapper {
                 .userId(entity.getUser().getId())
                 .name(entity.getName())
                 .colorHex(entity.getColorHex())
+                .type(entity.getType())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -25,6 +26,7 @@ public class CategoryMapper {
                 .user(user)
                 .name(category.getName())
                 .colorHex(category.getColorHex())
+                .type(category.getType())
                 .createdAt(category.getCreatedAt())
                 .updatedAt(category.getUpdatedAt())
                 .build();

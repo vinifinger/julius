@@ -62,7 +62,7 @@ DTOs Separados: Sempre separar classes de DTO em subpacotes request/ e response/
 Null Checking: Nunca verificar valor null utilizando != null ou == null. Sempre utilizar java.util.Objects para validar nulidade com Objects.isNull() ou Objects.nonNull(). Exemplo: Objects.isNull(parent) em vez de parent == null.
 
 7. Test Infrastructure Rules
-H2 Reserved Keywords: As colunas `month`, `year`, `type` e `status` são palavras reservadas no H2 2.x. No `schema-test.sql`, sempre usar backticks para escapar (ex: `` `month` ``). Nos mapeamentos JPA `@Column`, usar backticks no nome (ex: `@Column(name = "\`month\`")`).
+H2 Reserved Keywords: As colunas `month`, `year`, `type` e `status` são palavras reservadas no H2 2.x. No `schema-test.sql`, sempre usar aspas duplas para escapar (ex: `"month"`), garantindo compatibilidade quando o banco em memória for reusado nos testes. Nos mapeamentos JPA `@Column`, usar backticks no nome (ex: `@Column(name = "\`month\`")`), pois o Hibernate os traduzirá corretamente.
 
 H2 MySQL Mode: A URL JDBC do H2 para testes deve incluir `MODE=MySQL` para compatibilidade com a sintaxe MySQL usada em produção.
 

@@ -410,6 +410,7 @@
                   "    var jsonData = pm.response.json();",
                   "    pm.expect(jsonData.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
                   "    pm.expect(jsonData.name).to.be.a('string').and.to.have.lengthOf.above(0);",
+                  "    pm.expect(jsonData.type).to.be.oneOf(['INCOME', 'EXPENSE']);",
                   "    if (jsonData.colorHex !== null) {",
                   "        pm.expect(jsonData.colorHex).to.match(/^#[0-9A-Fa-f]{6}$/);",
                   "    }",
@@ -443,7 +444,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Alimenta\u00e7\u00e3o Teste\",\n  \"colorHex\": \"#E74C3C\"\n}"
+              "raw": "{\n  \"name\": \"Alimentação Teste\",\n  \"type\": \"EXPENSE\",\n  \"colorHex\": \"#E74C3C\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/categories",
@@ -474,6 +475,7 @@
                   "        var cat = jsonData[0];",
                   "        pm.expect(cat.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);",
                   "        pm.expect(cat.name).to.be.a('string');",
+                  "        pm.expect(cat.type).to.be.oneOf(['INCOME', 'EXPENSE']);",
                   "        if (cat.colorHex !== null) {",
                   "            pm.expect(cat.colorHex).to.match(/^#[0-9A-Fa-f]{6}$/);",
                   "        }",

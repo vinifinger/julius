@@ -35,8 +35,8 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
-    public Optional<Category> findByUserIdAndName(UUID userId, String name) {
-        return jpaRepository.findByUserIdAndName(userId, name).map(mapper::toDomain);
+    public Optional<Category> findByUserIdAndNameAndType(UUID userId, String name, com.finance.app.domain.entity.TransactionType type) {
+        return jpaRepository.findByUserIdAndNameAndType(userId, name, type).map(mapper::toDomain);
     }
 
     @Override

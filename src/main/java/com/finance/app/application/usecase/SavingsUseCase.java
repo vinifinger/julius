@@ -97,13 +97,14 @@ public class SavingsUseCase {
         return SavingsResponse.fromDomain(savings);
     }
 
-    private Category getOrCreateSavingsCategory(UUID userId) {
-        return categoryRepository.findByUserIdAndName(userId, SAVINGS_CATEGORY_NAME)
+    private Category getOrCreateSavingsCategory(UUID userId, TransactionType type) {
+        return categoryRepository.findByUserIdAndNameAndType(userId, SAVINGS_CATEGORY_NAME, type)
                 .orElseGet(() -> {
                     Category newCategory = Category.builder()
                             .userId(userId)
                             .name(SAVINGS_CATEGORY_NAME)
                             .colorHex(SAVINGS_CATEGORY_COLOR)
+                            .type(type)
                             .createdAt(LocalDateTime.now())
                             .updatedAt(LocalDateTime.now())
                             .build();
@@ -120,7 +121,7 @@ public class SavingsUseCase {
             throw new SavingsNotFoundException(savingsId);
         }
 
-        Category savingsCategory = getOrCreateSavingsCategory(userId);
+        Category savingsCategory = getOrCreateSavingsCategory(userId, TransactionType.EXPENSE);
         LocalDateTime now = LocalDateTime.now();
 
         // Create transaction to deduct from account balance and associate with competence
@@ -173,7 +174,7 @@ public class SavingsUseCase {
             throw new IllegalArgumentException("Insufficient funds in savings vault");
         }
 
-        Category savingsCategory = getOrCreateSavingsCategory(userId);
+        Category savingsCategory = getOrCreateSavingsCategory(userId, TransactionType.REVENUE);
         LocalDateTime now = LocalDateTime.now();
 
         // Create transaction to add to account balance and associate with competence

@@ -10,8 +10,9 @@ import com.finance.app.domain.repository.SavingsRepository;
 import com.finance.app.web.dto.request.CreateSavingsRequest;
 import com.finance.app.web.dto.request.CreateTransactionRequest;
 import com.finance.app.web.dto.request.SavingsTransactionRequest;
-import com.finance.app.web.dto.response.SavingsResponse;
 import com.finance.app.web.dto.response.TransactionResponse;
+import com.finance.app.web.dto.response.SavingsResponse;
+import com.finance.app.domain.entity.TransactionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -93,8 +94,8 @@ class SavingsUseCaseTest {
             Savings savings = Savings.builder().id(savingsId).userId(userId).balance(new BigDecimal("1000.00")).build();
             when(savingsRepository.findById(savingsId)).thenReturn(Optional.of(savings));
             
-            Category category = Category.builder().id(categoryId).name("Savings Vault").userId(userId).build();
-            when(categoryRepository.findByUserIdAndName(userId, "Savings Vault")).thenReturn(Optional.of(category));
+            Category category = Category.builder().id(categoryId).name("Savings Vault").userId(userId).type(TransactionType.EXPENSE).build();
+            when(categoryRepository.findByUserIdAndNameAndType(userId, "Savings Vault", TransactionType.EXPENSE)).thenReturn(Optional.of(category));
 
             TransactionResponse txResponse = new TransactionResponse(
                     transactionId, accountId, categoryId, null, competenceId, userId, null, null, null, null,
@@ -139,8 +140,8 @@ class SavingsUseCaseTest {
             Savings savings = Savings.builder().id(savingsId).userId(userId).balance(new BigDecimal("1000.00")).build();
             when(savingsRepository.findById(savingsId)).thenReturn(Optional.of(savings));
             
-            Category category = Category.builder().id(categoryId).name("Savings Vault").userId(userId).build();
-            when(categoryRepository.findByUserIdAndName(userId, "Savings Vault")).thenReturn(Optional.of(category));
+            Category category = Category.builder().id(categoryId).name("Savings Vault").userId(userId).type(TransactionType.REVENUE).build();
+            when(categoryRepository.findByUserIdAndNameAndType(userId, "Savings Vault", TransactionType.REVENUE)).thenReturn(Optional.of(category));
 
             TransactionResponse txResponse = new TransactionResponse(
                     transactionId, accountId, categoryId, null, competenceId, userId, null, null, null, null,

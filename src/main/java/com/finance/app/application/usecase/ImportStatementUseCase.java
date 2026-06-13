@@ -40,8 +40,11 @@ public class ImportStatementUseCase {
         accountRepository.findByIdAndUserId(accountId, userId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
 
-        // 2. Select Category (provided or system uncategorized)
-        UUID finalCategoryId = resolveCategoryId(defaultCategoryId, userId);
+        // 2. Resolve provided default category
+        if (defaultCategoryId != null) {
+            categoryRepository.findById(defaultCategoryId)
+                    .orElseThrow(() -> new CategoryNotFoundException(defaultCategoryId));
+        }
 
         // 3. Find Parser
         StatementParser parser = parsers.stream()
@@ -67,10 +70,17 @@ public class ImportStatementUseCase {
             // Resolve Competence
             Competence competence = competenceUseCase.getOrCreate(pt.dateTime().getMonthValue(), pt.dateTime().getYear(), userId);
 
+            // Resolve Category
+            UUID transactionCategoryId = defaultCategoryId;
+            if (transactionCategoryId == null) {
+                Category category = categoryUseCase.getOrCreateUncategorized(userId, pt.type());
+                transactionCategoryId = category.getId();
+            }
+
             // Create Request
             CreateTransactionRequest request = new CreateTransactionRequest(
                     accountId,
-                    finalCategoryId,
+                    transactionCategoryId,
                     null,
                     competence.getId(),
                     pt.description(),
@@ -93,14 +103,4 @@ public class ImportStatementUseCase {
         return new ImportStatementResponse(importedCount, ignoredCount, message);
     }
 
-    private UUID resolveCategoryId(UUID defaultCategoryId, UUID userId) {
-        if (defaultCategoryId != null) {
-            categoryRepository.findById(defaultCategoryId)
-                    .orElseThrow(() -> new CategoryNotFoundException(defaultCategoryId));
-            return defaultCategoryId;
-        } else {
-            Category category = categoryUseCase.getOrCreateUncategorized(userId);
-            return category.getId();
-        }
-    }
 }

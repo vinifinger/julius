@@ -19,11 +19,12 @@ Context & Planning checklist:
 - Context scope fully understood and documented
 - Impacted files and flows traced across all 4 layers (Web → App → Domain → Infra)
 - Strict compliance with Lombok, explicit typing, and BigDecimal rules planned
-- H2 test reserved keywords and column backticks checked
+- H2 test reserved keywords checked (double quotes in schema-test.sql, backticks in @Column)
 - Database schema changes (Flyway migration scripts) planned and placed in migrations directory
 - Test strategy mapped out using Given-When-Then BDD style and JUnit 5 + Mockito
 - Verification commands explicitly listed (avoiding cached Gradle runs)
 - No `var` rule and Null-checking conventions (Objects.nonNull / Objects.isNull) verified
+- Documentation updates planned and included in the implementation plan
 ## Architectural Analysis Guidelines
 Ensure changes strictly respect the Clean Architecture boundaries and DDD principles defined in `architecture_guidelines.md`:
 ### 1. Layer Isolation
@@ -49,7 +50,7 @@ Every implementation plan must plan for and verify the following rules from `ins
 ### 2. Database & Tests
 - **Separation of Models:** JPA Entity Models must be mapped from/to Domain models in the Infrastructure layer.
 - **Flyway Migrations:** Schema changes must be written in `src/main/resources/db/migration/V...__name.sql`. Tables and columns must be in snake_case.
-- **H2 Reserved Keywords:** In `schema-test.sql` and `@Column(name = "...")` mappings, the words `month`, `year`, `type`, and `status` must be escaped using backticks (e.g. `@Column(name = "\`month\`")`).
+- **H2 Reserved Keywords:** In `schema-test.sql`, reserved words like `month`, `year`, `type`, and `status` must be escaped using double quotes (e.g. `"month"`) to avoid cache conflicts with the Gradle daemon. In `@Column(name = "...")` mappings, these words must be escaped using backticks (e.g. `@Column(name = "\`month\`")`), which Hibernate translates appropriately.
 - **Unit Tests:** JUnit 5 + Mockito BDD-style (`// Given`, `// When`, `// Then`) using `@Nested` classes grouped by method under test. `@DisplayName` must be in English. No `@SpringBootTest` for pure unit tests.
 ## Communication Protocol
 ### Planning Context Query
@@ -86,6 +87,8 @@ Construct the `implementation_plan.md` artifact with the following sections:
   - Application Layer (UseCases)
   - Infrastructure Layer (JPA entities, Repositories, Flyway migrations)
   - Web/Presentation Layer (Controllers, DTO records)
+- **Documentation Updates:**
+  - Specific files in `docs/` to be created or updated (e.g., API documentation, README, or Postman collections).
 - **Verification Plan:**
   - Automated tests (isolated Gradle test execution e.g. `./gradlew test --tests "..."`)
   - Manual verification steps.

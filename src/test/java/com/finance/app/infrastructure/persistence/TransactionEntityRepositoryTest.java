@@ -72,6 +72,7 @@ class TransactionEntityRepositoryTest {
                 .user(user)
                 .name("Food")
                 .colorHex("#FF5733")
+                .type(TransactionType.EXPENSE)
                 .build());
 
         var competence = competenceJpaRepository.save(CompetenceEntity.builder()
@@ -137,6 +138,7 @@ class TransactionEntityRepositoryTest {
         var category = categoryJpaRepository.save(CategoryEntity.builder()
                 .user(user)
                 .name("Bills")
+                .type(TransactionType.EXPENSE)
                 .build());
 
         var competence = competenceJpaRepository.save(CompetenceEntity.builder()

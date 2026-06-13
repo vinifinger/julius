@@ -4,6 +4,7 @@ import com.finance.app.domain.entity.Category;
 import com.finance.app.domain.repository.CategoryRepository;
 import com.finance.app.web.dto.request.CreateCategoryRequest;
 import com.finance.app.web.dto.response.CategoryResponse;
+import com.finance.app.domain.entity.TransactionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ class CategoryUseCaseTest {
         @DisplayName("Should create category with color hex")
         void givenValidRequest_whenCreate_thenReturnsCategoryResponse() {
             // Given
-            CreateCategoryRequest request = new CreateCategoryRequest("Alimentação", "#FF5733");
+            CreateCategoryRequest request = new CreateCategoryRequest("Alimentação", "#FF5733", TransactionType.EXPENSE);
             when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // When
@@ -62,7 +63,7 @@ class CategoryUseCaseTest {
         @DisplayName("Should create category without color hex")
         void givenNullColorHex_whenCreate_thenCreatesWithNullColor() {
             // Given
-            CreateCategoryRequest request = new CreateCategoryRequest("Transporte", null);
+            CreateCategoryRequest request = new CreateCategoryRequest("Transporte", null, TransactionType.EXPENSE);
             when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // When
@@ -87,13 +88,14 @@ class CategoryUseCaseTest {
                     .userId(userId)
                     .name("Lazer")
                     .colorHex("#00FF00")
+                    .type(TransactionType.EXPENSE)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .build();
             when(categoryRepository.findByUserId(userId)).thenReturn(List.of(category));
 
             // When
-            List<CategoryResponse> responses = categoryUseCase.listByUser(userId);
+            List<CategoryResponse> responses = categoryUseCase.listByUser(userId, null);
 
             // Then
             assertEquals(1, responses.size());
@@ -107,7 +109,7 @@ class CategoryUseCaseTest {
             when(categoryRepository.findByUserId(userId)).thenReturn(List.of());
 
             // When
-            List<CategoryResponse> responses = categoryUseCase.listByUser(userId);
+            List<CategoryResponse> responses = categoryUseCase.listByUser(userId, null);
 
             // Then
             assertTrue(responses.isEmpty());
@@ -127,12 +129,13 @@ class CategoryUseCaseTest {
                     .userId(userId)
                     .name("Old Name")
                     .colorHex("#000000")
+                    .type(TransactionType.EXPENSE)
                     .build();
 
             when(categoryRepository.findById(categoryId)).thenReturn(java.util.Optional.of(existingCategory));
             when(categoryRepository.save(any(Category.class))).thenAnswer(i -> i.getArgument(0));
 
-            com.finance.app.web.dto.request.UpdateCategoryRequest request = new com.finance.app.web.dto.request.UpdateCategoryRequest("New Name", "#FFFFFF");
+            com.finance.app.web.dto.request.UpdateCategoryRequest request = new com.finance.app.web.dto.request.UpdateCategoryRequest("New Name", "#FFFFFF", TransactionType.EXPENSE);
 
             CategoryResponse response = categoryUseCase.update(categoryId, request);
 
@@ -148,7 +151,7 @@ class CategoryUseCaseTest {
             UUID categoryId = UUID.randomUUID();
             when(categoryRepository.findById(categoryId)).thenReturn(java.util.Optional.empty());
 
-            com.finance.app.web.dto.request.UpdateCategoryRequest request = new com.finance.app.web.dto.request.UpdateCategoryRequest("New Name", "#FFFFFF");
+            com.finance.app.web.dto.request.UpdateCategoryRequest request = new com.finance.app.web.dto.request.UpdateCategoryRequest("New Name", "#FFFFFF", TransactionType.EXPENSE);
 
             org.junit.jupiter.api.Assertions.assertThrows(com.finance.app.domain.exception.CategoryNotFoundException.class, 
                 () -> categoryUseCase.update(categoryId, request));

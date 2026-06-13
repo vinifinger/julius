@@ -3,6 +3,8 @@ package com.finance.app.domain.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.finance.app.domain.entity.TransactionType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +22,7 @@ public class Category {
     private UUID userId;
     private String name;
     private String colorHex;
+    private TransactionType type;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

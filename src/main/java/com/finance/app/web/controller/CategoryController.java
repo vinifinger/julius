@@ -3,6 +3,7 @@ package com.finance.app.web.controller;
 import com.finance.app.application.usecase.CategoryUseCase;
 import com.finance.app.domain.port.UserContext;
 import com.finance.app.web.dto.request.CreateCategoryRequest;
+import com.finance.app.domain.entity.TransactionType;
 import com.finance.app.web.dto.request.UpdateCategoryRequest;
 import com.finance.app.web.dto.response.CategoryResponse;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,9 +38,9 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> listByUser() {
+    public ResponseEntity<List<CategoryResponse>> listByUser(@RequestParam(required = false) TransactionType type) {
         UUID userId = userContext.getAuthenticatedUserId();
-        List<CategoryResponse> responses = categoryUseCase.listByUser(userId);
+        List<CategoryResponse> responses = categoryUseCase.listByUser(userId, type);
         return ResponseEntity.ok(responses);
     }
 
